@@ -1,0 +1,153 @@
+# Context: [Feature Name]
+
+**Created:** [YYYY-MM-DD]
+**Last Updated:** [YYYY-MM-DD HH:MM]
+**Status:** Planning / In Progress / Testing / Complete
+
+## What We're Building
+
+[One clear paragraph summary of the feature and its purpose]
+
+## Current Focus
+
+[One paragraph describing exactly what you're working on right now]
+
+Currently [action] in [specific file/location]. The approach is [brief description]. Next need to [specific next step].
+
+## Files Modified
+
+**Active (currently editing):**
+- `path/to/file.tsx` - [What's being done] ([percentage]% complete)
+  - [Detail about what's done]
+  - [Detail about what remains]
+
+**Modified this session:**
+- `path/to/file1.ts` - [What was changed]
+- `path/to/file2.tsx` - [What was changed]
+
+**To be modified next:**
+- `path/to/file3.ts` - [What needs to be done]
+
+## Git Status
+
+Branch: `[branch-name]`
+- [X] files modified
+- [Y] files staged
+- [Z] files unstaged
+- Status: [Not committed / Partially committed / All committed]
+
+## Architecture Context
+
+[Key architectural decisions or patterns being followed]
+
+**Patterns in use:**
+- Pattern 1 - Description
+- Pattern 2 - Description
+
+**Related code to reference:**
+- `path/to/similar-component.tsx` - Example of similar pattern
+- `path/to/utility.ts` - Utility function being used
+
+## What's Working
+
+[List what's currently functional]
+
+- Item 1 working correctly
+- Item 2 implemented and tested
+- Item 3 integrated successfully
+
+## What Needs Work
+
+[List what's incomplete or broken]
+
+- Item 1 incomplete ([specific issue])
+- Item 2 has bug ([describe bug])
+- Item 3 needs refactoring ([why])
+
+## For Next Session
+
+When resuming, you should:
+
+1. **First:** [Immediate action with specific file/location]
+2. **Then:** [Following action]
+3. **Finally:** [Subsequent action]
+
+**Specific details:**
+- Open `[file-path]` (around line [X])
+- Review the `[function/component]`
+- [Specific instruction about what to do]
+- Reference `[other-file]` for [pattern/example]
+
+## Technical Context
+
+**Tech stack in use:**
+- [Framework/library] - Version
+- [Tool/package] - Purpose
+
+**Key dependencies:**
+- [Package name] - What it's used for
+- [Package name] - What it's used for
+
+**Conventions:**
+- [Convention 1]
+- [Convention 2]
+
+## Tricky Areas
+
+[Note anything confusing or non-obvious]
+
+- [Thing that might be confusing] - [Explanation or note]
+- [Gotcha or edge case] - [How to handle it]
+
+## Resources
+
+[Links to documentation, examples, or references]
+
+- [Resource name]: [URL]
+- [Resource name]: [URL]
+
+## Decisions Log
+
+[Record why certain approaches were chosen]
+
+- **[Decision]:** Chose X over Y because Z
+- **[Decision]:** Using A pattern instead of B because C
+
+## Questions/Uncertainties
+
+[Open questions or things to investigate]
+
+- [ ] Question 1 - [Context about why this matters]
+- [ ] Question 2 - [Where to find answer]
+
+## Team Communication
+
+[If working with others, note any relevant context]
+
+- Discussed with [person] on [date] - [Summary]
+- Waiting for [person] to [action]
+- Need review from [person] on [topic]
+
+## Testing Notes
+
+[Notes about testing approach or specific tests needed]
+
+- Test case 1 to verify
+- Edge case 2 to handle
+- Integration point 3 to test
+
+## Performance Notes
+
+[If performance is a concern, track observations]
+
+- Observation about performance
+- Optimization needed
+- Benchmark target
+
+## Security Notes
+
+[Security considerations for this feature]
+
+- Security concern 1
+- Validation needed for X
+- Authorization required for Y

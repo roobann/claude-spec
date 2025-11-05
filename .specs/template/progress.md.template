@@ -1,0 +1,79 @@
+# Progress: [Feature Name]
+
+**Status:** Not Started
+**Started:** [Will be filled when work begins]
+**Last Updated:** [YYYY-MM-DD HH:MM]
+**Current Phase:** Planning
+
+## Task Breakdown
+
+### Phase 1: Setup & Foundation
+- [ ] Task 1 - Description
+- [ ] Task 2 - Description
+- [ ] Task 3 - Description
+
+### Phase 2: Core Implementation
+- [ ] Task 4 - Description
+- [ ] Task 5 - Description
+- [ ] Task 6 - Description
+
+### Phase 3: Integration & Polish
+- [ ] Task 7 - Description
+- [ ] Task 8 - Description
+
+### Phase 4: Testing & Documentation
+- [ ] Write unit tests
+- [ ] Write integration tests
+- [ ] Manual testing
+- [ ] Update documentation
+
+## Completed
+
+[Items will be moved here as they're finished]
+
+## In Progress
+
+[Currently active tasks - update with percentage complete]
+
+## Blocked
+
+[Tasks that can't proceed - note reason and what's needed]
+
+## Next Steps
+
+1. [Immediate next action - be specific]
+2. [Following action]
+3. [Then this action]
+
+## Decisions Made
+
+[Record key decisions during implementation]
+
+- [YYYY-MM-DD HH:MM] Decision about X - Chose Y because Z
+
+## Issues Encountered
+
+[Problems faced and their solutions]
+
+- [YYYY-MM-DD] Issue with X - Resolved by doing Y
+
+## Notes
+
+[Any additional context or observations]
+
+## Time Tracking (Optional)
+
+- **Estimated Total:** [X hours/days]
+- **Time Spent:** 0 hours
+- **Remaining:** [X hours/days]
+- **Target Completion:** [YYYY-MM-DD]
+
+## Completion Checklist
+
+Before marking as complete:
+- [ ] All requirements met
+- [ ] All tests passing
+- [ ] Code reviewed
+- [ ] Documentation updated
+- [ ] No known bugs
+- [ ] Deployed/merged (if applicable)

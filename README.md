@@ -16,9 +16,9 @@ cd claude-spec
 ```
 
 The `setup.sh` script will:
-- ✅ Create `.claude/commands/` directory if needed
-- 📋 Copy all command files to your project
-- ⚠️ Skip files that already exist (safe to re-run)
+- Create `.claude/commands/` directory if needed
+- Copy all command files to your project
+- Skip files that already exist (safe to re-run)
 
 ### 2. Initialize Your Project
 
@@ -27,8 +27,8 @@ The `setup.sh` script will:
 # Start Claude Code in your project
 claude
 
-# Let Claude detect your stack
-> /cspec:init
+# Auto-detect your tech stack
+> /cspec:init-existing
 ```
 
 **For new projects (specify stack):**
@@ -36,18 +36,15 @@ claude
 # Start Claude Code
 claude
 
-# Specify your tech stack
-> /cspec:init language=TypeScript framework="Next.js 14" database=PostgreSQL
-
-# Or with CI/CD and folder structure
-> /cspec:init language=Python framework=FastAPI database=PostgreSQL folder=backend cicd="GitHub Actions"
+# Initialize new project interactively
+> /cspec:init-new
 ```
 
 Both commands will:
-- 🔍 Generate custom `CLAUDE.md` with your project details
-- 📝 Create smart `.claudeignore` based on your language
-- ✅ Set up `.specs/` folder structure
-- 🚀 Make you ready to start immediately
+- Generate custom `CLAUDE.md` with your project details
+- Create smart `.claudeignore` based on your language
+- Set up `.specs/` folder structure
+- Make you ready to start immediately
 
 ### 3. Start Building
 
@@ -68,7 +65,7 @@ That's it! You're ready to go.
 
 ### Core Features
 
-- **Auto-Detection**: `/cspec:init` configures everything for your stack
+- **Auto-Detection**: `/cspec:init-existing` configures everything for your stack
 - **Plan Mode Integration**: Uses Claude's built-in plan mode for safety
 - **Context Persistence**: Resume work after any break (days, weeks, months)
 - **Team-Friendly**: Everything in git, easy to share and collaborate
@@ -83,26 +80,29 @@ your-project/
 ├── .claudeignore                # Auto-generated ignore patterns
 ├── .claude/
 │   └── commands/
-│       ├── cspec:init.md       # Configure new project with specified stack
-│       ├── cspec:init.md  # Auto-detect existing project stack
-│       ├── cspec:plan.md           # Plan new features (creates specs only)
-│       ├── cspec:implement.md              # Start or continue implementation
-│       ├── cspec:checkpoint.md             # Save progress
-│       └── cspec:archive.md           # Archive completed tasks
+│       ├── cspec:init-new.md   # Initialize new project with interactive config
+│       ├── cspec:init-existing.md # Auto-detect existing project stack
+│       ├── cspec:plan.md       # Plan new features (creates specs only)
+│       ├── cspec:implement.md  # Start or continue implementation
+│       ├── cspec:checkpoint.md # Save progress
+│       └── cspec:archive.md    # Archive completed tasks
 └── .specs/
-    ├── active/                  # Current work
-    │   └── active-task/
-    │       ├── spec.md          # What you're building
-    │       ├── progress.md      # Status tracker
-    │       └── context.md       # Resumption lifeline
-    ├── completed/               # Archived tasks
-    └── template/              # Templates for new tasks
+    ├── README.md               # Spec system documentation
+    ├── active-task/            # Currently active work
+    │   ├── spec.md             # What you're building
+    │   ├── progress.md         # Status tracker
+    │   └── context.md          # Resumption lifeline
+    ├── completed-tasks/        # Archived completed tasks
+    └── template/               # Templates for new tasks
+        ├── spec.md.template
+        ├── progress.md.template
+        └── context.md.template
 ```
 
 ### Six Essential Commands
 
-1. **`/cspec:init`** - Setup new project with specified tech stack
-2. **`/cspec:init`** - Auto-detect and configure existing project
+1. **`/cspec:init-new`** - Initialize new project with interactive tech stack configuration
+2. **`/cspec:init-existing`** - Auto-detect and configure existing project
 3. **`/cspec:plan [name]`** - Plan new feature (creates specs, stops before implementation)
 4. **`/cspec:implement`** - Start or continue implementation of current task
 5. **`/cspec:checkpoint`** - Save progress before breaks or context switches
@@ -189,13 +189,12 @@ Claude: "Building user authentication. Signup done, login 50% complete.
 
 ### New Projects
 - Run `./setup.sh` to install commands
-- Run `/cspec:init` with your tech stack details
+- Run `/cspec:init-new` to interactively configure your tech stack
 - Start with `/cspec:plan` for first feature
-- Example: `/cspec:init language=TypeScript framework="Next.js 14" database=PostgreSQL`
 
 ### Existing Projects
 - Run `./setup.sh` to install commands
-- Run `/cspec:init` to auto-detect your stack
+- Run `/cspec:init-existing` to auto-detect your stack
 - Non-invasive - doesn't change your code
 - Gradually adopt for new features
 
@@ -224,10 +223,10 @@ MIT - Use freely in any project
 
 ## Next Steps
 
-1. ✅ Run `./setup.sh` to install commands
-2. ✅ Run `/cspec:init` (existing) or `/cspec:init` (new) in Claude Code
-3. ✅ Review generated `CLAUDE.md`
-4. ✅ Run `/cspec:plan` to start your first feature
-5. ✅ Read [WORKFLOW.md](docs/WORKFLOW.md) for daily usage patterns
+1. Run `./setup.sh` to install commands
+2. Run `/cspec:init-existing` (for existing projects) or `/cspec:init-new` (for new projects) in Claude Code
+3. Review generated `CLAUDE.md`
+4. Run `/cspec:plan` to start your first feature
+5. Read [WORKFLOW.md](docs/WORKFLOW.md) for daily usage patterns
 
 Happy coding with Claude!

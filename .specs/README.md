@@ -40,7 +40,7 @@ Each task has three essential files:
 - Testing strategy
 
 **When to update:**
-- Created during planning (via `/plan`)
+- Created during planning (via `/cspec:plan`)
 - Rarely updated after work begins
 - Requirements should be stable
 
@@ -61,11 +61,11 @@ Each task has three essential files:
 
 **When to update:**
 - After completing each task
-- During `/checkpoint`
+- During `/cspec:checkpoint`
 - Multiple times per session
 - Whenever status changes
 
-**Read by:** `/resume` to show current status, frequent reference
+**Read by:** `/cspec:implement` to show current status, frequent reference
 
 ### 3. context.md - The "Resumption Lifeline"
 
@@ -81,19 +81,19 @@ Each task has three essential files:
 - Tricky areas to watch out for
 
 **When to update:**
-- During `/checkpoint` (critical!)
+- During `/cspec:checkpoint` (critical!)
 - Throughout session as context evolves
 - Before any break
 - When making important decisions
 
-**Read by:** `/resume` to restore full context
+**Read by:** `/cspec:implement` to restore full context
 
 ## Workflow
 
 ### Starting a New Feature
 
 ```bash
-> /plan user-authentication
+> /cspec:plan user-authentication
 
 [Claude creates spec.md, progress.md, context.md in active-task/]
 [Begin implementation]
@@ -103,7 +103,7 @@ Each task has three essential files:
 
 ```bash
 # Update progress frequently
-> /checkpoint
+> /cspec:checkpoint
 
 # This updates progress.md and context.md
 ```
@@ -111,7 +111,7 @@ Each task has three essential files:
 ### Resuming Work
 
 ```bash
-> /resume
+> /cspec:implement
 
 [Claude reads all three files and summarizes current state]
 [Continue from exactly where you left off]
@@ -120,7 +120,7 @@ Each task has three essential files:
 ### Finishing a Feature
 
 ```bash
-> /archive
+> /cspec:archive
 
 [Moves active-task/ to completed/[feature-name]/]
 [Creates SUMMARY.md]
@@ -165,7 +165,7 @@ All of it is documented in context.md.
 
 ## Templates
 
-The `template/` directory contains starting templates. The `/plan` command uses these automatically, but you can also copy them manually:
+The `template/` directory contains starting templates. The `/cspec:plan` command uses these automatically, but you can also copy them manually:
 
 ```bash
 # Manual creation (if not using commands)
@@ -208,15 +208,15 @@ Keep only ONE task in `active-task/` at a time. To switch:
 
 ```bash
 # Save current work
-> /checkpoint
+> /cspec:checkpoint
 
-# Archive if done, or just clear context
-> /clear
+# Archive if done
+> /cspec:archive
 
 # Start or resume other work
-> /plan new-feature
+> /cspec:plan new-feature
 # or
-> /resume
+> /cspec:implement
 ```
 
 For true parallel work, use git worktrees with separate Claude sessions.
@@ -227,13 +227,13 @@ For features spanning multiple sessions:
 
 1. **End of each session:**
    ```bash
-   > /checkpoint
+   > /cspec:checkpoint
    git add . && git commit -m "WIP: feature - what's done"
    ```
 
 2. **Start of each session:**
    ```bash
-   > /resume
+   > /cspec:implement
    [Pick up exactly where you left off]
    ```
 
@@ -295,12 +295,12 @@ The root `CLAUDE.md` references this spec system:
 ## Workflow
 
 ### Starting New Feature
-1. Run `/plan [feature-name]`
+1. Run `/cspec:plan [feature-name]`
 2. Review `.specs/active-task/spec.md`
 3. Begin implementation
 
 ### Resuming Work
-1. Run `/resume`
+1. Run `/cspec:implement`
 2. Continue from `.specs/active-task/context.md`
 ```
 
@@ -318,9 +318,9 @@ This ensures Claude knows to use the spec system automatically.
 - These files ARE your project's memory
 
 **Commit frequency:**
-- After `/plan` - Commit initial spec
-- After `/checkpoint` - Optional, commit WIP
-- After `/archive` - Definitely commit archive
+- After `/cspec:plan` - Commit initial spec
+- After `/cspec:checkpoint` - Optional, commit WIP
+- After `/cspec:archive` - Definitely commit archive
 
 ## FAQ
 
@@ -340,7 +340,7 @@ A: For full benefits, yes. But minimum viable:
 - Complex task: All three
 
 **Q: Can I customize the templates?**
-A: Absolutely! Edit `template/*.template` to fit your needs. The `/plan` command will use your customized templates.
+A: Absolutely! Edit `template/*.template` to fit your needs. The `/cspec:plan` command will use your customized templates.
 
 **Q: How do I search old specs?**
 A: Use grep or IDE search across `.specs/completed-tasks/`:
@@ -349,7 +349,7 @@ grep -r "authentication" .specs/completed-tasks/
 ```
 
 **Q: What about non-feature work (bugs, refactoring)?**
-A: Same system works. Use `/plan bug-fix-auth` or `/plan refactor-api`. The structure works for any work item.
+A: Same system works. Use `/cspec:plan bug-fix-auth` or `/cspec:plan refactor-api`. The structure works for any work item.
 
 ## Examples
 

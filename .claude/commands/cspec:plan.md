@@ -55,21 +55,40 @@ Options:
 
 Get enough information to create a complete specification.
 
-### 3. Research Existing Code
+### 3. Research Existing Code with Plan Agent
 
-Before planning, understand the current codebase:
+**IMPORTANT:** Use the Task tool with Plan subagent (very thorough) to comprehensively analyze the codebase before planning.
 
-- Search for related features or similar patterns
-- Look for existing components/utilities that can be reused
-- Check for established conventions (API patterns, component structure, etc.)
-- Identify where the new code should live (respect app folder if specified)
-- Find test patterns to follow
+Launch Plan agent with this prompt structure:
 
-Use Glob and Grep tools to explore:
-- Find similar component names
-- Search for related functionality
-- Understand project structure conventions
-- **If app folder is specified, focus searches within that directory**
+```
+Analyze the codebase to prepare for implementing [feature-name]:
+
+1. **App Folder Context**: Read CLAUDE.md to identify the app folder (if specified in Tech Stack section)
+2. **Search Strategy**: Focus all searches within the app folder if specified
+3. **Related Features**: Find similar features or patterns already implemented
+4. **Reusable Components**: Identify existing components/utilities that can be reused
+5. **Conventions**: Check established conventions:
+   - API patterns and endpoint structure
+   - Component/class naming conventions
+   - Database schema patterns
+   - Error handling approaches
+   - Testing patterns
+6. **Code Location**: Identify where new code should live based on existing structure
+7. **Dependencies**: Check what dependencies are already available
+8. **Test Patterns**: Find existing test examples to follow
+
+Provide a comprehensive summary including:
+- Key files/patterns to reference
+- Reusable components
+- Recommended file locations (respecting app folder)
+- Conventions to follow
+- Any potential conflicts or considerations
+```
+
+**Thoroughness Level:** very thorough
+
+This ensures comprehensive codebase understanding before creating the specification.
 
 ### 4. Handle Active Task
 

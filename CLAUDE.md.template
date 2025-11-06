@@ -20,10 +20,217 @@
 - READ spec files before implementing features
 - UPDATE progress files during development
 - RUN all commands inside Docker containers (see Commands section)
+- **REBUILD Docker containers after code changes BEFORE testing** (see Docker Rebuild Rules)
+- ENABLE debug logging during development (see Development Best Practices section)
 
 ## Code Style
 
 {{CODE_STYLE}}
+
+## Development Best Practices
+
+### Debug Logging (CRITICAL)
+
+**ALWAYS enable debug-level logging during development.** This is not optional.
+
+**Why debug logging matters:**
+- **Diagnose issues quickly** - See what's happening under the hood without trial-and-error
+- **Resume work easily** - Understand what code was doing when you stopped
+- **Context switching** - Quickly remember what a feature does after breaks
+- **Pre-commit reviews** - Verify behavior before committing
+- **Production debugging** - Use development logs to understand production issues
+
+{{LOGGING_CONFIG}}
+
+**Important:**
+- Leave debug logging ON throughout development
+- Review and adjust log levels before production deployment
+- Add meaningful log messages to new code (avoid generic console.log/print statements)
+- Include context in log messages (request IDs, user IDs, key parameters)
+- Log at entry points, error cases, and important state changes
+
+### Security - OWASP Top 10 (CRITICAL)
+
+**ALWAYS consider OWASP Top 10 security mitigations during development.** Security is not optional.
+
+**OWASP Top 10 (2021) - Required Mitigations:**
+
+1. **A01: Broken Access Control**
+   - Implement proper authorization checks on all endpoints
+   - Deny by default; validate user permissions for every action
+   - Never trust client-side access control; enforce server-side
+
+2. **A02: Cryptographic Failures**
+   - Never store sensitive data in plaintext (passwords, tokens, keys)
+   - Use strong encryption algorithms (AES-256, RSA-2048+)
+   - Use HTTPS/TLS for all data in transit
+   - Use secure password hashing (bcrypt, Argon2, PBKDF2)
+
+3. **A03: Injection (SQL, XSS, Command)**
+   - ALWAYS use parameterized queries/prepared statements (NO string concatenation)
+   - Validate and sanitize ALL user inputs
+   - Use ORM/query builders with parameterization
+   - Escape output to prevent XSS
+   - Never execute shell commands with user input
+
+4. **A04: Insecure Design**
+   - Implement security controls at design phase
+   - Use threat modeling for sensitive features
+   - Implement rate limiting and throttling
+   - Design with principle of least privilege
+
+5. **A05: Security Misconfiguration**
+   - Disable debug mode in production
+   - Remove default credentials and unnecessary features
+   - Keep error messages generic (no stack traces in production)
+   - Review and harden security configurations
+
+6. **A06: Vulnerable and Outdated Components**
+   - Keep dependencies up to date
+   - Monitor for security advisories
+   - Remove unused dependencies
+   - Use dependency scanning tools
+
+7. **A07: Authentication and Authorization Failures**
+   - Implement multi-factor authentication where applicable
+   - Use secure session management
+   - Implement account lockout after failed attempts
+   - Never expose session IDs in URLs
+
+8. **A08: Software and Data Integrity Failures**
+   - Verify integrity of dependencies and updates
+   - Use digital signatures where applicable
+   - Implement proper CI/CD pipeline security
+   - Validate data integrity
+
+9. **A09: Security Logging and Monitoring Failures**
+   - Log authentication attempts (success and failure)
+   - Log authorization failures
+   - Log input validation failures
+   - Monitor for suspicious patterns
+   - NEVER log sensitive data (passwords, tokens, credit cards)
+
+10. **A10: Server-Side Request Forgery (SSRF)**
+    - Validate and sanitize all URLs
+    - Use allowlists for external requests
+    - Disable HTTP redirections where possible
+    - Implement network segmentation
+
+{{SECURITY_CONFIG}}
+
+**Before Committing Code:**
+- [ ] All user inputs are validated and sanitized
+- [ ] SQL queries use parameterized statements
+- [ ] Authentication and authorization checks are in place
+- [ ] Sensitive data is encrypted/hashed
+- [ ] No secrets in code (use environment variables)
+- [ ] Error messages don't leak sensitive information
+- [ ] Security logging is implemented
+
+### Test Credentials & Data (CRITICAL)
+
+**ALWAYS use secure, randomly generated test credentials.** Never use predictable patterns.
+
+**Password Requirements:**
+- Minimum 14 characters
+- Mix of uppercase, lowercase, numbers, and special characters
+- **RANDOMLY GENERATED** (not predictable patterns like Test@Admin2024!)
+- Different for each test user
+
+**Generate Random Passwords:**
+```bash
+# Method 1: Using openssl (recommended)
+openssl rand -base64 16 | tr -d '=' | head -c 14 && echo '!@#'
+
+# Method 2: Using pwgen (if installed)
+pwgen -s -y 14 1
+
+# Method 3: Using Python
+python3 -c "import secrets, string; chars = string.ascii_letters + string.digits + '!@#$%^&*'; print(''.join(secrets.choice(chars) for _ in range(14)))"
+
+# Example output: hK9mP4xQ2wL7!@
+```
+
+**Test Credential Storage:**
+
+**DO:**
+- Store test credentials in `.env.test` (gitignored)
+- Use `.env.example` as documentation template with placeholders
+- Generate fresh random passwords for each test user
+- Reference environment variables in test fixtures/code
+- Document credential locations in spec.md and context.md
+
+**DON'T:**
+- Commit `.env`, `.env.test`, or `.env.local` files to git
+- Use predictable password patterns (Test@User2024!, Admin123!, etc.)
+- Hardcode credentials directly in code or test files
+- Use production credentials in test environments
+- Share test credentials in chat/email (use secure methods)
+
+**Environment File Structure:**
+```bash
+# .env.example (COMMITTED to git - template only)
+DATABASE_URL=postgresql://user:password@localhost:5432/dbname
+TEST_ADMIN_EMAIL=admin@test.example.com
+TEST_ADMIN_PASSWORD=GENERATE_RANDOM_14PLUS_CHARS_HERE
+TEST_USER_EMAIL=user@test.example.com
+TEST_USER_PASSWORD=GENERATE_RANDOM_14PLUS_CHARS_HERE
+
+# .env.test (GITIGNORED - actual random credentials)
+DATABASE_URL=postgresql://test_user:hK9mP4xQ2wL7!@@localhost:5432/myapp_test
+TEST_ADMIN_EMAIL=admin@test.example.com
+TEST_ADMIN_PASSWORD=hK9mP4xQ2wL7!@
+TEST_USER_EMAIL=user@test.example.com
+TEST_USER_PASSWORD=R3tYp9Ws4Mn2#$
+```
+
+**Test Data Locations (Tech Stack Specific):**
+
+**Spring Boot (Java):**
+- `src/test/resources/application-test.properties`
+- `src/test/java/fixtures/` (test fixtures using environment variables)
+- `src/test/resources/test-data.sql` (seed data)
+
+**Node.js/TypeScript:**
+- `.env.test` (test environment variables)
+- `tests/fixtures/` (test fixtures)
+- `tests/setup.ts` (test setup with seed data)
+
+**Python (Django/FastAPI):**
+- `.env.test` or `backend/settings/test.py`
+- `conftest.py` (pytest fixtures)
+- `backend/fixtures/` (Django fixtures)
+
+**Documenting Test Credentials:**
+
+In spec.md, document like this:
+```markdown
+## Test Data & Credentials
+
+### Test Users
+- **Admin User:**
+  - Email: `admin@test.example.com`
+  - Password: See `TEST_ADMIN_PASSWORD` in `.env.test` (randomly generated, 14+ chars)
+  - Role: ADMIN
+
+- **Regular User:**
+  - Email: `user@test.example.com`
+  - Password: See `TEST_USER_PASSWORD` in `.env.test` (randomly generated, 14+ chars)
+  - Role: USER
+
+### Setup Instructions
+1. Copy `.env.example` to `.env.test`
+2. Generate random passwords: `openssl rand -base64 16 | head -c 14 && echo '!@'`
+3. Update `.env.test` with generated passwords
+4. Run tests: credentials loaded from environment
+```
+
+**Security Notes:**
+- Verify `.env`, `.env.test`, `.env.local` are in `.gitignore`
+- Never log test credentials (even in debug mode)
+- Regenerate all credentials for each deployment environment
+- Test credentials must be different from production credentials
+- Use test/sandbox modes for third-party APIs (Stripe: sk_test_, etc.)
 
 ## Workflow
 
@@ -126,11 +333,89 @@ This project uses spec-driven development with Claude Code. All features should:
 - [ ] Verify files/components exist before editing
 - [ ] Reload files to see latest changes
 - [ ] Check git status to understand current branch
+- [ ] **Verify debug logging is enabled** (see Development Best Practices section)
+
+### Docker Rebuild Rules (CRITICAL)
+
+**ALWAYS rebuild Docker containers after making code changes.** Testing without rebuilding wastes time testing old code.
+
+**When to rebuild:**
+- ✅ After modifying application code (Java, Python, JavaScript, Go, etc.)
+- ✅ After adding/updating dependencies (pom.xml, package.json, requirements.txt, go.mod, Cargo.toml)
+- ✅ After changing configuration files (application.properties, config files)
+- ✅ After modifying Dockerfile or docker-compose.yml
+- ✅ When in doubt - ALWAYS rebuild to be safe
+
+**Intelligent Fix Batching (Avoid Wasted Rebuilds):**
+
+When multiple fixes are needed, GROUP them intelligently to minimize rebuild cycles:
+
+❌ **Inefficient (Don't do this):**
+```
+Fix 1 → Rebuild → Test → Fix 2 → Rebuild → Test → Fix 3 → Rebuild → Test
+Result: 3 rebuilds, wasted time
+```
+
+✅ **Efficient (Do this):**
+```
+Identify related fixes (Fix 1 + Fix 2 + Fix 3) → Make all fixes → Rebuild ONCE → Test ONCE
+Result: 1 rebuild, time saved
+```
+
+**How to group fixes:**
+- **Related functionality** - All authentication bugs together
+- **Same file/module** - All fixes in UserService together
+- **Same test suite** - All fixes tested by same tests together
+- **Same layer** - All controller fixes together, all service fixes together
+
+**When to rebuild separately:**
+- Unrelated fixes in different modules (want isolated verification)
+- Critical fix needing immediate testing
+- After grouping 3-5 related fixes (don't accumulate too many)
+
+**Rebuild Commands:**
+```bash
+# Full rebuild (recommended after code changes)
+docker compose up --build
+
+# Rebuild specific service only (faster)
+docker compose build [service-name]
+docker compose up -d [service-name]
+
+# Restart without rebuild (only if hot reload is working)
+docker compose restart [service-name]
+
+# Clean rebuild (if issues persist)
+docker compose down && docker compose up --build
+```
+
+**Hot Reload vs Rebuild:**
+
+**Hot reload works (may skip rebuild):**
+- **Spring Boot DevTools** (Java): Hot reload for code IF DevTools enabled + volumes mounted
+- **nodemon** (Node.js): Hot reload for JS/TS IF configured + volumes mounted
+- **FastAPI/Django** (Python): Hot reload IF using `--reload` flag + volumes mounted
+
+**MUST rebuild (hot reload won't work):**
+- Dependency changes (pom.xml, package.json, requirements.txt, etc.)
+- Configuration changes requiring restart
+- Compiled code in production mode
+- Dockerfile or docker-compose.yml changes
+- When in doubt - REBUILD
+
+**Correct Workflow:**
+1. Make code changes (batch related fixes together)
+2. **REBUILD:** `docker compose build [service-name]` or `docker compose up --build -d`
+3. Verify rebuild: Check logs with `docker compose logs -f [service-name]`
+4. **THEN run tests** (tests now see new code)
+5. If tests still fail due to old code: `docker compose down && docker compose up --build`
 
 **After making changes:**
+- [ ] **REBUILD Docker containers** (see Docker Rebuild Rules above)
+- [ ] Verify rebuild completed: `docker compose logs -f [service-name]`
 - [ ] Verify code follows project style guidelines
-- [ ] Run type checks inside Docker: `docker compose exec [service-name] [type-check-cmd]`
-- [ ] Run tests inside Docker: `docker compose exec [service-name] [test-cmd]`
+- [ ] **Run type checks** (AFTER rebuild): `docker compose exec [service-name] [type-check-cmd]`
+- [ ] **Run tests** (AFTER rebuild): `docker compose exec [service-name] [test-cmd]`
 - [ ] Update progress tracker
 - [ ] Update context for resumption
 
@@ -142,8 +427,35 @@ This project uses spec-driven development with Claude Code. All features should:
 
 **CRITICAL:** All tests must run inside Docker containers.
 
+**⚠️ ALWAYS REBUILD BEFORE TESTING ⚠️**
+
+Testing without rebuilding wastes time testing old code. Follow this workflow:
+
+**Correct Workflow:**
+1. Make code changes (batch related fixes together if multiple)
+2. **REBUILD:** `docker compose build [service-name]` or `docker compose up --build -d`
+3. Verify rebuild: `docker compose logs -f [service-name]`
+4. **THEN run tests**
+
+**Quick Rebuild + Test Pattern:**
 ```bash
-# Run all tests
+# Pattern 1: Rebuild and test in sequence
+docker compose up --build -d && docker compose exec [service-name] [test-command]
+
+# Pattern 2: Rebuild specific service, then test
+docker compose build [service-name] && docker compose up -d [service-name] && docker compose exec [service-name] [test-command]
+
+# Pattern 3: Clean rebuild if issues persist
+docker compose down && docker compose up --build -d && docker compose exec [service-name] [test-command]
+```
+
+**If tests fail unexpectedly:**
+1. ❓ Did you rebuild after code changes?
+2. Verify code changes: `docker compose exec [service-name] bash` and check file contents
+3. Try clean rebuild: `docker compose down && docker compose up --build`
+
+```bash
+# Run all tests (AFTER rebuilding)
 docker compose exec [service-name] [test-command]
 
 # Examples:

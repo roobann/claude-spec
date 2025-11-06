@@ -54,9 +54,17 @@ Collect information about the current state:
 - What files need to be modified next
 - What approaches to try
 
-### 3. Update progress.md
+**E) Docker Container State**
+- Have code changes been made since last Docker rebuild?
+- Is container running with latest code or old code?
+- Note if rebuild needed before resuming work
+- Check: `docker compose ps` to see running containers
 
-Read current progress.md and update it:
+### 3. Update progress.md (MANDATORY - DO NOT SKIP)
+
+⚠️ **CRITICAL**: Updating progress.md is REQUIRED for checkpointing. This step cannot be skipped.
+
+Read current progress.md and update it completely:
 
 **A) Move completed items to "Completed" section**
 ```markdown
@@ -172,15 +180,22 @@ Branch: `feature/user-authentication`
 ## For Next Session
 
 When resuming:
-1. Open `src/components/LoginForm.tsx` (line 45)
-2. Review the `handleSubmit` function
-3. Add password strength validation using the pattern from SignUpForm
-4. Fix error message display - check the ErrorMessage component props
-5. Add loading state using isSubmitting from useForm
-6. Test with invalid credentials to verify error handling
+1. **REBUILD Docker if code changes were made:** `docker compose build [service-name]` or `docker compose up --build -d`
+2. Verify rebuild: `docker compose logs -f [service-name]`
+3. Open `src/components/LoginForm.tsx` (line 45)
+4. Review the `handleSubmit` function
+5. Add password strength validation using the pattern from SignUpForm
+6. Fix error message display - check the ErrorMessage component props
+7. Add loading state using isSubmitting from useForm
+8. **REBUILD again after changes, then test**
 
 The validation logic is in `src/lib/validations.ts` - reference the
 `validatePassword` function. Follow the same pattern as email validation.
+
+**⚠️ Docker Status:**
+- Code changes made: [Yes/No]
+- Last rebuild: [Timestamp or "Not rebuilt since changes"]
+- **Action required**: Rebuild Docker before testing if code was changed
 ```
 
 **G) Add any relevant technical context**

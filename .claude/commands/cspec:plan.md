@@ -141,9 +141,27 @@ Write comprehensive specification using this structure:
 ## Non-Functional Requirements
 
 - **Performance:** [Requirements or N/A]
-- **Security:** [Considerations or N/A]
+- **Security:** [OWASP Top 10 considerations - see checklist below]
 - **Accessibility:** [Standards like WCAG or N/A]
 - **Browser Support:** [Requirements or N/A]
+
+### Security Requirements (OWASP Top 10)
+
+Review and document applicable mitigations:
+
+- [ ] **A01: Access Control** - Authorization checks, permission validation
+- [ ] **A02: Cryptography** - Data encryption, password hashing, TLS/HTTPS
+- [ ] **A03: Injection** - Input validation, parameterized queries, XSS prevention
+- [ ] **A04: Insecure Design** - Threat modeling, rate limiting, least privilege
+- [ ] **A05: Misconfiguration** - Secure defaults, error handling, no debug in prod
+- [ ] **A06: Vulnerable Components** - Dependency updates, security advisories
+- [ ] **A07: Auth Failures** - Session management, MFA, account lockout
+- [ ] **A08: Integrity Failures** - Dependency verification, digital signatures
+- [ ] **A09: Logging Failures** - Security event logging (auth, authz, validation)
+- [ ] **A10: SSRF** - URL validation, allowlists, network segmentation
+
+**Relevant to this feature:**
+[List which OWASP categories apply and how they're mitigated]
 
 ## Technical Design
 
@@ -179,6 +197,13 @@ interface User {
 - [Related features or modules]
 - [Services or APIs to integrate]
 
+### Logging & Observability
+
+- **Debug logging enabled:** Yes (see CLAUDE.md Development Best Practices)
+- **Key log points:** [Entry points, error cases, state changes, API calls]
+- **Production log level:** [INFO or WARN - adjust before deployment]
+- **Log context:** [Request IDs, user IDs, key parameters to include]
+
 ## UI/UX Design
 
 [If applicable, describe user interface requirements, user flows, or reference mockups]
@@ -197,6 +222,72 @@ interface User {
 - [ ] Integration tests for [workflows]
 - [ ] E2E tests for [critical paths]
 - [ ] Manual testing for [edge cases]
+
+## Test Data & Credentials
+
+**IMPORTANT:** All test credentials must be randomly generated (14+ characters, alphanumeric + special chars). Never use predictable patterns.
+
+### Test Users
+
+- **Admin User:**
+  - Email: `admin@test.example.com`
+  - Password: See `TEST_ADMIN_PASSWORD` in `.env.test` (randomly generated, 14+ chars)
+  - Role: ADMIN
+  - Purpose: [Testing admin-only features, role-based authorization]
+
+- **Regular User:**
+  - Email: `user@test.example.com`
+  - Password: See `TEST_USER_PASSWORD` in `.env.test` (randomly generated, 14+ chars)
+  - Role: USER
+  - Purpose: [Testing standard user workflows]
+
+[Add additional test users as needed for this feature]
+
+### Test Database Credentials
+
+- Database: `[app_name]_test`
+- Username: See `TEST_DB_USER` in `.env.test`
+- Password: See `TEST_DB_PASSWORD` in `.env.test` (randomly generated, 14+ chars)
+
+### Environment Setup
+
+**Required Environment Variables:**
+All variables documented in `.env.example`. To set up testing:
+
+```bash
+# 1. Copy template to test environment
+cp .env.example .env.test
+
+# 2. Generate random passwords (14+ chars):
+openssl rand -base64 16 | tr -d '=' | head -c 14 && echo '!@#'
+
+# 3. Update .env.test with generated passwords
+# 4. Run tests - credentials loaded from environment
+```
+
+### Test Data Location
+
+- **Environment variables:** `.env.test` (gitignored, contains actual random credentials)
+- **Environment template:** `.env.example` (committed, contains placeholders)
+- **Test fixtures:** [Framework-specific path, e.g., `src/test/java/fixtures/`]
+- **Seed data:** [Framework-specific path, e.g., `src/test/resources/test-data.sql`]
+
+### Third-Party Test Credentials
+
+- **Stripe:** Use test API keys (`sk_test_...`) - See `STRIPE_TEST_KEY` in `.env.test`
+- **SendGrid:** Use test API key - See `SENDGRID_TEST_KEY` in `.env.test`
+- [Add other third-party services as needed]
+
+### Security Notes
+
+- ✅ Test credentials stored in `.env.test` (gitignored)
+- ✅ `.env.example` committed with placeholders (NOT actual passwords)
+- ✅ All passwords randomly generated (min 14 chars)
+- ✅ Never hardcode credentials in code (use environment variables)
+- ✅ Separate test credentials from production credentials
+- ❌ Never commit `.env`, `.env.test`, or `.env.local` files
+- ❌ Never use predictable password patterns (Test@User2024!, Admin123!)
+- ❌ Never use production credentials in test environments
 
 ## Risks & Mitigations
 

@@ -213,15 +213,34 @@ Work through tasks sequentially:
 - Reference related code mentioned in context.md
 
 #### C. After Completing Each Phase
-**Automatically update progress.md:**
-1. Check off completed tasks
-2. Move tasks to "Completed" section with timestamp
-3. Update "Current Phase" if moving to next phase
-4. Update "Last Updated" timestamp
-5. Add any decisions made to "Decisions Made" section
-6. Add any issues encountered to "Issues Encountered" section
+**STOP AND UPDATE progress.md (MANDATORY):**
 
-**Example progress update:**
+⚠️ **CRITICAL**: Before continuing to the next phase, you MUST stop and update progress.md. This is NOT optional.
+
+**Update procedure:**
+1. Read the current progress.md file
+2. Check off completed tasks with [x]
+3. Move completed phase tasks to "Completed" section with timestamp
+4. Update "Current Phase" if moving to next phase
+5. Update "Last Updated" timestamp to current date
+6. Add any decisions made to "Decisions Made" section
+7. Add any issues encountered to "Issues Encountered" section
+8. Write the updated progress.md file
+
+**Show user the update:**
+Present a summary of what was completed:
+```
+✅ Phase [N] Complete - [Phase Name]
+
+Completed tasks:
+- [x] Task 1 - Description
+- [x] Task 2 - Description
+- [x] Task 3 - Description
+
+Updated progress.md with completion timestamp.
+```
+
+**Example progress.md format after update:**
 ```markdown
 ## Completed
 
@@ -230,6 +249,8 @@ Work through tasks sequentially:
 - [x] Task 2 - Set up authentication middleware
 - [x] Task 3 - Created test fixtures
 ```
+
+**DO NOT proceed to the next phase until progress.md is updated.** This ensures accurate tracking throughout implementation.
 
 **Special: After Completing Phase 2 (Core Implementation)**
 
@@ -280,8 +301,8 @@ Options:
 - Consistent quality across all features
 - Best for production-ready code
 
-#### D. Update Context Periodically
-Update context.md when:
+#### D. Update Context Periodically (Required)
+You MUST update context.md when:
 - Making important architectural decisions
 - Discovering tricky areas or gotchas
 - Changing approach from original plan
@@ -296,7 +317,217 @@ Update context.md when:
 - "For Next Session" - Specific next steps with file paths and line numbers
 - "Decisions Log" - New decisions made
 
-#### E. Continue Until Complete or Interrupted
+#### E. Handle Test Credentials (When Applicable)
+
+When implementing features that require test credentials:
+
+**1. Check/Update .env.example:**
+- Read current `.env.example` file
+- Add any new environment variables needed for this feature
+- Use placeholder format: `TEST_USER_PASSWORD=GENERATE_RANDOM_14PLUS_CHARS_HERE`
+- Document generation command in comments
+- Write updated `.env.example` (this file is committed to git)
+
+**2. Generate Random Test Credentials:**
+When test credentials are needed, generate them using:
+```bash
+# Generate 14+ character random password
+openssl rand -base64 16 | tr -d '=' | head -c 14 && echo '!@#'
+```
+
+**CRITICAL Rules:**
+- NEVER use predictable patterns (Test@Admin2024!, User123!, etc.)
+- ALWAYS generate random passwords (14+ chars, alphanumeric + special)
+- Each test user gets a unique randomly generated password
+- Store actual passwords in `.env.test` (gitignored)
+- Reference `.env.test` in spec.md (don't write actual passwords in spec.md)
+
+**3. Create Test Fixtures Using Environment Variables:**
+```java
+// Spring Boot example
+@Value("${TEST_ADMIN_PASSWORD}")
+private String testAdminPassword;
+
+// Python example
+import os
+TEST_ADMIN_PASSWORD = os.getenv("TEST_ADMIN_PASSWORD")
+
+// Node.js example
+const testAdminPassword = process.env.TEST_ADMIN_PASSWORD;
+```
+
+**NEVER hardcode credentials:**
+❌ BAD: `String password = "Test@Admin2024!";`
+✅ GOOD: `String password = System.getenv("TEST_ADMIN_PASSWORD");`
+
+**4. Update context.md:**
+Document where test credentials are stored:
+```markdown
+## Test Credentials Context
+
+**Created Test Users:**
+- Admin: admin@test.example.com / See TEST_ADMIN_PASSWORD in .env.test
+- User: user@test.example.com / See TEST_USER_PASSWORD in .env.test
+
+**Credentials Location:**
+- Actual passwords: `.env.test` (gitignored, randomly generated)
+- Template: `.env.example` (committed, with placeholders)
+- Test fixtures: [path to fixtures file]
+
+**For next session:**
+Test credentials are in .env.test (ensure it's configured locally)
+```
+
+**5. Security Verification:**
+Before continuing, verify:
+- [ ] `.env.test` is in `.gitignore` (never commit)
+- [ ] `.env.example` has placeholders only (no real passwords)
+- [ ] No credentials hardcoded in test files
+- [ ] All test passwords are 14+ chars, randomly generated
+- [ ] spec.md references `.env.test` (doesn't contain actual passwords)
+
+**Show user what was created:**
+```
+✅ Test Credentials Created
+
+Generated random test credentials (14+ chars):
+- TEST_ADMIN_PASSWORD → stored in .env.test
+- TEST_USER_PASSWORD → stored in .env.test
+
+Updated files:
+- .env.example (template with placeholders)
+- [test fixtures file] (uses environment variables)
+- context.md (documented credential locations)
+
+⚠️  Reminder: .env.test contains actual credentials and is gitignored
+```
+
+#### F. Rebuild Docker After Code Changes (MANDATORY)
+
+⚠️ **CRITICAL**: After making any code changes, you MUST rebuild Docker containers BEFORE running tests or validation.
+
+**The Problem:**
+Making changes → Testing immediately (without rebuild) → Seeing no changes → Debugging old code → **Wasting significant time**
+
+**The Solution:**
+Making changes → Rebuild Docker → Test sees new code → Accurate results
+
+**Intelligent Fix Batching Strategy:**
+
+When multiple fixes are needed, GROUP them intelligently to avoid wasted rebuild cycles:
+
+❌ **Inefficient approach (wasted time):**
+```
+Fix validation bug 1 → Rebuild → Test
+Fix validation bug 2 → Rebuild → Test
+Fix validation bug 3 → Rebuild → Test
+Result: 3 rebuilds, 3 test cycles, wasted time
+```
+
+✅ **Efficient approach (time saved):**
+```
+Identify all 3 validation bugs → Fix all 3 together → Rebuild ONCE → Test ONCE
+Result: 1 rebuild, 1 test cycle, time saved
+```
+
+**How to identify and group related fixes:**
+1. **Related functionality** - All auth bugs together, all validation bugs together
+2. **Same file/module** - All UserService fixes together, all AuthController fixes together
+3. **Same test suite** - All fixes tested by unit tests together, all integration test fixes together
+4. **Same layer** - All controller fixes together, all service fixes together, all repository fixes together
+
+**When to rebuild separately:**
+- Unrelated fixes in completely different modules (want isolated verification)
+- Critical fix needing immediate validation
+- After grouping 3-5 related fixes (don't accumulate too many before testing)
+
+**Rebuild Workflow:**
+
+**Step 1: After completing grouped code changes**
+```bash
+# Option 1: Full rebuild (safest, recommended)
+docker compose up --build -d
+
+# Option 2: Rebuild specific service only (faster)
+docker compose build [service-name]
+docker compose up -d [service-name]
+
+# Option 3: Clean rebuild (if issues persist)
+docker compose down && docker compose up --build -d
+```
+
+**Step 2: Verify rebuild succeeded**
+```bash
+# Check logs to confirm rebuild
+docker compose logs -f [service-name]
+
+# Look for: Application started, server running, etc.
+```
+
+**Step 3: THEN run tests**
+```bash
+# Now tests see the new code
+docker compose exec [service-name] [test-cmd]
+```
+
+**When hot reload works (may skip rebuild):**
+- **Spring Boot DevTools** (Java): Hot reload for code IF DevTools enabled + volumes mounted
+- **nodemon** (Node.js): Hot reload for JS/TS IF configured + volumes mounted
+- **Python --reload**: Hot reload IF using reload flag + volumes mounted
+
+**When you MUST rebuild (hot reload won't work):**
+- ✅ Dependency changes (pom.xml, package.json, requirements.txt, go.mod)
+- ✅ Configuration file changes (application.properties, config files)
+- ✅ Dockerfile or docker-compose.yml changes
+- ✅ Compiled code in production mode
+- ✅ **When in doubt - ALWAYS rebuild**
+
+**Report rebuild in progress updates:**
+
+Show user what was done:
+```
+✅ Grouped Fixes Complete: User validation
+
+Fixes applied:
+- Fix 1: Email validation null check
+- Fix 2: Password length validation
+- Fix 3: Username format validation
+
+Rebuilt Docker: docker compose build backend ✅
+Verified rebuild: Checked logs, application started ✅
+Tests run: All 3 validation tests passing ✅
+
+Time saved: 1 rebuild instead of 3 (batched fixes intelligently)
+
+Next: Move to authorization fixes
+```
+
+**Example: Efficient batching workflow**
+```
+Test run reveals 5 bugs:
+- 3 bugs in UserService (validation issues)
+- 2 bugs in AuthController (token handling)
+
+Group 1: UserService fixes
+1. Identify all 3 UserService bugs
+2. Fix all 3 together in UserService.java
+3. Rebuild: docker compose build backend
+4. Test: docker compose exec backend ./mvnw test -Dtest=UserServiceTest
+5. Result: All 3 fixed ✅
+
+Group 2: AuthController fixes
+1. Identify both AuthController bugs
+2. Fix both together in AuthController.java
+3. Rebuild: docker compose build backend
+4. Test: docker compose exec backend ./mvnw test -Dtest=AuthControllerTest
+5. Result: Both fixed ✅
+
+Total: 2 rebuilds instead of 5 (time saved: ~60%)
+```
+
+**DO NOT proceed to testing until Docker is rebuilt after code changes.**
+
+#### G. Continue Until Complete or Interrupted
 - Work through all tasks in current phase
 - Move to next phase automatically
 - Continue until all phases complete or user interrupts
@@ -330,7 +561,96 @@ Update context.md when:
 
 If no updates needed, skip this step.
 
-### 10. Handle Completion
+### 10. Validate Progress Tracking (MANDATORY)
+
+⚠️ **CRITICAL**: Before marking work as complete, verify that progress.md is accurate and up-to-date.
+
+**Progress Validation Checklist:**
+
+Read progress.md and verify:
+- [ ] All completed tasks are marked with [x] checkboxes
+- [ ] Completed phases are in the "Completed" section with timestamps
+- [ ] "Current Phase" field reflects the actual current phase
+- [ ] "Status" field is accurate (In Progress / Complete)
+- [ ] "Last Updated" timestamp is current (today's date or recent)
+- [ ] "Decisions Made" section contains important decisions from implementation
+- [ ] "Issues Encountered" section documents any problems faced
+
+**If ANY item is not checked:**
+1. Read the current progress.md file
+2. Update the missing or incorrect information
+3. Write the updated progress.md file
+4. Verify all checklist items are now satisfied
+
+**Show user the validation result:**
+```
+✅ Progress Tracking Validated
+
+Verified:
+- All [X] completed tasks properly marked
+- Timestamps current (last updated: YYYY-MM-DD)
+- Current phase accurate: Phase [N]
+- Decisions and issues documented
+
+Progress tracking is accurate and complete.
+```
+
+**DO NOT proceed to marking work complete until this validation passes.**
+
+### 10.5. Validate Security - OWASP Top 10 (MANDATORY)
+
+⚠️ **CRITICAL**: Before marking work as complete, verify that OWASP Top 10 security mitigations are implemented.
+
+**Security Validation Checklist (OWASP Top 10):**
+
+Review the implemented code and verify:
+
+- [ ] **A01: Access Control** - All endpoints have proper authorization checks
+- [ ] **A02: Cryptography** - Sensitive data is encrypted/hashed (passwords use bcrypt/Argon2)
+- [ ] **A03: Injection Prevention** - ALL user inputs are validated and sanitized
+  - [ ] SQL queries use parameterized statements (NO string concatenation)
+  - [ ] User input in HTML is escaped to prevent XSS
+  - [ ] No shell commands executed with user input
+- [ ] **A04: Secure Design** - Rate limiting implemented where needed
+- [ ] **A05: Configuration** - No debug mode enabled in production configs
+- [ ] **A06: Dependencies** - No known vulnerable dependencies added
+- [ ] **A07: Authentication** - Session management is secure, no session IDs in URLs
+- [ ] **A08: Integrity** - Dependencies verified, no untrusted sources
+- [ ] **A09: Security Logging** - Auth/authz events logged (without sensitive data)
+- [ ] **A10: SSRF Prevention** - External URLs validated and allowlisted
+
+**Additional Critical Checks:**
+- [ ] No secrets/API keys/passwords in code (use environment variables)
+- [ ] Error messages don't expose sensitive information or stack traces
+- [ ] HTTPS/TLS used for all sensitive data transmission
+- [ ] Input validation on both client AND server side
+
+**If ANY security item is not checked:**
+1. Review the spec.md Security Requirements section
+2. Review CLAUDE.md Security - OWASP Top 10 section
+3. Implement missing security controls
+4. Re-test the security measures
+5. Verify all checklist items are now satisfied
+
+**Show user the validation result:**
+```
+✅ Security Validated (OWASP Top 10)
+
+Verified security controls:
+- Input validation and sanitization implemented
+- SQL injection prevention (parameterized queries)
+- Authorization checks on all endpoints
+- Sensitive data encrypted/hashed
+- No secrets in code
+- Security logging implemented
+- Error messages sanitized
+
+Security review complete. Code follows OWASP Top 10 best practices.
+```
+
+**DO NOT proceed to marking work complete until security validation passes.**
+
+### 11. Handle Completion
 
 When all tasks are complete:
 ```
@@ -455,9 +775,10 @@ Need more specific direction. Could you clarify:
 - Don't skip ahead unless explicitly told
 - Mark tasks complete as you go
 
-### Update Progress Frequently
-- After each task completion
-- After each phase completion
+### Update Progress Frequently (MANDATORY)
+You MUST update progress.md:
+- After completing each task
+- After completing each phase (STOP and update before continuing)
 - Before taking breaks (via `/checkpoint`)
 - When making important decisions
 
@@ -473,9 +794,9 @@ Need more specific direction. Could you clarify:
 - Surface issues immediately
 - Update context when things change
 
-### Auto-Update Progress
+### Update Progress After Each Phase (MANDATORY)
 
-After completing each phase, automatically update progress.md:
+After completing each phase, you MUST update progress.md:
 ```markdown
 **Status:** In Progress → In Progress (or Complete if last phase)
 **Current Phase:** Phase 1 → Phase 2
@@ -493,8 +814,15 @@ Move completed tasks from task list to "Completed" section:
 ### Quality Standards
 
 - Follow project code style (check CLAUDE.md)
+- **Enable debug logging** (check CLAUDE.md Development Best Practices for configuration)
+- **Add appropriate logging to new code** (entry points, error cases, key decisions)
+- **Follow OWASP Top 10 security practices** (check CLAUDE.md Security section)
+- **Validate and sanitize ALL user inputs** (prevent injection attacks)
+- **Use parameterized queries** (never concatenate SQL queries)
+- **Implement proper authorization checks** (verify permissions on all endpoints)
+- **Never commit secrets** (use environment variables for sensitive data)
 - Write tests as specified in spec.md
-- Handle error cases
+- Handle error cases securely (no sensitive data in error messages)
 - Update documentation as needed
 - Ensure changes don't break existing functionality
 

@@ -1,5 +1,8 @@
 # Context: [Feature Name]
 
+> **Note:** This file provides human-readable context. Structured metadata is in `context.yml`.
+> Both files work together for optimal resumption.
+
 **Created:** [YYYY-MM-DD]
 **Last Updated:** [YYYY-MM-DD HH:MM]
 **Status:** Planning / In Progress / Testing / Complete

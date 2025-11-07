@@ -1,0 +1,149 @@
+---
+# Progress Tracker (YAML Format)
+# State-machine based progress tracking - more structured than markdown
+
+metadata:
+  feature_name: "{{FEATURE_NAME}}"
+  status: "not_started"  # not_started | in_progress | testing | blocked | complete
+  created: "{{CREATED_DATE}}"
+  started: null  # Will be filled when work begins
+  updated: "{{CREATED_DATE}}"
+  current_phase: 0  # 0=planning, 1=phase1, 2=phase2, etc.
+  testing_approach: "{{TESTING_APPROACH}}"  # tdd | minimal | balanced
+
+  # Multi-Agent Mode
+  agent_coordination: false  # Set to true when using domain experts
+  current_domain: null  # Current domain being worked on
+  domains: []  # List of all domains in this feature
+
+progress_summary:
+  total_phases: 3
+  completed_phases: 0
+  total_tasks: 0  # Updated as tasks are added
+  completed_tasks: 0
+  completion_percentage: 0
+
+  # Multi-Agent Mode: Domain-specific progress (optional)
+  by_domain: {}
+    # backend:
+    #   total_tasks: 5
+    #   completed_tasks: 2
+    #   completion_percentage: 40
+    # frontend:
+    #   total_tasks: 4
+    #   completed_tasks: 1
+    #   completion_percentage: 25
+
+phases:
+  - id: 1
+    name: "Setup & Foundation"
+    status: "pending"  # pending | in_progress | complete | skipped
+    started: null
+    completed: null
+    tasks:
+      - id: "T1"
+        description: "Task description"
+        status: "pending"  # pending | in_progress | complete | skipped | blocked
+        progress: 0  # 0-100
+        started: null
+        completed: null
+        notes: ""
+        blockers: []
+        # Multi-Agent Mode fields (optional)
+        domain: null  # backend | frontend | devops | database | infrastructure
+        assigned_agent: null  # Which expert agent handles this task
+        dependencies: []  # Task IDs this depends on
+
+  - id: 2
+    name: "Core Implementation"
+    status: "pending"
+    started: null
+    completed: null
+    tasks:
+      - id: "T2"
+        description: "Task description"
+        status: "pending"
+        progress: 0
+        started: null
+        completed: null
+        notes: ""
+        blockers: []
+        # Multi-Agent Mode fields (optional)
+        domain: null
+        assigned_agent: null
+        dependencies: []
+
+  - id: 3
+    name: "Testing & Polish"
+    status: "pending"
+    started: null
+    completed: null
+    tasks:
+      - id: "T3"
+        description: "Task description"
+        status: "pending"
+        progress: 0
+        started: null
+        completed: null
+        notes: ""
+        blockers: []
+        # Multi-Agent Mode fields (optional)
+        domain: null
+        assigned_agent: null
+        dependencies: []
+
+current_work:
+  phase_id: null
+  task_id: null
+  description: ""
+  progress: 0
+  blockers: []
+
+next_steps:
+  - priority: 1
+    action: "Review spec and begin Phase 1 implementation"
+    file: null
+    line: null
+
+  - priority: 2
+    action: "Next action"
+    file: null
+    line: null
+
+decisions:
+  # Log of important decisions made during implementation
+  - timestamp: "{{CREATED_DATE}}"
+    decision: "Planning complete"
+    reason: "Specification created"
+    alternatives_considered: []
+    impact: "low"  # low | medium | high
+
+issues:
+  # Log of issues encountered and their resolutions
+  # - timestamp: "2025-11-07T14:30:00"
+  #   issue: "Description of problem"
+  #   resolution: "How it was resolved"
+  #   time_spent_minutes: 20
+
+time_tracking:
+  estimated_total_hours: 0
+  actual_hours: 0
+  remaining_hours: 0
+  sessions:
+    # - date: "2025-11-07"
+    #   start: "09:00"
+    #   end: "12:30"
+    #   hours: 3.5
+    #   work_done: "Phase 1 tasks completed"
+
+completion_checklist:
+  - item: "All requirements met"
+    completed: false
+  - item: "All tests passing"
+    completed: false
+  - item: "Code reviewed"
+    completed: false
+  - item: "Documentation updated"
+    completed: false
+  - item: "CLAUDE.md updated if needed"
+    completed: false

@@ -30,12 +30,13 @@ Start a new feature: /plan [feature-name]
 
 ### 2. Verify Completion
 
-Check progress.md to see if task is actually complete:
+Check progress.yml to see if task is actually complete:
 
 **A) Check completion status**
-- Are all tasks checked off?
-- Is status marked as "Complete" or still "In Progress"?
-- Any blockers remaining?
+- Are all tasks marked with status: "complete"?
+- Is metadata.status marked as "complete" or still "in_progress"?
+- Any blockers remaining (check blockers arrays)?
+- Check progress_summary.completion_percentage (should be 100%)
 
 **B) Ask user for confirmation**
 
@@ -75,7 +76,7 @@ Continue with archive? (yes/no)
 
 Before moving files, create a completion summary:
 
-Read all three files (spec.md, progress.md, context.md) and create a summary document `SUMMARY.md`:
+Read all files (spec.yml, progress.yml, context.yml, context.md) and create a summary document `SUMMARY.md`:
 
 ```markdown
 # [Feature Name] - Completion Summary
@@ -146,10 +147,10 @@ See `spec.md` in this directory for original requirements.
 ### 4. Determine Archive Location
 
 Create archive directory name based on the feature:
-- Extract feature name from spec.md title or use kebab-case version
+- Extract feature name from spec.yml metadata.feature_name or use kebab-case version
 - Format: `feature-name` (e.g., `user-authentication`, `payment-integration`)
 - Use kebab-case (lowercase with hyphens)
-- No date prefix needed (date is in metadata)
+- No date prefix needed (date is in spec.yml metadata)
 - Check if `.specs/completed-tasks/` directory exists, create if needed
 
 Example: `.specs/completed-tasks/user-authentication/`
@@ -168,8 +169,9 @@ mv .specs/active-task/ .specs/completed-tasks/[archive-name]/
 ```
 
 Include all files:
-- spec.md
-- progress.md
+- spec.yml
+- progress.yml
+- context.yml
 - context.md
 - SUMMARY.md (newly created)
 - Any other files in the directory
@@ -217,9 +219,10 @@ Show the user what happened:
 - Tests added: [N]
 
 📝 Files Archived:
-- spec.md - Original specification
-- progress.md - Task tracking
-- context.md - Implementation context
+- spec.yml - Original specification (YAML format)
+- progress.yml - Task tracking (YAML format)
+- context.yml - Structured metadata (YAML format)
+- context.md - Human-readable context (Markdown)
 - SUMMARY.md - Completion summary
 
 🎉 Key Achievements:
@@ -308,20 +311,27 @@ After archiving, structure should look like:
 
 ```
 .specs/
-├── active/
+├── active-task/
 │   └── .gitkeep (empty, ready for next task)
-└── completed/
-    ├── 20251101-user-authentication/
-    │   ├── spec.md
-    │   ├── progress.md
-    │   ├── context.md
-    │   └── SUMMARY.md
-    ├── 20251103-payment-integration/
-    │   ├── spec.md
-    │   ├── progress.md
-    │   ├── context.md
-    │   └── SUMMARY.md
-    └── [other-archived-tasks]/
+├── completed-tasks/
+│   ├── user-authentication/
+│   │   ├── spec.yml
+│   │   ├── progress.yml
+│   │   ├── context.yml
+│   │   ├── context.md
+│   │   └── SUMMARY.md
+│   ├── payment-integration/
+│   │   ├── spec.yml
+│   │   ├── progress.yml
+│   │   ├── context.yml
+│   │   ├── context.md
+│   │   └── SUMMARY.md
+│   └── [other-archived-tasks]/
+└── template/
+    ├── spec.yml.template
+    ├── progress.yml.template
+    ├── context.yml.template
+    └── context.md.template
 ```
 
 ## Benefits of Archiving

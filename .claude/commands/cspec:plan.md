@@ -53,6 +53,61 @@ Options:
 - **Minimal (No)**: Single test phase at the end, focus on functionality
 - **Balanced**: Tests integrated into implementation phases
 
+**Use AskUserQuestion for Multi-Agent Mode:**
+
+```
+Does this feature span multiple domains (backend, frontend, DevOps)?
+```
+Options:
+- "Yes - Enable multi-agent mode with domain experts"
+- "No - Standard single-agent implementation"
+
+**Impact on planning:**
+- **Multi-Agent Mode (Yes)**:
+  - Identify all domains involved (backend, frontend, devops, database, infrastructure)
+  - Create domain-specific technical design sections
+  - Label tasks with domain assignments
+  - Enable agent coordination for spawning domain experts during implementation
+- **Standard (No)**:
+  - Use standard technical_design structure
+  - Tasks run sequentially by single agent
+
+**Use AskUserQuestion for MCP Integration:**
+
+If Multi-Agent Mode is enabled, ask:
+
+```
+Use MCP-based domain experts with specialized tools (database queries, browser automation, Docker management)?
+```
+Options:
+- "Yes - Use MCP servers for domain experts (requires installation)"
+- "No - Use prompt-based domain experts (no installation needed)"
+- "Fallback - Try MCP, fallback to prompt-based if unavailable"
+
+**Impact on spec.yml:**
+- **MCP Enabled (Yes)**:
+  - Set `metadata.mcp_integration.enabled: true`
+  - Set `metadata.mcp_integration.fallback_to_prompt: false`
+  - List MCP server names for each domain
+  - Requires: `npm install -g @claude-spec/[domain]-mcp-server`
+  - Benefits: Direct tool access (query_database, run_browser, check_container_status, etc.)
+- **Prompt-Based (No)**:
+  - Set `metadata.mcp_integration.enabled: false`
+  - No installation required
+  - Domain experts use general tools only
+- **Fallback (Recommended)**:
+  - Set `metadata.mcp_integration.enabled: true`
+  - Set `metadata.mcp_integration.fallback_to_prompt: true`
+  - Automatically uses MCP if available, otherwise uses prompt-based
+  - Best of both worlds
+
+**Available MCP Servers:**
+- `@claude-spec/backend-mcp-server` - Database queries, API testing, migrations
+- `@claude-spec/frontend-mcp-server` - Browser automation, UI testing, screenshots
+- `@claude-spec/devops-mcp-server` - Docker management, deployment, logs
+
+See `docs/MCP_INTEGRATION.md` for installation instructions.
+
 Get enough information to create a complete specification.
 
 ### 3. Research Existing Code with Plan Agent
@@ -108,381 +163,189 @@ Create or clear directory: `.specs/active-task/`
 - Keep it concise and descriptive
 - No dates needed (tracked in spec.md metadata)
 
-### 5. Create Specification (spec.md)
+### 5. Create Specification (spec.yml)
 
-Write comprehensive specification using this structure:
+**Use the YAML template** at `.specs/template/spec.yml.template` as the base structure.
 
-```markdown
-# Feature: [Feature Name]
+**Key sections to fill in:**
 
-**Created:** [YYYY-MM-DD]
-**Status:** Planning
-**Priority:** [High/Medium/Low]
+- `metadata`: Feature name, date, status, priority
+  - **Multi-Agent Mode**: Set `agent_coordination: true` and list `domains` (e.g., [backend, frontend, devops])
+- `overview`: Description, user problem, user stories
+- `requirements.functional`: List functional requirements with IDs and acceptance criteria
+- `requirements.non_functional`: Performance, security (reference CLAUDE.md), accessibility
+- `requirements.non_functional.security`: Document applicable OWASP Top 10 mitigations (see CLAUDE.md "Security - OWASP Top 10")
+- `technical_design`: Architecture, components, data models, API endpoints, dependencies
+  - **Standard Mode**: Use top-level `architecture`, `components`, `api_endpoints`, etc.
+  - **Multi-Agent Mode**: Fill in `domain_design` section with domain-specific subsections (backend, frontend, devops, etc.)
+- `technical_design.logging`: Debug logging config (see CLAUDE.md "Development Best Practices")
+- `testing`: Strategy (TDD/minimal/balanced), test cases
+- `testing.test_credentials`: Test users and credentials (see CLAUDE.md "Test Credentials & Data")
+- `success_criteria`: How we know feature is complete
+- `risks`: Potential issues and mitigations
+- `out_of_scope`: What's explicitly excluded
+- `future_enhancements`: Ideas for later
 
-## Overview
+**IMPORTANT Guidelines:**
+- Ensure all file paths respect the app folder structure from CLAUDE.md
+- Reference CLAUDE.md sections for security, test credentials, and Docker rules (don't duplicate)
+- Use structured YAML format for better token efficiency
+- Include specific acceptance criteria for each requirement
+- Document OWASP security considerations relevant to this feature
 
-[Brief 2-3 sentence description of what this feature does and why it's needed]
+**Multi-Agent Mode Specifics:**
 
-## User Problem
+When `agent_coordination: true`, populate `technical_design.domain_design` with sections for each domain:
 
-[Describe the problem from the user's perspective]
+```yaml
+domain_design:
+  backend:
+    architecture:
+      approach: "JWT-based authentication"
+    components:
+      created:
+        - name: "AuthController"
+          location: "backend/src/controllers/auth.controller.ts"
+    api_endpoints:
+      - method: "POST"
+        path: "/api/auth/login"
+    dependencies:
+      external:
+        - name: "jsonwebtoken"
+          version: "^9.0.0"
 
-## User Stories
-
-- As a [user type], I want to [action] so that [benefit]
-- As a [user type], I want to [action] so that [benefit]
-
-## Functional Requirements
-
-- [ ] Requirement 1
-- [ ] Requirement 2
-- [ ] Requirement 3
-
-## Non-Functional Requirements
-
-- **Performance:** [Requirements or N/A]
-- **Security:** [OWASP Top 10 considerations - see checklist below]
-- **Accessibility:** [Standards like WCAG or N/A]
-- **Browser Support:** [Requirements or N/A]
-
-### Security Requirements (OWASP Top 10)
-
-Review and document applicable mitigations:
-
-- [ ] **A01: Access Control** - Authorization checks, permission validation
-- [ ] **A02: Cryptography** - Data encryption, password hashing, TLS/HTTPS
-- [ ] **A03: Injection** - Input validation, parameterized queries, XSS prevention
-- [ ] **A04: Insecure Design** - Threat modeling, rate limiting, least privilege
-- [ ] **A05: Misconfiguration** - Secure defaults, error handling, no debug in prod
-- [ ] **A06: Vulnerable Components** - Dependency updates, security advisories
-- [ ] **A07: Auth Failures** - Session management, MFA, account lockout
-- [ ] **A08: Integrity Failures** - Dependency verification, digital signatures
-- [ ] **A09: Logging Failures** - Security event logging (auth, authz, validation)
-- [ ] **A10: SSRF** - URL validation, allowlists, network segmentation
-
-**Relevant to this feature:**
-[List which OWASP categories apply and how they're mitigated]
-
-## Technical Design
-
-### Architecture
-
-[High-level approach - which parts of the system are affected]
-
-### Components/Modules
-
-[List of components, APIs, or modules to be created or modified]
-
-### Data Models
-
-[If applicable, describe data structures or database changes]
-
-```typescript
-// Example data model
-interface User {
-  id: string;
-  email: string;
-  // ...
-}
+  frontend:
+    architecture:
+      approach: "React Context for auth state"
+    components:
+      created:
+        - name: "LoginForm"
+          location: "frontend/src/components/LoginForm.tsx"
+    ui_components:
+      - "LoginForm with validation"
+      - "AuthContext provider"
+    state_management: "React Context API"
 ```
 
-### API Endpoints (if applicable)
+This enables domain experts to understand their specific responsibilities.
 
-- `POST /api/endpoint` - Description
-- `GET /api/endpoint/:id` - Description
+### 6. Create Progress Tracker (progress.yml)
 
-### Dependencies
+**Use the YAML template** at `.specs/template/progress.yml.template` as the base structure.
 
-- [External packages needed]
-- [Related features or modules]
-- [Services or APIs to integrate]
+**Key sections to fill in:**
 
-### Logging & Observability
+- `metadata`: Feature name, status (not_started), dates, current phase (0=planning), testing approach
+  - **Multi-Agent Mode**: Set `agent_coordination: true`, `current_domain: null`, list `domains`
+- `progress_summary`: Total phases (usually 3), task counts (will update as work progresses)
+  - **Multi-Agent Mode**: Include `by_domain` with per-domain task counts
+- `phases`: Array of 3 phases with tasks broken down based on testing approach:
+  - **Phase 1**: Setup & Foundation (dependencies, structure, test framework if TDD)
+  - **Phase 2**: Core Implementation (main feature logic, with or without tests depending on approach)
+  - **Phase 3**: Testing & Polish (final tests, edge cases, optimization)
+  - **Multi-Agent Mode**: Add `domain`, `assigned_agent`, and `dependencies` fields to each task
+- `current_work`: Initially null (will be filled during implementation)
+- `next_steps`: Initial actions (review spec, begin Phase 1)
+- `decisions`: Log planning decisions made
+- `time_tracking`: Estimated hours for the feature
 
-- **Debug logging enabled:** Yes (see CLAUDE.md Development Best Practices)
-- **Key log points:** [Entry points, error cases, state changes, API calls]
-- **Production log level:** [INFO or WARN - adjust before deployment]
-- **Log context:** [Request IDs, user IDs, key parameters to include]
-
-## UI/UX Design
-
-[If applicable, describe user interface requirements, user flows, or reference mockups]
-
-## Success Criteria
-
-[How do we know this feature is complete and working?]
-
-- [ ] Success criterion 1
-- [ ] Success criterion 2
-- [ ] Success criterion 3
-
-## Testing Strategy
-
-- [ ] Unit tests for [components/functions]
-- [ ] Integration tests for [workflows]
-- [ ] E2E tests for [critical paths]
-- [ ] Manual testing for [edge cases]
-
-## Test Data & Credentials
-
-**IMPORTANT:** All test credentials must be randomly generated (14+ characters, alphanumeric + special chars). Never use predictable patterns.
-
-### Test Users
-
-- **Admin User:**
-  - Email: `admin@test.example.com`
-  - Password: See `TEST_ADMIN_PASSWORD` in `.env.test` (randomly generated, 14+ chars)
-  - Role: ADMIN
-  - Purpose: [Testing admin-only features, role-based authorization]
-
-- **Regular User:**
-  - Email: `user@test.example.com`
-  - Password: See `TEST_USER_PASSWORD` in `.env.test` (randomly generated, 14+ chars)
-  - Role: USER
-  - Purpose: [Testing standard user workflows]
-
-[Add additional test users as needed for this feature]
-
-### Test Database Credentials
-
-- Database: `[app_name]_test`
-- Username: See `TEST_DB_USER` in `.env.test`
-- Password: See `TEST_DB_PASSWORD` in `.env.test` (randomly generated, 14+ chars)
-
-### Environment Setup
-
-**Required Environment Variables:**
-All variables documented in `.env.example`. To set up testing:
-
-```bash
-# 1. Copy template to test environment
-cp .env.example .env.test
-
-# 2. Generate random passwords (14+ chars):
-openssl rand -base64 16 | tr -d '=' | head -c 14 && echo '!@#'
-
-# 3. Update .env.test with generated passwords
-# 4. Run tests - credentials loaded from environment
-```
-
-### Test Data Location
-
-- **Environment variables:** `.env.test` (gitignored, contains actual random credentials)
-- **Environment template:** `.env.example` (committed, contains placeholders)
-- **Test fixtures:** [Framework-specific path, e.g., `src/test/java/fixtures/`]
-- **Seed data:** [Framework-specific path, e.g., `src/test/resources/test-data.sql`]
-
-### Third-Party Test Credentials
-
-- **Stripe:** Use test API keys (`sk_test_...`) - See `STRIPE_TEST_KEY` in `.env.test`
-- **SendGrid:** Use test API key - See `SENDGRID_TEST_KEY` in `.env.test`
-- [Add other third-party services as needed]
-
-### Security Notes
-
-- ✅ Test credentials stored in `.env.test` (gitignored)
-- ✅ `.env.example` committed with placeholders (NOT actual passwords)
-- ✅ All passwords randomly generated (min 14 chars)
-- ✅ Never hardcode credentials in code (use environment variables)
-- ✅ Separate test credentials from production credentials
-- ❌ Never commit `.env`, `.env.test`, or `.env.local` files
-- ❌ Never use predictable password patterns (Test@User2024!, Admin123!)
-- ❌ Never use production credentials in test environments
-
-## Risks & Mitigations
-
-| Risk | Mitigation |
-|------|------------|
-| [Potential issue] | [How to handle it] |
-
-## Out of Scope
-
-[Explicitly list what is NOT included in this feature to prevent scope creep]
-
-## Future Enhancements
-
-[Ideas for later iterations]
-```
-
-**IMPORTANT:** In the spec, ensure all file paths respect the app folder structure from CLAUDE.md. For example, if app folder is `backend/`, then specify paths like `backend/app/models/user.py` instead of `app/models/user.py`.
-
-### 6. Create Progress Tracker (progress.md)
-
-Break down the spec into actionable tasks based on the chosen testing approach.
-
-**Task Breakdown Structure depends on TDD choice:**
+**Task Breakdown Strategy by Testing Approach:**
 
 **If TDD (Write tests first):**
-```markdown
-# Progress: [Feature Name]
-
-**Status:** Not Started
-**Started:** [Will be filled when work begins]
-**Last Updated:** [YYYY-MM-DD]
-**Current Phase:** Planning
-**Testing Approach:** Test-Driven Development (TDD)
-
-## Task Breakdown
-
-### Phase 1: Setup & Test Foundation
-- [ ] Set up test environment and fixtures
-- [ ] Write tests for [Feature Component 1]
-- [ ] Write tests for [Feature Component 2]
-
-### Phase 2: Core Implementation (TDD)
-- [ ] Implement [Component 1] to pass tests
-- [ ] Implement [Component 2] to pass tests
-- [ ] Refactor and optimize
-
-### Phase 3: Integration & Polish
-- [ ] Integration tests
-- [ ] Edge case handling
-- [ ] Performance optimization
-```
+- Phase 1: Set up test environment and fixtures, write tests for components
+- Phase 2: Implement components to pass tests, refactor and optimize
+- Phase 3: Integration tests, edge cases, performance optimization
 
 **If Minimal Testing (Focus on implementation):**
-```markdown
-# Progress: [Feature Name]
-
-**Status:** Not Started
-**Started:** [Will be filled when work begins]
-**Last Updated:** [YYYY-MM-DD]
-**Current Phase:** Planning
-**Testing Approach:** Implementation-focused with minimal tests
-
-## Task Breakdown
-
-### Phase 1: Setup & Foundation
-- [ ] Set up basic structure
-- [ ] Configure dependencies
-
-### Phase 2: Core Implementation
-- [ ] Implement [Feature Component 1]
-- [ ] Implement [Feature Component 2]
-- [ ] Add error handling
-
-### Phase 3: Basic Testing & Polish
-- [ ] Add essential tests for critical paths
-- [ ] Manual testing
-- [ ] Documentation
-```
+- Phase 1: Set up basic structure, configure dependencies
+- Phase 2: Implement all feature components, add error handling
+- Phase 3: Add essential tests for critical paths, manual testing, docs
 
 **If Balanced (Tests alongside implementation):**
-```markdown
-# Progress: [Feature Name]
+- Phase 1: Set up structure and test framework, basic configuration
+- Phase 2: Implement components + unit tests together, integration tests
+- Phase 3: Edge case tests, performance tests, refinement
 
-**Status:** Not Started
-**Started:** [Will be filled when work begins]
-**Last Updated:** [YYYY-MM-DD]
-**Current Phase:** Planning
-**Testing Approach:** Balanced (tests with implementation)
+**Each task should have:**
+- Unique ID (T1, T2, T3, etc.)
+- Clear description
+- Status (pending initially)
+- Progress (0 initially)
+- **Multi-Agent Mode**: Add `domain` (backend/frontend/devops/etc), `assigned_agent` (backend-expert, frontend-expert, etc), `dependencies` (array of task IDs)
 
-## Task Breakdown
+**Multi-Agent Mode Task Assignment:**
 
-### Phase 1: Setup & Foundation
-- [ ] Set up structure and test framework
-- [ ] Basic configuration
+When `agent_coordination: true`, assign each task to a domain and identify dependencies:
 
-### Phase 2: Core Implementation with Tests
-- [ ] Implement [Component 1] + unit tests
-- [ ] Implement [Component 2] + unit tests
-- [ ] Integration between components + tests
+```yaml
+tasks:
+  - id: "T1"
+    description: "Set up JWT authentication service"
+    status: "pending"
+    domain: "backend"
+    assigned_agent: "backend-expert"
+    dependencies: []  # No dependencies, can start immediately
 
-### Phase 3: Final Testing & Polish
-- [ ] Edge case tests
-- [ ] Performance tests
-- [ ] Refinement and optimization
+  - id: "T2"
+    description: "Create login form component"
+    status: "pending"
+    domain: "frontend"
+    assigned_agent: "frontend-expert"
+    dependencies: ["T1"]  # Depends on backend API being complete
+
+  - id: "T3"
+    description: "Configure JWT secret in environment"
+    status: "pending"
+    domain: "devops"
+    assigned_agent: "devops-expert"
+    dependencies: []
 ```
 
-## Completed
-[Empty initially]
+**Domain Expert Agents:**
+- `backend-expert`: Backend/API implementation, database, business logic
+- `frontend-expert`: UI components, state management, user interactions
+- `devops-expert`: Infrastructure, deployment, secrets, CI/CD
+- `database-expert`: Schema design, migrations, indexes, queries
+- `infrastructure-expert`: Cloud resources, networking, scaling
 
-## In Progress
-[Empty initially]
+### 7. Create Context Files (context.yml + context.md)
 
-## Blocked
-[Empty initially]
+**Hybrid Approach:** Use both YAML for structured metadata and Markdown for human narrative.
 
-## Next Steps
+**A) Create context.yml** - Use template at `.specs/template/context.yml.template`
 
-1. Review spec with stakeholders
-2. Begin Phase 1 implementation
-3. [Other initial steps]
+**Key sections to fill in:**
+- `metadata`: Feature name, dates, status (planning), testing approach
+  - **Multi-Agent Mode**: Set `agent_coordination: true`, `current_domain: null`, list `domains`
+- `session.focus`: Current focus summary, phase (0=planning), next action
+- `session.docker`: rebuild_needed (false initially)
+- `session.git`: branch (null initially), file counts (0)
+- `files`: active/modified/next_to_modify (all empty initially)
+- `status`: working/needs_work (empty initially)
+- `architecture`: patterns, related_code, tech_stack (from codebase research)
+- **Multi-Agent Mode**: Populate `domain_context` with empty structures for each domain
+- `next_session.immediate_actions`: List of next steps with priorities
+  - **Multi-Agent Mode**: Add `by_domain` with domain-specific next actions
+- `next_session.docker_reminder`: Reference to CLAUDE.md Docker rules
 
-## Decisions Made
+**B) Create context.md** - Use template at `.specs/template/context.md.template`
 
-[Will be filled during implementation]
+**Key sections to fill in:**
+- Header with dates and status
+- "What We're Building": One paragraph summary
+- "Current State": Files created, testing strategy, next action
+- "Architecture Context": Key decisions and patterns from research
+- "Related Files/Patterns": Files to reference from codebase
+- "For Next Session": Step-by-step instructions for resuming
+- "App Folder Structure": Document app folder from CLAUDE.md
+- "Technical Context": Tech stack details
+- "Notes": Any additional helpful context
 
-## Issues Encountered
-
-[Will be filled during implementation]
-
-## Time Estimates
-
-- **Estimated Total:** [X hours/days]
-- **Time Spent:** 0 hours
-- **Remaining:** [X hours/days]
-```
-
-### 7. Create Context File (context.md)
-
-Initialize resumption context:
-
-```markdown
-# Context: [Feature Name]
-
-**Created:** [YYYY-MM-DD]
-**Status:** Planning Complete
-**Testing Approach:** [TDD / Minimal / Balanced]
-
-## What We're Building
-
-[One paragraph summary of the feature]
-
-## Current State
-
-**Phase:** Planning
-**Files Created:**
-- `.specs/active-task/spec.md` - Feature specification
-- `.specs/active-task/progress.md` - Task breakdown
-- `.specs/active-task/context.md` - This file
-
-**Testing Strategy:**
-- [If TDD: Write tests before implementation, focus on test coverage]
-- [If Minimal: Focus on implementation, add essential tests at the end]
-- [If Balanced: Write tests alongside implementation]
-
-**Next Action:** Review spec and begin Phase 1 implementation
-
-## Architecture Context
-
-[Key architectural decisions or patterns to follow]
-
-## Related Files/Patterns
-
-[Files to reference or patterns to follow from existing code]
-
-## For Next Session
-
-When starting work:
-1. Read spec.md to understand requirements
-2. Read progress.md to see task breakdown
-3. Begin with Phase 1, first task
-4. Update progress.md as you complete each task
-
-## Notes
-
-[Any additional context that would be helpful when resuming]
-```
-
-**IMPORTANT:** In context.md, include the app folder information:
-```markdown
-## App Folder Structure
-
-App Folder: <folder from CLAUDE.md or "Project root">
-
-All code for this feature should be created in: <appropriate path respecting folder structure>
-```
+**IMPORTANT:**
+- Both files work together: context.yml for machine processing, context.md for human reading
+- Document app folder structure from CLAUDE.md in context.md
+- Include architecture insights from codebase research in Phase 3
+- Reference CLAUDE.md sections (don't duplicate Docker rules, security guidelines, etc.)
 
 ### 8. Update CLAUDE.md if Needed
 
@@ -517,14 +380,14 @@ Show the user:
 1. Summary of what will be built
 2. Key technical decisions
 3. Task breakdown with estimated phases
-4. Files created (spec.md, progress.md, context.md)
+4. Files created (spec.yml, progress.yml, context.yml, context.md)
 5. Any CLAUDE.md updates made
 
 **IMPORTANT:** Do NOT start implementation. Present the plan and stop.
 
 ### 10. Complete Planning
 
-Once all three files are created:
+Once all files are created:
 1. Present a concise summary of the plan
 2. Show the user the file locations
 3. Report any CLAUDE.md updates
@@ -534,9 +397,10 @@ Once all three files are created:
 ✅ Plan created successfully!
 
 Files created:
-- .specs/active-task/spec.md (specification)
-- .specs/active-task/progress.md (task breakdown)
-- .specs/active-task/context.md (resumption context)
+- .specs/active-task/spec.yml (specification - YAML format)
+- .specs/active-task/progress.yml (task breakdown - YAML format)
+- .specs/active-task/context.yml (structured metadata - YAML format)
+- .specs/active-task/context.md (human-readable context - Markdown)
 
 Review the plan and run `/cspec:implement` when ready to begin implementation.
 ```

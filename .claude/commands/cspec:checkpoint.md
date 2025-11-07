@@ -60,145 +60,321 @@ Collect information about the current state:
 - Note if rebuild needed before resuming work
 - Check: `docker compose ps` to see running containers
 
-### 3. Update progress.md (MANDATORY - DO NOT SKIP)
+### 3. Update progress.yml (MANDATORY - DO NOT SKIP)
 
-⚠️ **CRITICAL**: Updating progress.md is REQUIRED for checkpointing. This step cannot be skipped.
+⚠️ **CRITICAL**: Updating progress.yml is REQUIRED for checkpointing. This step cannot be skipped.
 
-Read current progress.md and update it completely:
+Read current progress.yml and update it completely:
 
-**A) Move completed items to "Completed" section**
-```markdown
-## Completed
-- [x] Task that was just finished
-- [x] Previous completed tasks...
+**A) Update completed tasks**
+```yaml
+phases:
+  - id: 1
+    tasks:
+      - id: "T1"
+        status: "complete"  # Update from in_progress
+        completed: "2025-11-07T15:30:00"  # Add timestamp
 ```
 
-**B) Update "In Progress" section**
-```markdown
-## In Progress
-- [ ] Current task (75% complete)
-  - Specific detail about what's done
-  - What remains to be done
+**B) Update in-progress tasks**
+```yaml
+current_work:
+  phase_id: 2
+  task_id: "T5"
+  description: "Implementing form validation"
+  progress: 75
+  blockers: []
 ```
 
-**C) Update "Next Steps" section**
-```markdown
-## Next Steps
-1. Immediate next action (be very specific)
-2. Following action
-3. Then this action
+**C) Update next steps**
+```yaml
+next_steps:
+  - priority: 1
+    action: "Complete validation logic in LoginForm.tsx"
+    file: "src/components/LoginForm.tsx"
+    line: 45
+  - priority: 2
+    action: "Add error message display"
 ```
 
-**D) Add any new decisions**
-```markdown
-## Decisions Made
-- [YYYY-MM-DD HH:MM] Decision about X approach
-- Previous decisions...
+**D) Add new decisions**
+```yaml
+decisions:
+  - timestamp: "2025-11-07T15:30:00"
+    decision: "Use Zod for validation"
+    reason: "Better type safety and error messages"
 ```
 
-**E) Document any issues**
-```markdown
-## Issues Encountered
-- [YYYY-MM-DD] Issue with X, resolved by doing Y
-- Previous issues...
+**E) Document issues**
+```yaml
+issues:
+  - timestamp: "2025-11-07T14:30:00"
+    issue: "Email validation not triggering"
+    resolution: "Fixed by adding onChange handler"
+    time_spent_minutes: 20
 ```
 
-**F) Update status and timestamp**
-```markdown
-**Status:** In Progress
-**Last Updated:** [YYYY-MM-DD HH:MM]
-**Current Phase:** [Phase name]
+**F) Update metadata and summary**
+```yaml
+metadata:
+  status: "in_progress"
+  updated: "2025-11-07T15:30:00"
+  current_phase: 2
+
+progress_summary:
+  completed_tasks: 3
+  total_tasks: 7
+  completion_percentage: 43
 ```
 
-**G) Update time tracking if present**
-```markdown
-**Time Spent:** [X hours] (added [Y hours] this session)
+**G) Update time tracking**
+```yaml
+time_tracking:
+  actual_hours: 6.5
+  sessions:
+    - date: "2025-11-07"
+      start: "09:00"
+      end: "15:30"
+      hours: 6.5
 ```
 
-### 4. Update context.md
+**H) Multi-Agent Mode: Update domain-specific progress**
 
-This is the CRITICAL file for resumption. Update thoroughly:
+If `metadata.agent_coordination: true`, also update:
 
-**A) Update "Current Focus" section**
+```yaml
+metadata:
+  current_domain: "backend"  # Domain currently being worked on
+
+progress_summary:
+  by_domain:
+    backend:
+      total_tasks: 5
+      completed_tasks: 3
+      completion_percentage: 60
+    frontend:
+      total_tasks: 4
+      completed_tasks: 0
+      completion_percentage: 0
+```
+
+Update tasks with domain completion status:
+```yaml
+tasks:
+  - id: "T1"
+    domain: "backend"
+    assigned_agent: "backend-expert"
+    status: "complete"
+    completed: "2025-11-07T14:00:00"
+  - id: "T2"
+    domain: "frontend"
+    assigned_agent: "frontend-expert"
+    status: "pending"
+    dependencies: ["T1"]  # Now unblocked since T1 complete
+```
+
+### 4. Update Context Files (context.yml + context.md)
+
+These are CRITICAL files for resumption. Update both thoroughly:
+
+**First, update context.yml (structured data):**
+
+**A) Update session focus**
+```yaml
+session:
+  focus:
+    summary: "Implementing form validation"
+    phase: 2
+    file: "src/components/LoginForm.tsx"
+    line: 45
+    action: "Add password strength validation"
+
+  docker:
+    rebuild_needed: true
+    last_rebuild: "2025-11-07T09:00:00"
+    code_changes_since_rebuild: true
+
+  git:
+    branch: "feature/user-authentication"
+    files_modified: 3
+    files_staged: 1
+    files_unstaged: 2
+    committed: false
+```
+
+**B) Update files section**
+```yaml
+files:
+  active:
+    - path: "src/components/LoginForm.tsx"
+      purpose: "Login form UI"
+      progress: 70
+      status: "Form rendering complete, validation in progress"
+
+  modified_today:
+    - path: "src/lib/validations.ts"
+      change: "Added email validation function"
+      timestamp: "2025-11-07T14:00:00"
+    - path: "src/types/auth.ts"
+      change: "Added LoginFormData interface"
+      timestamp: "2025-11-07T14:15:00"
+
+  next_to_modify:
+    - path: "src/components/ErrorMessage.tsx"
+      purpose: "Fix error display bug"
+      line: null
+```
+
+**C) Update status summary**
+```yaml
+status:
+  working:
+    - "Form renders correctly with all fields"
+    - "Email validation working"
+    - "State management with React Hook Form working"
+
+  needs_work:
+    - "Password validation incomplete (missing strength check)"
+    - "Error messages not showing up (bug in error display)"
+    - "Loading state missing"
+```
+
+**D) Update next session actions**
+```yaml
+next_session:
+  immediate_actions:
+    - priority: 1
+      action: "REBUILD Docker (code changes made)"
+      file: null
+    - priority: 2
+      action: "Open LoginForm.tsx and add password validation"
+      file: "src/components/LoginForm.tsx"
+      line: 45
+    - priority: 3
+      action: "Fix error message display bug"
+      file: "src/components/ErrorMessage.tsx"
+
+  reference_files:
+    - "src/lib/validations.ts - validatePassword function"
+    - "src/components/SignUpForm.tsx - validation pattern example"
+
+  docker_reminder: "REBUILD Docker before testing (code changes made since last rebuild). See CLAUDE.md Docker Rebuild Rules."
+```
+
+**E) Multi-Agent Mode: Update domain context**
+
+If `metadata.agent_coordination: true`, update domain-specific context:
+
+```yaml
+metadata:
+  current_domain: "backend"  # Current domain being worked on
+
+domain_context:
+  backend:
+    active_files:
+      - "backend/src/controllers/auth.controller.ts"
+      - "backend/src/services/jwt.service.ts"
+    completed_tasks:
+      - "T1: JWT authentication service complete"
+      - "T3: Login endpoint implementation complete"
+    blockers: []
+    handoff_notes: |
+      Backend authentication API is complete and tested.
+      Frontend can now integrate with:
+      - POST /api/auth/login (expects email, password)
+      - POST /api/auth/refresh (expects refresh_token)
+      - Returns: { access_token, refresh_token, user }
+
+  frontend:
+    active_files: []
+    completed_tasks: []
+    blockers:
+      - "Waiting for backend API completion (T1)"
+    handoff_notes: "Ready to start once backend API is deployed"
+
+next_session:
+  by_domain:
+    backend:
+      - priority: 1
+        action: "Deploy authentication service to staging"
+        file: null
+    frontend:
+      - priority: 1
+        action: "Create LoginForm component"
+        file: "frontend/src/components/LoginForm.tsx"
+      - priority: 2
+        action: "Integrate with backend /api/auth/login endpoint"
+```
+
+**Then, update context.md (human narrative):**
+
+**E) Update "Current Focus" section**
 ```markdown
 ## Current Focus
 
-[One clear paragraph describing exactly what you're working on right now]
-
-Currently implementing [specific feature/function] in [specific file].
-The approach is [brief description]. Next need to [specific next step].
+Implementing form validation for login feature. Form UI is complete and renders correctly.
+Currently working on validation logic in LoginForm.tsx. Email validation is working,
+but password strength validation is incomplete. Next need to add password strength check
+using the pattern from SignUpForm component.
 ```
 
-**B) Update "Files Modified" section**
+**F) Update "Files Modified" section**
 ```markdown
 ## Files Modified
 
 **Active (currently editing):**
-- `src/components/LoginForm.tsx` - Implementing form validation (70% done)
-  - Form rendering complete
-  - Validation logic in progress
-  - Need to add error messages
+- `src/components/LoginForm.tsx` (line 45) - Implementing form validation (70% done)
+  - Form rendering complete ✅
+  - Email validation working ✅
+  - Password validation in progress (missing strength check)
+  - Error display has bug
 
 **Modified this session:**
 - `src/lib/validations.ts` - Added email validation function
 - `src/types/auth.ts` - Added LoginFormData interface
+
+**Next to modify:**
+- `src/components/ErrorMessage.tsx` - Fix error display bug
 ```
 
-**C) Update "Git Status"**
-```markdown
-## Git Status
-
-Branch: `feature/user-authentication`
-- 3 files modified
-- 1 file staged (validations.ts)
-- 2 files unstaged (LoginForm.tsx, auth.ts)
-- Not yet committed
-```
-
-**D) Update "What's Working"**
+**G) Update "What's Working" and "What Needs Work"**
 ```markdown
 ## What's Working
-
 - Form renders correctly with all fields
-- Email validation working
-- State management with React Hook Form working
+- Email validation working with proper error messages
+- State management with React Hook Form working smoothly
 - Type checking passing
-```
 
-**E) Update "What Needs Work"**
-```markdown
 ## What Needs Work
-
 - Password validation incomplete (missing strength check)
-- Error messages not showing up (bug in error display)
-- Loading state missing
+- Error messages not displaying (bug in ErrorMessage component)
+- Loading state missing (need to add isSubmitting state)
 - Submit handler needs error boundary
 ```
 
-**F) Update "For Next Session" with EXPLICIT instructions**
+**H) Update "For Next Session"**
+
+**IMPORTANT:** See CLAUDE.md "Docker Rebuild Rules (CRITICAL)" section for complete rebuild guidance.
+
 ```markdown
 ## For Next Session
 
+⚠️ **REBUILD DOCKER FIRST** - Code changes made since last rebuild!
+
 When resuming:
-1. **REBUILD Docker if code changes were made:** `docker compose build [service-name]` or `docker compose up --build -d`
+1. **REBUILD Docker:** `docker compose up --build -d` (see CLAUDE.md Docker Rebuild Rules)
 2. Verify rebuild: `docker compose logs -f [service-name]`
 3. Open `src/components/LoginForm.tsx` (line 45)
 4. Review the `handleSubmit` function
-5. Add password strength validation using the pattern from SignUpForm
-6. Fix error message display - check the ErrorMessage component props
+5. Add password strength validation using pattern from SignUpForm
+6. Fix error message display - check ErrorMessage component props
 7. Add loading state using isSubmitting from useForm
 8. **REBUILD again after changes, then test**
 
-The validation logic is in `src/lib/validations.ts` - reference the
-`validatePassword` function. Follow the same pattern as email validation.
-
-**⚠️ Docker Status:**
-- Code changes made: [Yes/No]
-- Last rebuild: [Timestamp or "Not rebuilt since changes"]
-- **Action required**: Rebuild Docker before testing if code was changed
+Reference `src/lib/validations.ts` for validatePassword function. Follow same pattern as email validation.
 ```
 
-**G) Add any relevant technical context**
+**I) Add technical context**
 ```markdown
 ## Technical Context
 
@@ -213,10 +389,61 @@ Key dependencies:
 - @hookform/resolvers: Bridge RHF and Zod
 ```
 
-**H) Update timestamp**
+**I) Update timestamp**
 ```markdown
 **Last Updated:** [YYYY-MM-DD HH:MM]
 **Current State:** [In Progress / Blocked / Testing / etc.]
+```
+
+**J) Multi-Agent Mode: Add domain-specific sections**
+
+If `metadata.agent_coordination: true`, add domain sections to context.md:
+
+```markdown
+## Multi-Agent Progress
+
+### Backend Domain (Current)
+**Status:** In Progress (60% complete)
+**Agent:** backend-expert
+
+**Completed:**
+- JWT authentication service
+- Login endpoint with validation
+- Refresh token rotation
+
+**In Progress:**
+- Password reset endpoint (50% done)
+
+**Next:**
+- Complete password reset
+- Add rate limiting to auth endpoints
+
+**Handoff Notes for Frontend:**
+Backend authentication API is ready:
+- POST /api/auth/login - Expects: {email, password}, Returns: {access_token, refresh_token, user}
+- POST /api/auth/refresh - Expects: {refresh_token}, Returns: {access_token}
+- Tokens expire in 15min (access) and 7days (refresh)
+
+### Frontend Domain
+**Status:** Pending
+**Agent:** frontend-expert
+
+**Blockers:**
+- Waiting for backend API completion (now unblocked ✅)
+
+**Ready to Start:**
+- Create LoginForm component
+- Integrate with /api/auth/login
+- Add token storage in localStorage
+
+### DevOps Domain
+**Status:** Pending
+**Agent:** devops-expert
+
+**Upcoming:**
+- Add JWT_SECRET to environment
+- Configure HTTPS for auth endpoints
+- Set up staging deployment
 ```
 
 ### 5. Update CLAUDE.md if Needed
@@ -252,14 +479,17 @@ If no updates needed, skip this step.
 Check that the checkpoint is good:
 
 **Quality Checklist:**
-- [ ] progress.md has clear next steps
+- [ ] progress.yml has accurate counts and percentages
+- [ ] progress.yml next_steps are clear and specific
+- [ ] context.yml has all structured metadata updated
 - [ ] context.md has explicit resumption instructions
 - [ ] File locations are specific (with line numbers if relevant)
-- [ ] Current focus is clearly described
+- [ ] Current focus is clearly described (in both files)
 - [ ] "What's working" and "What needs work" are up to date
-- [ ] Any decisions or issues are documented
-- [ ] Git status is captured
-- [ ] Next session knows exactly where to start
+- [ ] Any decisions or issues are documented (in progress.yml and context.md)
+- [ ] Git status is captured (in context.yml)
+- [ ] Docker rebuild status is documented (in context.yml)
+- [ ] Next session knows exactly where to start (context.yml immediate_actions)
 
 ### 7. Present Summary
 
@@ -268,23 +498,26 @@ Show the user what was saved:
 ```
 ✅ Checkpoint saved successfully
 
-📊 Progress Updated:
-- Completed: [X items]
-- In Progress: [Y items]
+📊 Progress Updated (progress.yml):
+- Completed: [X/Y tasks (Z%)]
+- Current phase: Phase [N]
+- In progress: [Task ID] - [Description]
 - Next: [Immediate next action]
 
-📝 Context Captured:
+📝 Context Captured (context.yml + context.md):
 - Current focus: [One sentence]
 - Files being edited: [X files]
 - Working: [Key items]
 - Needs work: [Key items]
+- Docker rebuild needed: [Yes/No]
 
 🎯 Next Session Will Start With:
-[First action from "For Next Session"]
+[First action from context.yml immediate_actions]
 
 📋 Files Updated:
-- .specs/active-task/progress.md
-- .specs/active-task/context.md
+- .specs/active-task/progress.yml (YAML format)
+- .specs/active-task/context.yml (structured metadata)
+- .specs/active-task/context.md (human narrative)
 
 💡 Recommend:
 git add . && git commit -m "WIP: [feature] - [what's done]"

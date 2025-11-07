@@ -1,0 +1,263 @@
+---
+# Feature Specification (YAML Format)
+# More structured and token-efficient than markdown
+
+metadata:
+  feature_name: "{{FEATURE_NAME}}"
+  created: "{{CREATED_DATE}}"
+  status: "planning"  # planning | in_progress | testing | complete
+  priority: "medium"  # high | medium | low
+
+  # Multi-Agent Mode (optional)
+  agent_coordination: false  # Set to true to enable domain-expert agents
+  domains: []  # List domains this feature touches: backend, frontend, devops, database, infrastructure
+
+  # MCP Integration (optional - enhanced multi-agent mode)
+  mcp_integration:
+    enabled: false  # Set to true to use MCP-based domain experts (requires installation)
+    fallback_to_prompt: true  # Fall back to prompt-based agents if MCP not available
+    servers:  # MCP server packages for each domain
+      backend: "@claude-spec/backend-mcp-server"
+      frontend: "@claude-spec/frontend-mcp-server"
+      devops: "@claude-spec/devops-mcp-server"
+      database: "@claude-spec/database-mcp-server"
+      infrastructure: "@claude-spec/infrastructure-mcp-server"
+
+overview:
+  description: |
+    Brief 2-3 sentence description of what this feature does and why it's needed.
+
+  user_problem: |
+    Describe the problem from the user's perspective.
+
+  user_stories:
+    - role: "user type"
+      action: "what they want to do"
+      benefit: "why they want it"
+
+requirements:
+  functional:
+    - id: "FR1"
+      description: "Requirement description"
+      acceptance_criteria:
+        - "Criterion 1"
+        - "Criterion 2"
+      completed: false
+
+    - id: "FR2"
+      description: "Another requirement"
+      acceptance_criteria:
+        - "Criterion 1"
+      completed: false
+
+  non_functional:
+    performance:
+      - metric: "Response time"
+        target: "< 200ms"
+
+    security:
+      # See CLAUDE.md "Security - OWASP Top 10 (CRITICAL)" for full guidance
+      owasp_applicable:
+        - id: "A01"
+          category: "Access Control"
+          mitigation: "Authorization checks on all endpoints"
+        - id: "A02"
+          category: "Cryptography"
+          mitigation: "Password hashing with bcrypt/Argon2"
+        - id: "A03"
+          category: "Injection"
+          mitigation: "Parameterized queries, input validation"
+      reference: "CLAUDE.md Section: Security - OWASP Top 10"
+
+    accessibility:
+      - "WCAG 2.1 AA compliant"
+      - "Keyboard navigation"
+
+    browser_support:
+      - "Chrome (latest 2 versions)"
+      - "Firefox (latest 2 versions)"
+      - "Safari (latest 2 versions)"
+
+technical_design:
+  # Standard structure (use this for single-domain features)
+  architecture:
+    approach: "High-level technical approach"
+    affected_systems:
+      - "Component 1"
+      - "Component 2"
+
+  components:
+    created:
+      - name: "ComponentName"
+        type: "service | controller | model | view | utility"
+        purpose: "What it does"
+        location: "path/to/component"
+
+    modified:
+      - name: "ExistingComponent"
+        changes: "What will be changed"
+        location: "path/to/component"
+
+  data_models:
+    - name: "ModelName"
+      schema: |
+        {
+          id: uuid,
+          field1: string,
+          field2: number
+        }
+
+  api_endpoints:
+    - method: "POST"
+      path: "/api/endpoint"
+      description: "What it does"
+      request: "Request format"
+      response: "Response format"
+
+  dependencies:
+    external:
+      - name: "package-name"
+        version: "^1.0.0"
+        purpose: "What it's used for"
+
+    internal:
+      - "Existing module/service"
+
+  # Multi-Agent Mode: Domain-Specific Design (optional - use when agent_coordination: true)
+  domain_design:
+    backend:
+      architecture:
+        approach: "Backend-specific technical approach"
+      components:
+        created: []
+        modified: []
+      api_endpoints: []
+      data_models: []
+      dependencies:
+        external: []
+        internal: []
+
+    frontend:
+      architecture:
+        approach: "Frontend-specific technical approach"
+      components:
+        created: []
+        modified: []
+      ui_components: []
+      state_management: "Describe state management approach"
+      dependencies:
+        external: []
+        internal: []
+
+    devops:
+      architecture:
+        approach: "DevOps/Infrastructure approach"
+      infrastructure:
+        - "Infrastructure component or config"
+      secrets:
+        - "Secret/config to add"
+      deployment:
+        - "Deployment step or config"
+      dependencies:
+        external: []
+
+    database:
+      migrations: []
+      schema_changes: []
+      indexes: []
+
+    infrastructure:
+      resources: []
+      configurations: []
+
+  logging:
+    debug_enabled: true  # Enable during development (see CLAUDE.md)
+    key_log_points:
+      - "Entry points (API handlers, functions)"
+      - "Error cases and exceptions"
+      - "State changes and decisions"
+      - "External API calls"
+    production_log_level: "INFO"  # Adjust before deployment
+    log_context:
+      - "Request IDs"
+      - "User IDs"
+      - "Key parameters"
+
+ui_ux:
+  design_notes: |
+    User interface requirements, user flows, or reference to mockups.
+
+  mockups_url: "https://figma.com/..."  # If applicable
+
+testing:
+  strategy:
+    approach: "tdd"  # tdd | minimal | balanced
+
+    unit_tests:
+      - "Component/function to test"
+
+    integration_tests:
+      - "Workflow to test"
+
+    e2e_tests:
+      - "Critical path to test"
+
+    manual_tests:
+      - "Edge case to verify manually"
+
+  test_credentials:
+    # See CLAUDE.md "Test Credentials & Data (CRITICAL)" for full guidance
+    reference: "CLAUDE.md Section: Test Credentials & Data"
+
+    test_users:
+      - role: "admin"
+        email: "admin@test.example.com"
+        password_env: "TEST_ADMIN_PASSWORD"  # In .env.test, randomly generated 14+ chars
+        purpose: "Testing admin-only features"
+
+      - role: "user"
+        email: "user@test.example.com"
+        password_env: "TEST_USER_PASSWORD"  # In .env.test, randomly generated 14+ chars
+        purpose: "Testing standard user workflows"
+
+    test_database:
+      name: "{{APP_NAME}}_test"
+      username_env: "TEST_DB_USER"
+      password_env: "TEST_DB_PASSWORD"
+
+    environment:
+      file: ".env.test"  # Gitignored, contains actual random credentials
+      template: ".env.example"  # Committed, contains placeholders
+      generation_command: "openssl rand -base64 16 | tr -d '=' | head -c 14 && echo '!@#'"
+
+    third_party:
+      - service: "Stripe"
+        key_env: "STRIPE_TEST_KEY"
+        notes: "Use test keys (sk_test_...)"
+
+success_criteria:
+  - id: "SC1"
+    description: "Success criterion 1"
+    completed: false
+
+  - id: "SC2"
+    description: "Success criterion 2"
+    completed: false
+
+risks:
+  - risk: "Potential issue description"
+    mitigation: "How to handle it"
+    impact: "high | medium | low"
+
+out_of_scope:
+  - "Feature not included"
+  - "Another excluded item"
+
+future_enhancements:
+  - "Idea for later iteration"
+  - "Another future feature"
+
+references:
+  design_docs: "URL to design documents"
+  api_docs: "URL to API documentation"
+  related_tickets: "URL to related issues/tickets"

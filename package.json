@@ -1,0 +1,21 @@
+{
+  "name": "@claude-spec/root",
+  "version": "1.0.0",
+  "description": "Claude-spec system with MCP domain expert agents",
+  "private": true,
+  "workspaces": [
+    ".mcp-servers/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "install-servers": "npm install --workspaces"
+  },
+  "keywords": ["claude", "spec", "mcp", "ai-agents"],
+  "author": "Your Organization",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/claude-spec.git"
+  }
+}

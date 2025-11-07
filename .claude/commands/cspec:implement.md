@@ -69,37 +69,43 @@ If the Tech Stack section specifies an "App Folder", all application code should
 
 ### 3. Load Context Files
 
-Read all three context files in order of importance:
+Read all context files in order of importance. **Files are now in YAML format for better structure and token efficiency.**
 
-**A) Read context.md** - Most important (resumption lifeline)
-- Current focus and what you're working on
-- Files being modified and their status
-- Git branch/status
-- Architecture context and patterns to follow
-- Related code to reference
-- What's working vs what needs work
-- **Explicit next steps** (critical!)
-- Tricky areas or gotchas
-- Recent decisions made
+**A) Read context.md + context.yml** - Most important (resumption lifeline)
 
-**B) Read progress.md** - Current status
-- Overall task status
-- Which phase we're in
-- Completed tasks (with checkmarks)
-- In-progress tasks (with percentages if available)
-- Blocked tasks (if any)
-- Next steps list
-- Decisions made log
-- Issues encountered log
-- Time tracking
+First read **context.yml** for structured metadata:
+- `session.focus`: Current focus, phase, file, line, action
+- `session.docker`: Rebuild status
+- `session.git`: Branch and file status
+- `files`: Active/modified/next to modify
+- `status`: What's working vs needs work
+- `architecture`: Patterns and related code
+- `next_session.immediate_actions`: Prioritized next steps
 
-**C) Read spec.md** - Original requirements
-- Feature overview and goals
-- User stories
-- Requirements (functional and non-functional)
-- Technical design and architecture
-- Success criteria
-- Testing strategy
+Then read **context.md** for human narrative:
+- What we're building (summary)
+- Current state and testing strategy
+- Architecture context and decisions
+- For next session (detailed instructions)
+- Technical context and tricky areas
+
+**B) Read progress.yml** - Current status (YAML format)
+- `metadata`: Status, dates, current phase, testing approach
+- `progress_summary`: Completion percentages and counts
+- `phases`: Array of phases with tasks and their statuses
+- `current_work`: What's actively being worked on
+- `next_steps`: Prioritized action items
+- `decisions`: Log of decisions made
+- `issues`: Problems encountered and resolutions
+- `time_tracking`: Hours spent and remaining
+
+**C) Read spec.yml** - Original requirements (YAML format)
+- `metadata`: Feature name, status, priority
+- `overview`: Description, user problem, user stories
+- `requirements`: Functional and non-functional requirements
+- `technical_design`: Architecture, components, dependencies
+- `testing`: Strategy and test credentials
+- `success_criteria`: How we know feature is complete
 
 ### 4. Check Git Status
 
@@ -109,22 +115,22 @@ Run `git status` to understand:
 - Staged/unstaged changes
 - Any uncommitted work
 
-Compare with context.md to detect discrepancies.
+Compare with context.yml/context.md to detect discrepancies.
 
 ### 5. Analyze Current State
 
 Determine whether this is a **fresh start** or **resuming**:
 
 **Fresh Start Indicators:**
-- progress.md status is "Planning" or "Not Started"
-- No completed tasks in progress.md
-- context.md says "Planning Complete" or similar
+- progress.yml status is "not_started" or "planning"
+- No completed tasks in progress.yml (completed_tasks: 0)
+- context.yml/context.md say "Planning Complete" or similar
 - No modified files in git related to this feature
 
 **Resuming Indicators:**
-- Some tasks are checked off in progress.md
-- Status is "In Progress" or similar
-- Files exist that match context.md references
+- Some tasks marked complete in progress.yml phases
+- Status is "in_progress", "testing", etc.
+- Files exist that match context.yml/context.md references
 - Git shows related uncommitted/committed work
 
 **Determine:**
@@ -133,6 +139,319 @@ Determine whether this is a **fresh start** or **resuming**:
 - What's currently in progress
 - What's the immediate next step
 - Are there any blockers?
+
+### 5.5. Multi-Agent Mode Detection
+
+**Check if multi-agent mode is enabled:**
+
+Read `metadata.agent_coordination` from spec.yml, progress.yml, and context.yml:
+- If `agent_coordination: false` → Standard single-agent mode (skip to step 6)
+- If `agent_coordination: true` → Multi-agent mode (continue below)
+
+**Multi-Agent Mode Process:**
+
+When multi-agent mode is enabled, you act as the **orchestrator** that spawns domain expert agents.
+
+#### A. Identify Next Domain to Work On
+
+**Read from progress.yml:**
+- `metadata.domains`: List of all domains in this feature
+- `metadata.current_domain`: Domain currently being worked on (may be null)
+- `progress_summary.by_domain`: Per-domain progress tracking
+
+**Determine next domain:**
+1. Check if current_domain has unfinished tasks
+2. If not, find next domain with pending tasks
+3. Check task dependencies - don't work on tasks blocked by other domains
+4. Prioritize based on dependencies (backend → frontend → devops pattern)
+
+**Example logic:**
+```yaml
+# If progress.yml shows:
+metadata:
+  domains: [backend, frontend, devops]
+  current_domain: null
+
+phases:
+  - id: 1
+    tasks:
+      - id: "T1"
+        domain: "backend"
+        status: "pending"
+        dependencies: []
+      - id: "T2"
+        domain: "frontend"
+        status: "pending"
+        dependencies: ["T1"]  # Blocked by T1
+      - id: "T3"
+        domain: "devops"
+        status: "pending"
+        dependencies: []
+
+# Decision: Start with "backend" (T1) since T2 is blocked by T1
+```
+
+#### A.5. Check for MCP Integration (NEW)
+
+**Read metadata from spec.yml:**
+- `metadata.mcp_integration.enabled`: Check if MCP mode requested
+- `metadata.mcp_integration.fallback_to_prompt`: Allow fallback if MCP unavailable
+- `metadata.mcp_integration.servers`: Map of domain to MCP server package
+
+**Detect MCP Server Availability:**
+
+Check if the required MCP server is installed and configured:
+
+```markdown
+**For the selected domain (e.g., "backend"):**
+
+1. Check if MCP server exists:
+   - Look for @backend-expert resource access
+   - Try listing tools: /mcp to see available servers
+   - Check for server in metadata.mcp_integration.servers.backend
+
+2. Determine spawn method:
+   - If MCP server available AND mcp_integration.enabled = true:
+     → Use MCP-based spawning (Step B-MCP)
+   - If MCP server NOT available AND fallback_to_prompt = true:
+     → Use prompt-based spawning (Step B-Prompt)
+     → Show installation instructions for MCP servers
+   - If MCP server NOT available AND fallback_to_prompt = false:
+     → Stop with error, require MCP installation
+
+3. Log decision:
+   Add to progress.yml decisions array what method was used
+```
+
+**Example Detection:**
+
+```yaml
+# spec.yml shows:
+metadata:
+  mcp_integration:
+    enabled: true
+    fallback_to_prompt: true
+    servers:
+      backend: "@claude-spec/backend-mcp-server"
+
+# Detection logic:
+# 1. Try to access @backend-expert server
+# 2. If accessible → Use MCP-based agent (better tools)
+# 3. If not accessible → Fall back to prompt-based agent (still works)
+```
+
+#### B-MCP. Spawn Domain Expert via MCP (ENHANCED - NEW)
+
+When MCP servers are available and `mcp_integration.enabled: true`:
+
+**Use MCP Resource Access Pattern:**
+
+Instead of spawning via Task tool, directly use MCP tools and resources:
+
+```markdown
+**Step 1: Load Domain Context via MCP Resource**
+
+Access the domain-specific context:
+- Resource: @backend-expert:database://schema (get DB structure)
+- Resource: @backend-expert:files://spec (read spec.yml for this domain)
+
+**Step 2: Execute Domain Tasks Using MCP Tools**
+
+For each pending task in this domain:
+
+Example for backend domain:
+```
+Task T1: "Set up JWT authentication service"
+
+1. Read domain design from spec.yml:
+   technical_design.domain_design.backend
+
+2. Use MCP tools to implement:
+   - @backend-expert:query_database - Check if users table exists
+   - @backend-expert:test_api_endpoint - Test authentication endpoint
+   - @backend-expert:run_migration - Create auth tables if needed
+   - @backend-expert:run_tests - Verify authentication tests pass
+
+3. Update progress.yml after completion:
+   - Mark T1 as complete
+   - Update domain_context.backend in context.yml
+   - Add handoff notes for other domains
+```
+
+**Benefits of MCP Mode:**
+- Direct database access for queries
+- API endpoint testing without manual HTTP calls
+- Test execution and verification
+- Schema inspection for migrations
+- Isolated execution environment
+
+**After Completion:**
+1. Update progress.yml (mark domain tasks complete)
+2. Update context.yml domain_context.[domain]
+3. Check for next unblocked domain
+4. If more domains pending → Repeat from Step A
+5. If all domains complete → Continue to Step 6
+
+#### B-Prompt. Spawn Domain Expert via Prompt (FALLBACK)
+
+When MCP servers are NOT available or `mcp_integration.enabled: false`:
+
+Use the **Task tool** to spawn a specialized domain expert agent with detailed prompts:
+
+**Agent types:**
+- `backend-expert`: For backend/API tasks
+- `frontend-expert`: For frontend/UI tasks
+- `devops-expert`: For infrastructure/deployment tasks
+- `database-expert`: For database/schema tasks
+- `infrastructure-expert`: For cloud/networking tasks
+
+**Agent prompt structure:**
+```
+You are a [DOMAIN] expert working on the feature: [FEATURE_NAME]
+
+## Your Domain: [DOMAIN]
+
+You will implement tasks assigned to the [DOMAIN] domain. Other domain experts handle their respective tasks.
+
+## Context
+
+Read these files in order:
+1. .specs/active-task/context.yml - Focus on domain_context.[DOMAIN]
+2. .specs/active-task/context.md - General context
+3. .specs/active-task/progress.yml - Focus on tasks where domain=[DOMAIN]
+4. .specs/active-task/spec.yml - Focus on technical_design.domain_design.[DOMAIN]
+5. CLAUDE.md - Project configuration
+
+## Your Tasks
+
+From progress.yml, work on tasks where:
+- domain: "[DOMAIN]"
+- assigned_agent: "[DOMAIN]-expert"
+- status: "pending" or "in_progress"
+- dependencies: [] OR all dependency tasks are complete
+
+**Your tasks:**
+[List of pending tasks for this domain from progress.yml]
+
+## Implementation Guidelines
+
+1. **Focus only on your domain** - Don't work on tasks assigned to other domains
+2. **Check dependencies** - Verify dependent tasks are complete before starting
+3. **Update progress.yml** - Mark your tasks complete with timestamps
+4. **Update context.yml domain_context.[DOMAIN]** - Log your progress:
+   - active_files: Files you're working on
+   - completed_tasks: Tasks you've finished
+   - blockers: Any issues encountered
+   - handoff_notes: What other domains need to know
+5. **Follow domain-specific design** from spec.yml technical_design.domain_design.[DOMAIN]
+6. **Update context.md** if making important decisions
+7. **Respect app folder structure** from CLAUDE.md
+
+## When Complete
+
+After finishing your assigned tasks:
+1. Update progress.yml (mark tasks complete, update by_domain progress)
+2. Update context.yml domain_context.[DOMAIN]
+3. Report back:
+   - What you completed
+   - Any handoff notes for other domains
+   - Any blockers discovered
+
+## Quality Standards
+
+Follow all guidelines from CLAUDE.md:
+- Security (OWASP Top 10)
+- Test credentials (random generation, env vars)
+- Docker rebuild rules (rebuild before testing)
+- Debug logging configuration
+```
+
+**Example Task tool invocation:**
+```
+Task tool with:
+- subagent_type: "general-purpose"
+- description: "Implement backend tasks"
+- prompt: [Full prompt above with domain=backend]
+```
+
+**Show MCP Installation Instructions (when falling back):**
+
+If falling back from MCP to prompt-based agents, display:
+
+```
+ℹ️ MCP Enhancement Available
+
+Multi-agent mode is using prompt-based agents. For enhanced capabilities with specialized tools, install MCP servers:
+
+📦 Install MCP Servers:
+npm install -g @claude-spec/backend-mcp-server
+npm install -g @claude-spec/frontend-mcp-server
+npm install -g @claude-spec/devops-mcp-server
+
+⚙️ Configure in Claude Code:
+claude mcp add backend-expert \
+  --env DATABASE_URL="${DATABASE_URL}" \
+  -- npx @claude-spec/backend-mcp-server
+
+claude mcp add frontend-expert \
+  --env BASE_URL="http://localhost:3000" \
+  -- npx @claude-spec/frontend-mcp-server
+
+claude mcp add devops-expert \
+  --env DOCKER_HOST="unix:///var/run/docker.sock" \
+  -- npx @claude-spec/devops-mcp-server
+
+✨ Benefits:
+- Direct database queries during implementation
+- API endpoint testing with real HTTP calls
+- Test suite execution and verification
+- Schema inspection and migrations
+- Isolated execution environments
+
+📚 See docs/MCP_INTEGRATION.md for complete setup guide
+
+Continuing with prompt-based agents...
+```
+
+#### C. After Agent Completes
+
+When the domain expert agent finishes:
+
+1. **Read updated files:**
+   - progress.yml (verify tasks marked complete)
+   - context.yml (check domain_context updates)
+   - context.md (any new notes)
+
+2. **Update orchestration metadata:**
+   - progress.yml metadata.current_domain → next domain or null
+   - context.yml metadata.current_domain → next domain or null
+
+3. **Check for next domain:**
+   - Are there more pending tasks in other domains?
+   - Are dependencies satisfied for next domain?
+   - If yes → Spawn next domain expert (go to step B)
+   - If no → All domains complete, continue to step 6
+
+#### D. Dependency Management
+
+**CRITICAL:** Don't spawn an agent for a domain if its tasks are blocked:
+
+```yaml
+# Check dependencies before spawning:
+- id: "T2"
+  domain: "frontend"
+  dependencies: ["T1"]  # Depends on T1
+
+# Before spawning frontend-expert:
+# 1. Check if T1 is complete
+# 2. If T1 is not complete, don't spawn frontend-expert yet
+# 3. Work on other unblocked domains first
+```
+
+**Handoff between domains:**
+- Backend completes → Frontend can start (if dependencies met)
+- Use domain_context.[domain].handoff_notes for coordination
+- Document API endpoints, data formats, etc. for next domain
 
 ### 6. Present Brief Summary
 
@@ -202,30 +521,31 @@ Wait for user response before continuing.
 Work through tasks sequentially:
 
 #### A. Load Relevant Files
-- Files mentioned in context.md "For Next Session"
-- Files being modified according to context.md
+- Files mentioned in context.yml/context.md "For Next Session"
+- Files being modified according to context.yml
 - Related files for reference
 
 #### B. Work on Next Task
-- Start with the first unchecked task in the current phase
-- Follow the technical design from spec.md
-- Follow patterns identified in context.md
-- Reference related code mentioned in context.md
+- Start with the first pending task in the current phase (check progress.yml)
+- Follow the technical design from spec.yml
+- Follow patterns identified in context.yml/context.md
+- Reference related code mentioned in context.yml architecture section
 
 #### C. After Completing Each Phase
-**STOP AND UPDATE progress.md (MANDATORY):**
+**STOP AND UPDATE progress.yml (MANDATORY):**
 
-⚠️ **CRITICAL**: Before continuing to the next phase, you MUST stop and update progress.md. This is NOT optional.
+⚠️ **CRITICAL**: Before continuing to the next phase, you MUST stop and update progress.yml. This is NOT optional.
 
 **Update procedure:**
-1. Read the current progress.md file
-2. Check off completed tasks with [x]
-3. Move completed phase tasks to "Completed" section with timestamp
-4. Update "Current Phase" if moving to next phase
-5. Update "Last Updated" timestamp to current date
-6. Add any decisions made to "Decisions Made" section
-7. Add any issues encountered to "Issues Encountered" section
-8. Write the updated progress.md file
+1. Read the current progress.yml file
+2. Update task statuses to "complete" for finished tasks
+3. Update phase status to "complete" and set completed timestamp
+4. Increment current_phase if moving to next phase
+5. Update progress_summary (completed_tasks, completed_phases, completion_percentage)
+6. Update metadata.updated timestamp
+7. Add any decisions to decisions array with timestamp
+8. Add any issues to issues array
+9. Write the updated progress.yml file
 
 **Show user the update:**
 Present a summary of what was completed:
@@ -233,24 +553,30 @@ Present a summary of what was completed:
 ✅ Phase [N] Complete - [Phase Name]
 
 Completed tasks:
-- [x] Task 1 - Description
-- [x] Task 2 - Description
-- [x] Task 3 - Description
+- Task 1 (T1) - Description ✅
+- Task 2 (T2) - Description ✅
+- Task 3 (T3) - Description ✅
 
-Updated progress.md with completion timestamp.
+Updated progress.yml:
+- Phase status: complete
+- Completion timestamp: 2025-11-07T15:30:00
+- Progress: X/Y tasks complete (Z%)
 ```
 
-**Example progress.md format after update:**
-```markdown
-## Completed
-
-### Phase 1: Setup & Foundation (Completed 2025-11-03)
-- [x] Task 1 - Created database models
-- [x] Task 2 - Set up authentication middleware
-- [x] Task 3 - Created test fixtures
+**Example progress.yml structure after update:**
+```yaml
+phases:
+  - id: 1
+    name: "Setup & Foundation"
+    status: "complete"
+    completed: "2025-11-03T16:30:00"
+    tasks:
+      - id: "T1"
+        status: "complete"
+        completed: "2025-11-03T14:15:00"
 ```
 
-**DO NOT proceed to the next phase until progress.md is updated.** This ensures accurate tracking throughout implementation.
+**DO NOT proceed to the next phase until progress.yml is updated.** This ensures accurate tracking throughout implementation.
 
 **Special: After Completing Phase 2 (Core Implementation)**
 
@@ -278,9 +604,9 @@ Options:
 - "Partial - Only some tasks" → Ask which specific tasks to do
 
 **If "No" selected:**
-- Mark Phase 3 tasks as "[Skipped - Feature sufficient as-is]"
-- Update progress.md status to "Complete"
-- Note in context.md: "Polish phase skipped - core functionality complete"
+- Update Phase 3 tasks in progress.yml: set status to "skipped", add notes
+- Update progress.yml metadata.status to "complete"
+- Note in context.yml and context.md: "Polish phase skipped - core functionality complete"
 - Ready for `/archive`
 
 **If "Partial" selected:**
@@ -302,230 +628,90 @@ Options:
 - Best for production-ready code
 
 #### D. Update Context Periodically (Required)
-You MUST update context.md when:
+You MUST update context.yml and context.md when:
 - Making important architectural decisions
 - Discovering tricky areas or gotchas
 - Changing approach from original plan
 - Before moving to a new phase
 - When stopping for any reason
 
-**Key sections to update:**
+**Update context.yml (structured data):**
+- `session.focus`: Update summary, phase, current file/line, action
+- `session.docker`: Update rebuild_needed status
+- `session.git`: Update branch and file counts
+- `files.active`: Current files being edited with progress
+- `files.modified_today`: List of changed files
+- `files.next_to_modify`: Upcoming files to work on
+- `status.working`: Completed functionality
+- `status.needs_work`: Remaining items
+- `next_session.immediate_actions`: Prioritized next steps
+
+**Update context.md (human narrative):**
 - "Current Focus" - What you're working on RIGHT NOW
-- "Files Modified" - What's complete, what's in progress
-- "What's Working" - Completed functionality
-- "What Needs Work" - Remaining items
-- "For Next Session" - Specific next steps with file paths and line numbers
-- "Decisions Log" - New decisions made
+- "Files Modified" - Detailed status of each file
+- "What's Working" - Completed functionality (expanded description)
+- "What Needs Work" - Remaining items (expanded description)
+- "For Next Session" - Specific instructions with file paths and line numbers
+- "Tricky Areas" - Any gotchas discovered
+- "Decisions Log" - New decisions made with reasoning
 
 #### E. Handle Test Credentials (When Applicable)
 
+**IMPORTANT:** See CLAUDE.md "Test Credentials & Data (CRITICAL)" section for full guidance.
+
 When implementing features that require test credentials:
 
-**1. Check/Update .env.example:**
-- Read current `.env.example` file
-- Add any new environment variables needed for this feature
-- Use placeholder format: `TEST_USER_PASSWORD=GENERATE_RANDOM_14PLUS_CHARS_HERE`
-- Document generation command in comments
-- Write updated `.env.example` (this file is committed to git)
+**Quick Reference:**
+- Generate random passwords (14+ chars): `openssl rand -base64 16 | tr -d '=' | head -c 14 && echo '!@#'`
+- Store in `.env.test` (gitignored, actual credentials)
+- Template in `.env.example` (committed, placeholders only)
+- Reference env vars in test fixtures - NEVER hardcode
 
-**2. Generate Random Test Credentials:**
-When test credentials are needed, generate them using:
-```bash
-# Generate 14+ character random password
-openssl rand -base64 16 | tr -d '=' | head -c 14 && echo '!@#'
-```
+**Critical Rules:**
+- ❌ NEVER use predictable patterns (Test@Admin2024!, User123!)
+- ✅ ALWAYS generate random passwords (14+ chars minimum)
+- ✅ Use environment variables in code
+- ✅ Verify `.env.test` is in `.gitignore`
 
-**CRITICAL Rules:**
-- NEVER use predictable patterns (Test@Admin2024!, User123!, etc.)
-- ALWAYS generate random passwords (14+ chars, alphanumeric + special)
-- Each test user gets a unique randomly generated password
-- Store actual passwords in `.env.test` (gitignored)
-- Reference `.env.test` in spec.md (don't write actual passwords in spec.md)
+**Full guidance including:**
+- Password generation methods
+- Environment file structure
+- Tech stack-specific patterns
+- Security verification checklist
 
-**3. Create Test Fixtures Using Environment Variables:**
-```java
-// Spring Boot example
-@Value("${TEST_ADMIN_PASSWORD}")
-private String testAdminPassword;
-
-// Python example
-import os
-TEST_ADMIN_PASSWORD = os.getenv("TEST_ADMIN_PASSWORD")
-
-// Node.js example
-const testAdminPassword = process.env.TEST_ADMIN_PASSWORD;
-```
-
-**NEVER hardcode credentials:**
-❌ BAD: `String password = "Test@Admin2024!";`
-✅ GOOD: `String password = System.getenv("TEST_ADMIN_PASSWORD");`
-
-**4. Update context.md:**
-Document where test credentials are stored:
-```markdown
-## Test Credentials Context
-
-**Created Test Users:**
-- Admin: admin@test.example.com / See TEST_ADMIN_PASSWORD in .env.test
-- User: user@test.example.com / See TEST_USER_PASSWORD in .env.test
-
-**Credentials Location:**
-- Actual passwords: `.env.test` (gitignored, randomly generated)
-- Template: `.env.example` (committed, with placeholders)
-- Test fixtures: [path to fixtures file]
-
-**For next session:**
-Test credentials are in .env.test (ensure it's configured locally)
-```
-
-**5. Security Verification:**
-Before continuing, verify:
-- [ ] `.env.test` is in `.gitignore` (never commit)
-- [ ] `.env.example` has placeholders only (no real passwords)
-- [ ] No credentials hardcoded in test files
-- [ ] All test passwords are 14+ chars, randomly generated
-- [ ] spec.md references `.env.test` (doesn't contain actual passwords)
-
-**Show user what was created:**
-```
-✅ Test Credentials Created
-
-Generated random test credentials (14+ chars):
-- TEST_ADMIN_PASSWORD → stored in .env.test
-- TEST_USER_PASSWORD → stored in .env.test
-
-Updated files:
-- .env.example (template with placeholders)
-- [test fixtures file] (uses environment variables)
-- context.md (documented credential locations)
-
-⚠️  Reminder: .env.test contains actual credentials and is gitignored
-```
+→ **See CLAUDE.md section "Test Credentials & Data" for complete details**
 
 #### F. Rebuild Docker After Code Changes (MANDATORY)
 
+**IMPORTANT:** See CLAUDE.md "Docker Rebuild Rules (CRITICAL)" section for full guidance.
+
 ⚠️ **CRITICAL**: After making any code changes, you MUST rebuild Docker containers BEFORE running tests or validation.
 
-**The Problem:**
-Making changes → Testing immediately (without rebuild) → Seeing no changes → Debugging old code → **Wasting significant time**
+**The Core Rule:**
+Making changes → **REBUILD Docker** → Test sees new code → Accurate results
 
-**The Solution:**
-Making changes → Rebuild Docker → Test sees new code → Accurate results
+**Intelligent Fix Batching:**
+Group related fixes together to minimize rebuild cycles (e.g., fix 3 validation bugs → rebuild ONCE → test once, instead of rebuild→test→rebuild→test→rebuild→test).
 
-**Intelligent Fix Batching Strategy:**
-
-When multiple fixes are needed, GROUP them intelligently to avoid wasted rebuild cycles:
-
-❌ **Inefficient approach (wasted time):**
-```
-Fix validation bug 1 → Rebuild → Test
-Fix validation bug 2 → Rebuild → Test
-Fix validation bug 3 → Rebuild → Test
-Result: 3 rebuilds, 3 test cycles, wasted time
-```
-
-✅ **Efficient approach (time saved):**
-```
-Identify all 3 validation bugs → Fix all 3 together → Rebuild ONCE → Test ONCE
-Result: 1 rebuild, 1 test cycle, time saved
-```
-
-**How to identify and group related fixes:**
-1. **Related functionality** - All auth bugs together, all validation bugs together
-2. **Same file/module** - All UserService fixes together, all AuthController fixes together
-3. **Same test suite** - All fixes tested by unit tests together, all integration test fixes together
-4. **Same layer** - All controller fixes together, all service fixes together, all repository fixes together
-
-**When to rebuild separately:**
-- Unrelated fixes in completely different modules (want isolated verification)
-- Critical fix needing immediate validation
-- After grouping 3-5 related fixes (don't accumulate too many before testing)
-
-**Rebuild Workflow:**
-
-**Step 1: After completing grouped code changes**
+**Quick Commands:**
 ```bash
-# Option 1: Full rebuild (safest, recommended)
+# Full rebuild (recommended)
 docker compose up --build -d
 
-# Option 2: Rebuild specific service only (faster)
-docker compose build [service-name]
-docker compose up -d [service-name]
+# Rebuild specific service
+docker compose build [service-name] && docker compose up -d [service-name]
 
-# Option 3: Clean rebuild (if issues persist)
+# Clean rebuild (if issues)
 docker compose down && docker compose up --build -d
 ```
 
-**Step 2: Verify rebuild succeeded**
-```bash
-# Check logs to confirm rebuild
-docker compose logs -f [service-name]
+**Full guidance including:**
+- When to rebuild vs when hot reload works
+- Intelligent fix batching strategies
+- Step-by-step rebuild workflow
+- Verification procedures
 
-# Look for: Application started, server running, etc.
-```
-
-**Step 3: THEN run tests**
-```bash
-# Now tests see the new code
-docker compose exec [service-name] [test-cmd]
-```
-
-**When hot reload works (may skip rebuild):**
-- **Spring Boot DevTools** (Java): Hot reload for code IF DevTools enabled + volumes mounted
-- **nodemon** (Node.js): Hot reload for JS/TS IF configured + volumes mounted
-- **Python --reload**: Hot reload IF using reload flag + volumes mounted
-
-**When you MUST rebuild (hot reload won't work):**
-- ✅ Dependency changes (pom.xml, package.json, requirements.txt, go.mod)
-- ✅ Configuration file changes (application.properties, config files)
-- ✅ Dockerfile or docker-compose.yml changes
-- ✅ Compiled code in production mode
-- ✅ **When in doubt - ALWAYS rebuild**
-
-**Report rebuild in progress updates:**
-
-Show user what was done:
-```
-✅ Grouped Fixes Complete: User validation
-
-Fixes applied:
-- Fix 1: Email validation null check
-- Fix 2: Password length validation
-- Fix 3: Username format validation
-
-Rebuilt Docker: docker compose build backend ✅
-Verified rebuild: Checked logs, application started ✅
-Tests run: All 3 validation tests passing ✅
-
-Time saved: 1 rebuild instead of 3 (batched fixes intelligently)
-
-Next: Move to authorization fixes
-```
-
-**Example: Efficient batching workflow**
-```
-Test run reveals 5 bugs:
-- 3 bugs in UserService (validation issues)
-- 2 bugs in AuthController (token handling)
-
-Group 1: UserService fixes
-1. Identify all 3 UserService bugs
-2. Fix all 3 together in UserService.java
-3. Rebuild: docker compose build backend
-4. Test: docker compose exec backend ./mvnw test -Dtest=UserServiceTest
-5. Result: All 3 fixed ✅
-
-Group 2: AuthController fixes
-1. Identify both AuthController bugs
-2. Fix both together in AuthController.java
-3. Rebuild: docker compose build backend
-4. Test: docker compose exec backend ./mvnw test -Dtest=AuthControllerTest
-5. Result: Both fixed ✅
-
-Total: 2 rebuilds instead of 5 (time saved: ~60%)
-```
-
-**DO NOT proceed to testing until Docker is rebuilt after code changes.**
+→ **See CLAUDE.md section "Docker Rebuild Rules" for complete details**
 
 #### G. Continue Until Complete or Interrupted
 - Work through all tasks in current phase
@@ -563,33 +749,36 @@ If no updates needed, skip this step.
 
 ### 10. Validate Progress Tracking (MANDATORY)
 
-⚠️ **CRITICAL**: Before marking work as complete, verify that progress.md is accurate and up-to-date.
+⚠️ **CRITICAL**: Before marking work as complete, verify that progress.yml is accurate and up-to-date.
 
 **Progress Validation Checklist:**
 
-Read progress.md and verify:
-- [ ] All completed tasks are marked with [x] checkboxes
-- [ ] Completed phases are in the "Completed" section with timestamps
-- [ ] "Current Phase" field reflects the actual current phase
-- [ ] "Status" field is accurate (In Progress / Complete)
-- [ ] "Last Updated" timestamp is current (today's date or recent)
-- [ ] "Decisions Made" section contains important decisions from implementation
-- [ ] "Issues Encountered" section documents any problems faced
+Read progress.yml and verify:
+- [ ] All completed tasks have status: "complete" with completed timestamps
+- [ ] Completed phases have status: "complete" with timestamps
+- [ ] metadata.current_phase reflects the actual current phase
+- [ ] metadata.status is accurate (in_progress / testing / complete)
+- [ ] metadata.updated timestamp is current (today's date/time)
+- [ ] progress_summary counts are accurate (completed_tasks, completion_percentage)
+- [ ] decisions array contains important decisions from implementation
+- [ ] issues array documents any problems faced with resolutions
 
 **If ANY item is not checked:**
-1. Read the current progress.md file
+1. Read the current progress.yml file
 2. Update the missing or incorrect information
-3. Write the updated progress.md file
-4. Verify all checklist items are now satisfied
+3. Recalculate progress_summary values
+4. Write the updated progress.yml file
+5. Verify all checklist items are now satisfied
 
 **Show user the validation result:**
 ```
 ✅ Progress Tracking Validated
 
 Verified:
-- All [X] completed tasks properly marked
-- Timestamps current (last updated: YYYY-MM-DD)
+- All completed tasks marked (status: "complete")
+- Timestamps current (updated: 2025-11-07T15:30:00)
 - Current phase accurate: Phase [N]
+- Progress summary: X/Y tasks (Z%)
 - Decisions and issues documented
 
 Progress tracking is accurate and complete.
@@ -601,52 +790,29 @@ Progress tracking is accurate and complete.
 
 ⚠️ **CRITICAL**: Before marking work as complete, verify that OWASP Top 10 security mitigations are implemented.
 
-**Security Validation Checklist (OWASP Top 10):**
+**IMPORTANT:** See CLAUDE.md "Security - OWASP Top 10 (CRITICAL)" section for full security requirements.
+
+**Quick Security Checklist:**
 
 Review the implemented code and verify:
-
-- [ ] **A01: Access Control** - All endpoints have proper authorization checks
-- [ ] **A02: Cryptography** - Sensitive data is encrypted/hashed (passwords use bcrypt/Argon2)
-- [ ] **A03: Injection Prevention** - ALL user inputs are validated and sanitized
-  - [ ] SQL queries use parameterized statements (NO string concatenation)
-  - [ ] User input in HTML is escaped to prevent XSS
-  - [ ] No shell commands executed with user input
-- [ ] **A04: Secure Design** - Rate limiting implemented where needed
-- [ ] **A05: Configuration** - No debug mode enabled in production configs
-- [ ] **A06: Dependencies** - No known vulnerable dependencies added
-- [ ] **A07: Authentication** - Session management is secure, no session IDs in URLs
-- [ ] **A08: Integrity** - Dependencies verified, no untrusted sources
-- [ ] **A09: Security Logging** - Auth/authz events logged (without sensitive data)
-- [ ] **A10: SSRF Prevention** - External URLs validated and allowlisted
+- [ ] **A01: Access Control** - Authorization checks on all endpoints
+- [ ] **A02: Cryptography** - Sensitive data encrypted/hashed (bcrypt/Argon2)
+- [ ] **A03: Injection Prevention** - Parameterized queries, input sanitization, XSS prevention
+- [ ] **A04-A10**: Rate limiting, secure config, dependency checks, auth/session security, integrity, logging, SSRF prevention
 
 **Additional Critical Checks:**
-- [ ] No secrets/API keys/passwords in code (use environment variables)
-- [ ] Error messages don't expose sensitive information or stack traces
-- [ ] HTTPS/TLS used for all sensitive data transmission
-- [ ] Input validation on both client AND server side
+- [ ] No secrets in code (use environment variables)
+- [ ] Error messages sanitized (no stack traces/sensitive info)
+- [ ] HTTPS/TLS for sensitive data
+- [ ] Input validation on client AND server
 
-**If ANY security item is not checked:**
-1. Review the spec.md Security Requirements section
-2. Review CLAUDE.md Security - OWASP Top 10 section
-3. Implement missing security controls
-4. Re-test the security measures
-5. Verify all checklist items are now satisfied
+**If ANY security item fails:**
+1. Review spec.yml requirements.non_functional.security section
+2. Review CLAUDE.md "Security - OWASP Top 10" section (full details)
+3. Implement missing controls
+4. Re-test and verify
 
-**Show user the validation result:**
-```
-✅ Security Validated (OWASP Top 10)
-
-Verified security controls:
-- Input validation and sanitization implemented
-- SQL injection prevention (parameterized queries)
-- Authorization checks on all endpoints
-- Sensitive data encrypted/hashed
-- No secrets in code
-- Security logging implemented
-- Error messages sanitized
-
-Security review complete. Code follows OWASP Top 10 best practices.
-```
+→ **See CLAUDE.md section "Security - OWASP Top 10" for complete mitigation details**
 
 **DO NOT proceed to marking work complete until security validation passes.**
 
@@ -678,14 +844,14 @@ Would you like me to run the tests now?
 
 ### Case: Context is Outdated
 
-If context.md mentions files/approaches that no longer exist:
+If context.yml/context.md mention files/approaches that no longer exist:
 ```
 ⚠️ Context Update Needed
 
-The context file mentions working on [X], but I notice [Y has changed].
+The context files mention working on [X], but I notice [Y has changed].
 
 Options:
-1. Update context and proceed with current state (recommended)
+1. Update context.yml and context.md, proceed with current state (recommended)
 2. Ask you about the best path forward
 3. Stick with original plan despite changes
 
@@ -726,12 +892,12 @@ Would you like me to:
 
 ### Case: Blocked Tasks
 
-If progress.md shows blocked tasks:
+If progress.yml shows blocked tasks (tasks with status: "blocked" or blockers array populated):
 ```
 ⚠️ Blocked Tasks Found:
 
 Blocked:
-- [Task description] - [Reason for blockage]
+- [Task ID] [Task description] - [Reason for blockage]
 
 These need to be unblocked before proceeding. Would you like to:
 1. Work on unblocking them now
@@ -741,9 +907,11 @@ These need to be unblocked before proceeding. Would you like to:
 
 ### Case: Task Already Complete
 
-If all tasks are checked off:
+If all tasks in progress.yml have status: "complete":
 ```
-✅ This task appears to be complete (all items checked off).
+✅ This task appears to be complete (all tasks marked complete).
+
+Progress summary: X/X tasks complete (100%)
 
 Options:
 1. /archive - Move to completed
@@ -755,12 +923,12 @@ What would you like to do?
 
 ### Case: No Clear Next Step
 
-If context.md doesn't have explicit next steps and progress.md next steps are vague:
+If context.yml next_session.immediate_actions is empty or vague, and progress.yml next_steps is unclear:
 ```
 ❓ Next steps are unclear.
 
-Context: [What we know]
-Last completed: [Last item]
+Context: [What we know from context.yml]
+Last completed: [Last item from progress.yml]
 
 Need more specific direction. Could you clarify:
 1. Which file should I work on next?
@@ -776,17 +944,18 @@ Need more specific direction. Could you clarify:
 - Mark tasks complete as you go
 
 ### Update Progress Frequently (MANDATORY)
-You MUST update progress.md:
-- After completing each task
+You MUST update progress.yml:
+- After completing each task (update task status and timestamps)
 - After completing each phase (STOP and update before continuing)
 - Before taking breaks (via `/checkpoint`)
-- When making important decisions
+- When making important decisions (add to decisions array)
+- Update progress_summary counts and percentages
 
 ### Follow the Plan
-- Reference spec.md for requirements
-- Follow technical design from spec.md
-- Use patterns identified in context.md
-- Reuse components mentioned in context.md
+- Reference spec.yml for requirements (check requirements section)
+- Follow technical design from spec.yml (technical_design section)
+- Use patterns identified in context.yml/context.md (architecture section)
+- Reuse components mentioned in context.yml
 
 ### Communicate Progress
 - Show what you're working on
@@ -796,19 +965,26 @@ You MUST update progress.md:
 
 ### Update Progress After Each Phase (MANDATORY)
 
-After completing each phase, you MUST update progress.md:
-```markdown
-**Status:** In Progress → In Progress (or Complete if last phase)
-**Current Phase:** Phase 1 → Phase 2
-**Last Updated:** [New timestamp]
+After completing each phase, you MUST update progress.yml:
+```yaml
+metadata:
+  status: "in_progress"  # or "complete" if last phase
+  current_phase: 2  # increment from 1 to 2
+  updated: "2025-11-07T15:30:00"  # new timestamp
 
-Move completed tasks from task list to "Completed" section:
+progress_summary:
+  completed_phases: 1  # increment
+  completed_tasks: 3   # update count
+  completion_percentage: 43  # recalculate
 
-## Completed
-
-### Phase 1: Setup & Foundation (Completed 2025-11-03)
-- [x] Task 1
-- [x] Task 2
+phases:
+  - id: 1
+    name: "Setup & Foundation"
+    status: "complete"  # update from in_progress
+    completed: "2025-11-03T16:30:00"  # add timestamp
+    tasks:
+      - id: "T1"
+        status: "complete"  # all tasks complete
 ```
 
 ### Quality Standards
@@ -821,7 +997,7 @@ Move completed tasks from task list to "Completed" section:
 - **Use parameterized queries** (never concatenate SQL queries)
 - **Implement proper authorization checks** (verify permissions on all endpoints)
 - **Never commit secrets** (use environment variables for sensitive data)
-- Write tests as specified in spec.md
+- Write tests as specified in spec.yml testing section
 - Handle error cases securely (no sensitive data in error messages)
 - Update documentation as needed
 - Ensure changes don't break existing functionality
@@ -829,26 +1005,27 @@ Move completed tasks from task list to "Completed" section:
 ## Tips for Effective Implementation
 
 **For the AI:**
-- Read context.md first (most important for resumption)
+- Read context.yml + context.md first (most important for resumption)
+- Parse YAML files properly (spec.yml, progress.yml, context.yml)
 - Verify file existence before referencing
 - Be specific about what you're doing
-- Update progress in real-time
+- Update progress.yml in real-time (update counts, percentages, timestamps)
 - Surface issues immediately
-- Don't make assumptions - check the spec
+- Don't make assumptions - check spec.yml
 
 **For the User:**
 - Run `/checkpoint` before breaks to save state
-- Keep context.md updated for better resumption
+- Context files (YAML + MD) updated automatically for better resumption
 - Use `/implement` after any break (replaces `/resume`)
 - Interrupt anytime to ask questions or give direction
 
 ## Success Criteria
 
-- Context files successfully loaded
+- Context files successfully loaded (YAML + Markdown)
 - Current state correctly identified (fresh vs resuming)
-- Next actions are clear and actionable
-- Implementation follows spec.md requirements
-- Progress.md updated after each phase
-- Context.md updated with important changes
+- Next actions are clear and actionable (from context.yml + progress.yml)
+- Implementation follows spec.yml requirements
+- Progress.yml updated after each phase (with accurate counts)
+- Context.yml + context.md updated with important changes
 - Work continues smoothly from last stopping point
 - Quality code produced following project standards

@@ -478,6 +478,153 @@ docker compose exec [service-name] [test-command]
 
 {{CICD_SECTION}}
 
+## MCP Integration (Optional - Enhanced Multi-Agent Mode)
+
+This project supports Model Context Protocol (MCP) servers for enhanced domain-specific agent capabilities when using multi-agent mode with claude-spec.
+
+### What is MCP Integration?
+
+MCP integration provides domain expert agents with specialized tools for:
+- **Backend**: Database queries, API testing, test execution, migrations
+- **Frontend**: Browser automation, component testing, UI validation
+- **DevOps**: Container management, deployment, secrets management
+- **Database**: Schema analysis, query optimization
+- **Infrastructure**: Cloud resource management, cost monitoring
+
+### Benefits
+
+- **Specialized Tools**: Direct database access, API testing, browser automation
+- **Better Security**: Secrets managed via Docker/MCP, not environment variables
+- **Faster Development**: Real-time testing and verification during implementation
+- **Isolation**: Each expert runs in separate process/container
+- **Optional**: Falls back to prompt-based agents if not installed
+
+### Quick Setup
+
+**1. Install MCP Servers:**
+```bash
+npm install -g @claude-spec/backend-mcp-server
+npm install -g @claude-spec/frontend-mcp-server
+npm install -g @claude-spec/devops-mcp-server
+```
+
+**2. Configure Claude Code:**
+```bash
+# Backend expert with database access
+claude mcp add backend-expert \
+  --env DATABASE_URL="${DATABASE_URL}" \
+  --env TEST_COMMAND="{{TEST_COMMAND}}" \
+  -- npx @claude-spec/backend-mcp-server
+
+# Frontend expert with browser testing
+claude mcp add frontend-expert \
+  --env BASE_URL="{{BASE_URL}}" \
+  -- npx @claude-spec/frontend-mcp-server
+
+# DevOps expert with Docker access
+claude mcp add devops-expert \
+  --env DOCKER_HOST="unix:///var/run/docker.sock" \
+  -- npx @claude-spec/devops-mcp-server
+```
+
+**3. Project-Level Configuration (.mcp.json):**
+
+Create `.mcp.json` in project root for team sharing:
+
+```json
+{
+  "mcpServers": {
+    "backend-expert": {
+      "command": "npx",
+      "args": ["@claude-spec/backend-mcp-server"],
+      "env": {
+        "DATABASE_URL": "${DATABASE_URL}",
+        "TEST_DATABASE_URL": "${TEST_DATABASE_URL}",
+        "TEST_COMMAND": "{{TEST_COMMAND}}",
+        "MIGRATION_COMMAND": "{{MIGRATION_COMMAND}}"
+      }
+    },
+    "frontend-expert": {
+      "command": "npx",
+      "args": ["@claude-spec/frontend-mcp-server"],
+      "env": {
+        "BASE_URL": "{{BASE_URL}}",
+        "BROWSER_TYPE": "chromium"
+      }
+    },
+    "devops-expert": {
+      "command": "npx",
+      "args": ["@claude-spec/devops-mcp-server"],
+      "env": {
+        "DOCKER_HOST": "unix:///var/run/docker.sock"
+      }
+    }
+  }
+}
+```
+
+**Commit `.mcp.json`** to version control. Actual credentials go in `.env` (gitignored).
+
+### Usage with claude-spec
+
+When planning features:
+```bash
+/cspec:plan user-authentication
+
+# Answer "Yes" to "Enable multi-agent mode with domain experts"
+# Answer "Yes" to "Enable MCP integration" (if installed)
+```
+
+When implementing:
+```bash
+/cspec:implement
+
+# Claude will detect MCP servers and use enhanced domain experts
+# ✅ Detected MCP servers: backend-expert, frontend-expert, devops-expert
+# Using MCP-based domain experts with specialized tools
+```
+
+### Fallback Mode
+
+If MCP servers are not installed, claude-spec automatically falls back to prompt-based agents (current behavior). MCP is optional but recommended for:
+- Production projects requiring database access
+- API-driven features needing endpoint testing
+- Complex multi-domain features
+- Projects with strict security requirements
+
+### Available Domain Experts
+
+| Domain | Tools | Use Cases |
+|--------|-------|-----------|
+| **backend-expert** | Database queries, API testing, tests, migrations | Backend/API implementation |
+| **frontend-expert** | Browser automation, component testing, screenshots | UI/component development |
+| **devops-expert** | Container management, deployment, secrets | Infrastructure, deployment |
+| **database-expert** | Schema analysis, query optimization | Database tuning |
+| **infrastructure-expert** | Cloud resources, networking, costs | Cloud infrastructure |
+
+### Documentation
+
+- **Complete Guide**: [docs/MCP_INTEGRATION.md](docs/MCP_INTEGRATION.md)
+- **Tool Reference**: [docs/DOMAIN_EXPERTS.md](docs/DOMAIN_EXPERTS.md) (coming soon)
+- **Backend Expert**: [.mcp-servers/backend-expert/README.md](.mcp-servers/backend-expert/README.md)
+
+### Troubleshooting
+
+**MCP server not connecting:**
+```bash
+# Check status
+claude
+> /mcp
+
+# View logs
+claude mcp logs backend-expert
+
+# Restart
+claude mcp restart backend-expert
+```
+
+**See [docs/MCP_INTEGRATION.md](docs/MCP_INTEGRATION.md) for complete troubleshooting guide.**
+
 ---
 
 **Note**: This CLAUDE.md is your project's persistent context. It's read automatically every time you start Claude Code. Keep it under 10,000 words and focused on what Claude needs to know to work effectively.

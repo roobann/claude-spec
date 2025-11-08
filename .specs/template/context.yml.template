@@ -9,6 +9,7 @@ metadata:
   updated: "{{CREATED_DATE}}"
   status: "planning"  # planning | in_progress | testing | blocked | complete
   testing_approach: "{{TESTING_APPROACH}}"
+  architecture_doc: "architecture.md"  # Reference to detailed architecture document
 
   # Multi-Agent Mode
   agent_coordination: false  # Set to true when using domain experts
@@ -69,6 +70,15 @@ status:
 
 # Architecture context
 architecture:
+  reference_doc: "architecture.md"  # Detailed architecture document
+
+  key_decisions:
+    # - "ADR-001: Decision summary"
+
+  integration_points:
+    # - system: "System name"
+    #   interaction: "How we integrate"
+
   patterns:
     # - name: "Pattern name"
     #   usage: "How it's used in this feature"

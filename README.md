@@ -49,8 +49,8 @@ Both commands will:
 ### 3. Start Building
 
 ```bash
-# Plan a new feature
-> /cspec:plan user-authentication
+# Design feature architecture
+> /cspec:architect user-authentication
 
 # Implement or continue work anytime
 > /cspec:implement
@@ -80,22 +80,26 @@ your-project/
 ├── .claudeignore                # Auto-generated ignore patterns
 ├── .claude/
 │   └── commands/
-│       ├── cspec:init-new.md   # Initialize new project with interactive config
+│       ├── cspec:init-new.md      # Initialize new project with interactive config
 │       ├── cspec:init-existing.md # Auto-detect existing project stack
-│       ├── cspec:plan.md       # Plan new features (creates specs only)
-│       ├── cspec:implement.md  # Start or continue implementation
-│       ├── cspec:checkpoint.md # Save progress
-│       └── cspec:archive.md    # Archive completed tasks
+│       ├── cspec:architect.md     # Design feature architecture with comprehensive planning
+│       ├── cspec:implement.md     # Start or continue implementation
+│       ├── cspec:checkpoint.md    # Save progress
+│       └── cspec:archive.md       # Archive completed tasks
 └── .specs/
-    ├── README.md               # Spec system documentation
-    ├── active-task/            # Currently active work
-    │   ├── spec.md             # What you're building
-    │   ├── progress.md         # Status tracker
-    │   └── context.md          # Resumption lifeline
-    ├── completed-tasks/        # Archived completed tasks
-    └── template/               # Templates for new tasks
-        ├── spec.md.template
-        ├── progress.md.template
+    ├── README.md                  # Spec system documentation
+    ├── active-task/               # Currently active work
+    │   ├── architecture.md        # Detailed design & ADRs
+    │   ├── spec.yml               # Requirements
+    │   ├── progress.yml           # Task tracking
+    │   ├── context.yml            # Metadata
+    │   └── context.md             # Human-readable context
+    ├── completed-tasks/           # Archived completed tasks
+    └── template/                  # Templates for new tasks
+        ├── architecture.md.template
+        ├── spec.yml.template
+        ├── progress.yml.template
+        ├── context.yml.template
         └── context.md.template
 ```
 
@@ -103,7 +107,7 @@ your-project/
 
 1. **`/cspec:init-new`** - Initialize new project with interactive tech stack configuration
 2. **`/cspec:init-existing`** - Auto-detect and configure existing project
-3. **`/cspec:plan [name]`** - Plan new feature (creates specs, stops before implementation)
+3. **`/cspec:architect [name]`** - Design feature architecture with comprehensive planning (use `--quick` for simple features)
 4. **`/cspec:implement`** - Start or continue implementation of current task
 5. **`/cspec:checkpoint`** - Save progress before breaks or context switches
 6. **`/cspec:archive`** - Move completed task to archive
@@ -161,9 +165,9 @@ Claude Code doesn't persist context between sessions. This template provides **f
 
 **Day 1:**
 ```bash
-> /cspec:plan user-authentication
-[Claude analyzes requirements, creates spec, presents plan]
-[You review the plan]
+> /cspec:architect user-authentication
+[Claude asks comprehensive questions, analyzes codebase, creates architecture]
+[You review the architecture & ADRs]
 > /cspec:implement
 [Implementation begins]
 [2 hours of work]
@@ -190,7 +194,7 @@ Claude: "Building user authentication. Signup done, login 50% complete.
 ### New Projects
 - Run `./setup.sh` to install commands
 - Run `/cspec:init-new` to interactively configure your tech stack
-- Start with `/cspec:plan` for first feature
+- Start with `/cspec:architect` for first feature
 
 ### Existing Projects
 - Run `./setup.sh` to install commands
@@ -226,7 +230,7 @@ MIT - Use freely in any project
 1. Run `./setup.sh` to install commands
 2. Run `/cspec:init-existing` (for existing projects) or `/cspec:init-new` (for new projects) in Claude Code
 3. Review generated `CLAUDE.md`
-4. Run `/cspec:plan` to start your first feature
+4. Run `/cspec:architect` to design your first feature
 5. Read [WORKFLOW.md](docs/WORKFLOW.md) for daily usage patterns
 
 Happy coding with Claude!

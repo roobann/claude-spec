@@ -10,6 +10,7 @@ metadata:
   updated: "{{CREATED_DATE}}"
   current_phase: 0  # 0=planning, 1=phase1, 2=phase2, etc.
   testing_approach: "{{TESTING_APPROACH}}"  # tdd | minimal | balanced
+  architecture_doc: "architecture.md"  # Reference to detailed architecture document
 
   # Multi-Agent Mode
   agent_coordination: false  # Set to true when using domain experts

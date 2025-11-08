@@ -2,6 +2,8 @@
 
 > **Note:** This file provides human-readable context. Structured metadata is in `context.yml`.
 > Both files work together for optimal resumption.
+>
+> **Architecture:** See `architecture.md` for detailed design and Architecture Decision Records (ADRs).
 
 **Created:** [YYYY-MM-DD]
 **Last Updated:** [YYYY-MM-DD HH:MM]
@@ -10,6 +12,8 @@
 ## What We're Building
 
 [One clear paragraph summary of the feature and its purpose]
+
+**Architecture Reference:** See `architecture.md` for complete technical design, ADRs, and implementation plan.
 
 ## Current Focus
 
@@ -41,7 +45,20 @@ Branch: `[branch-name]`
 
 ## Architecture Context
 
-[Key architectural decisions or patterns being followed]
+**See `architecture.md` for complete architecture design including:**
+- Architecture Decision Records (ADRs) with rationale
+- System design and component architecture
+- Security architecture (OWASP mitigations)
+- Testing strategy and test pyramid
+- Implementation phases and task dependencies
+
+**Key Decisions (from architecture.md):**
+- ADR-001: [Decision summary]
+- ADR-002: [Decision summary]
+
+**Integration Points:**
+- [System A] - [How we integrate]
+- [System B] - [How we integrate]
 
 **Patterns in use:**
 - Pattern 1 - Description

@@ -7,6 +7,7 @@ metadata:
   created: "{{CREATED_DATE}}"
   status: "planning"  # planning | in_progress | testing | complete
   priority: "medium"  # high | medium | low
+  architecture_doc: "architecture.md"  # Reference to detailed architecture document
 
   # Multi-Agent Mode (optional)
   agent_coordination: false  # Set to true to enable domain-expert agents
@@ -79,6 +80,14 @@ requirements:
       - "Safari (latest 2 versions)"
 
 technical_design:
+  # Reference to detailed architecture document
+  architecture_reference: "See architecture.md for detailed design and ADRs"
+
+  # Architecture Decision Records (ADRs) - Summaries from architecture.md
+  architecture_decisions:
+    - "ADR-001: [Key decision summary]"
+    - "ADR-002: [Key decision summary]"
+
   # Standard structure (use this for single-domain features)
   architecture:
     approach: "High-level technical approach"

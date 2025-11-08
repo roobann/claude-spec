@@ -1,0 +1,832 @@
+# Architecture: [Feature Name]
+
+**Date:** [YYYY-MM-DD]
+**Status:** Planning
+**Priority:** [Critical/High/Medium]
+
+---
+
+## Overview
+
+**Problem Statement:**
+[What problem does this feature solve? What user pain point does it address?]
+
+**Primary Users:**
+[Who will use this feature? End users, admins, developers, systems?]
+
+**Business Value:**
+[Why are we building this? What's the expected impact?]
+
+**User Stories:**
+- As a [user type], I want to [action] so that [benefit]
+- As a [user type], I want to [action] so that [benefit]
+- As a [user type], I want to [action] so that [benefit]
+
+---
+
+## Architecture Decision Records (ADRs)
+
+### ADR-001: [Decision Title]
+
+**Status:** Accepted
+**Date:** [YYYY-MM-DD]
+
+**Context:**
+[What is the issue we're trying to solve? What factors influence this decision?]
+
+**Decision:**
+[What approach/technology/pattern are we choosing?]
+
+**Consequences:**
+**Positive:**
+- [Benefit 1]
+- [Benefit 2]
+
+**Negative:**
+- [Trade-off 1]
+- [Trade-off 2]
+
+**Alternatives Considered:**
+1. **[Alternative 1]:** [Why rejected]
+2. **[Alternative 2]:** [Why rejected]
+
+---
+
+### ADR-002: [Decision Title]
+
+[Repeat structure above for each major architectural decision]
+
+---
+
+## System Design
+
+### Component Architecture
+
+[Text-based component diagram showing main components and relationships]
+
+```
+┌─────────────────────┐
+│   Presentation      │
+│   (UI/Frontend)     │
+└──────────┬──────────┘
+           │ HTTP/REST/GraphQL
+┌──────────▼──────────┐
+│   Application       │
+│   (Business Logic)  │
+└──────────┬──────────┘
+           │ ORM/SQL
+┌──────────▼──────────┐
+│   Data Access       │
+│   (Database)        │
+└─────────────────────┘
+```
+
+**Component Descriptions:**
+
+**[Component Name]:**
+- **Responsibility:** [What this component does]
+- **Dependencies:** [What it depends on]
+- **Interactions:** [How it communicates with other components]
+
+### Data Flow
+
+**Primary Flow:**
+```
+User Action → Frontend Component → API Request → Backend Handler
+→ Service Layer → Database → Response → Frontend Update
+```
+
+**Detailed Steps:**
+1. [Step 1 with details]
+2. [Step 2 with details]
+3. [Step 3 with details]
+
+**Alternative Flows:**
+- **Error Flow:** [How errors propagate]
+- **Cache Flow:** [If caching is involved]
+- **Async Flow:** [If async operations are involved]
+
+### State Management
+
+**Approach:** [Redux/Context API/MobX/Zustand/etc.]
+
+**State Structure:**
+```javascript
+{
+  [feature]: {
+    data: [...],
+    loading: false,
+    error: null,
+    filters: {...}
+  }
+}
+```
+
+**State Transitions:**
+- [Action] → [State change]
+- [Action] → [State change]
+
+### Integration Points
+
+**Internal Integrations:**
+- **[System/Component A]:** [How we integrate, data exchanged]
+- **[System/Component B]:** [How we integrate, data exchanged]
+
+**External Integrations:**
+- **[Third-party Service]:** [Purpose, API used, authentication]
+
+**Event Subscriptions:**
+- **[Event Name]:** [What triggers it, what we do with it]
+
+---
+
+## Technical Specifications
+
+### API Endpoints
+
+| Method | Path | Description | Request Body | Response | Auth Required |
+|--------|------|-------------|--------------|----------|---------------|
+| POST | /api/[resource] | [Description] | `{field: type}` | `{field: type}` | Yes/No |
+| GET | /api/[resource]/:id | [Description] | N/A | `{field: type}` | Yes/No |
+| PUT | /api/[resource]/:id | [Description] | `{field: type}` | `{field: type}` | Yes/No |
+| DELETE | /api/[resource]/:id | [Description] | N/A | `{status: "ok"}` | Yes/No |
+
+**Request/Response Examples:**
+
+**POST /api/[resource]**
+```json
+// Request
+{
+  "field1": "value",
+  "field2": 123
+}
+
+// Success Response (200)
+{
+  "id": "uuid",
+  "field1": "value",
+  "field2": 123,
+  "created_at": "2025-01-08T10:00:00Z"
+}
+
+// Error Response (400)
+{
+  "error": "Validation failed",
+  "details": {
+    "field1": ["Required field"]
+  }
+}
+```
+
+### Data Models
+
+**[ModelName] Model:**
+```yaml
+[ModelName]:
+  id: uuid (primary key, auto-generated)
+  field1: string (required, max 255 chars, indexed)
+  field2: integer (required, min: 0)
+  field3: boolean (default: false)
+  foreign_key_id: uuid (foreign key → OtherModel.id, on delete: cascade)
+  created_at: timestamp (auto-generated)
+  updated_at: timestamp (auto-updated)
+
+Indexes:
+  - [field1] (unique)
+  - [field1, field2] (composite)
+
+Constraints:
+  - CHECK: field2 >= 0
+  - UNIQUE: [field1, foreign_key_id]
+```
+
+**Relationships:**
+- `[ModelName]` belongs to `[OtherModel]` (many-to-one)
+- `[ModelName]` has many `[ChildModel]` (one-to-many)
+
+**Database Migration:**
+```sql
+-- Migration: create_[table_name]_table
+CREATE TABLE [table_name] (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  field1 VARCHAR(255) NOT NULL,
+  field2 INTEGER NOT NULL CHECK (field2 >= 0),
+  foreign_key_id UUID REFERENCES other_table(id) ON DELETE CASCADE,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE UNIQUE INDEX idx_[table]_field1 ON [table_name](field1);
+CREATE INDEX idx_[table]_composite ON [table_name](field1, field2);
+```
+
+### Component Interfaces
+
+**[ComponentName] Interface:**
+
+**Props/Parameters:**
+```typescript
+interface [ComponentName]Props {
+  field1: string;
+  field2?: number;
+  onAction: (data: DataType) => void;
+}
+```
+
+**Methods/Functions:**
+```typescript
+function [functionName](
+  param1: Type1,
+  param2: Type2
+): ReturnType {
+  // Implementation
+}
+```
+
+**Events Emitted:**
+- `[event-name]`: Payload type `{field: type}`
+
+### Dependencies
+
+**External Dependencies (New):**
+| Package | Version | Purpose | License |
+|---------|---------|---------|---------|
+| [package-name] | ^X.Y.Z | [Why we need it] | MIT |
+| [package-name] | ^X.Y.Z | [Why we need it] | Apache-2.0 |
+
+**Internal Dependencies (Existing):**
+- **[ServiceName]** at `[file-path]` - [How we'll use it]
+- **[ComponentName]** at `[file-path]` - [How we'll reuse it]
+- **[UtilityName]** at `[file-path]` - [How we'll leverage it]
+
+---
+
+## Security Architecture
+
+### OWASP Top 10 Mitigations
+
+**A01 - Broken Access Control:**
+- [Mitigation 1: e.g., Middleware validates JWT on all protected endpoints]
+- [Mitigation 2: e.g., Role-based access control (RBAC) checks before actions]
+- [Mitigation 3: e.g., User can only access their own resources]
+
+**A02 - Cryptographic Failures:**
+- [Mitigation 1: e.g., Passwords hashed with bcrypt (cost factor 12)]
+- [Mitigation 2: e.g., Sensitive data encrypted at rest using AES-256]
+- [Mitigation 3: e.g., TLS 1.3 for data in transit]
+
+**A03 - Injection:**
+- [Mitigation 1: e.g., Parameterized queries (no SQL string concatenation)]
+- [Mitigation 2: e.g., Input validation with schema validator (Joi/Zod)]
+- [Mitigation 3: e.g., XSS prevention via Content Security Policy]
+- [Mitigation 4: e.g., HTML escaping on all user-generated content]
+
+**A04 - Insecure Design:**
+- [Mitigation: e.g., Threat modeling completed, security requirements defined]
+
+**A05 - Security Misconfiguration:**
+- [Mitigation: e.g., Security headers (HSTS, X-Frame-Options, CSP)]
+- [Mitigation: e.g., Error messages sanitized (no stack traces in production)]
+
+**A06 - Vulnerable and Outdated Components:**
+- [Mitigation: e.g., Automated dependency scanning with npm audit]
+
+**A07 - Identification and Authentication Failures:**
+- [Mitigation: e.g., Multi-factor authentication available]
+- [Mitigation: e.g., Account lockout after N failed attempts]
+
+**A08 - Software and Data Integrity Failures:**
+- [Mitigation: e.g., Signed packages, checksum verification]
+
+**A09 - Security Logging and Monitoring Failures:**
+- [Mitigation: e.g., Login attempts logged with IP and timestamp]
+- [Mitigation: e.g., Failed auth attempts trigger alerts]
+
+**A10 - Server-Side Request Forgery (SSRF):**
+- [Mitigation: e.g., URL validation, allowlist for external requests]
+
+### Authentication Flow
+
+```
+1. User submits credentials
+2. Backend validates against database
+   - Hash input password with bcrypt
+   - Compare with stored hash
+3. If valid: Generate JWT with user claims
+   - Payload: {userId, role, exp}
+   - Sign with secret from env var
+4. Return token to client
+5. Client stores token (httpOnly cookie or localStorage)
+6. Subsequent requests include token in Authorization header
+7. Middleware validates token on protected routes
+```
+
+### Authorization Strategy
+
+**Role-Based Access Control (RBAC):**
+- Roles: `[admin, user, guest]`
+- Permissions per role:
+  - `admin`: [All operations]
+  - `user`: [Read own data, update own data]
+  - `guest`: [Read public data only]
+
+**Endpoint-Level Authorization:**
+```
+Endpoint: POST /api/[resource]
+Required: Authenticated user with role 'user' or 'admin'
+Check: User can only create resources for themselves
+```
+
+**Data-Level Authorization:**
+```
+Check: user.id === resource.owner_id before allowing read/update/delete
+```
+
+---
+
+## Testing Strategy
+
+### Test Pyramid
+
+**Unit Tests (60% of tests):**
+- **Target:** Individual functions, services, utilities
+- **Coverage Goal:** 90%+
+- **Key Tests:**
+  - `[ServiceName].[methodName]()` - [What to test]
+  - `[UtilityName].[functionName]()` - [What to test]
+  - `[ValidationSchema].validate()` - [What to test]
+
+**Integration Tests (30% of tests):**
+- **Target:** API endpoints, database interactions, component integration
+- **Coverage Goal:** 80%+
+- **Key Tests:**
+  - `POST /api/[resource]` - Success, validation errors, auth errors
+  - `GET /api/[resource]/:id` - Success, not found, unauthorized
+  - Database operations - Create, read, update, delete
+  - Service-to-service communication
+
+**End-to-End Tests (10% of tests):**
+- **Target:** Complete user workflows
+- **Coverage Goal:** Critical paths
+- **Key Tests:**
+  - Complete [workflow name] flow
+  - Error recovery scenarios
+  - Cross-browser compatibility (if applicable)
+
+### Key Test Scenarios
+
+**Happy Path:**
+1. [Scenario]: User does [action] with valid data
+   - **Given:** [Preconditions]
+   - **When:** [Action]
+   - **Then:** [Expected outcome]
+
+**Error Cases:**
+1. [Scenario]: User does [action] with invalid data
+   - **Given:** [Preconditions]
+   - **When:** [Action with invalid input]
+   - **Then:** [Error response, user feedback]
+
+2. [Scenario]: Unauthorized access attempt
+   - **Given:** [Preconditions]
+   - **When:** [Unauthorized action]
+   - **Then:** [401/403 response, no data leak]
+
+**Edge Cases:**
+1. [Scenario]: [Unusual but valid scenario]
+2. [Scenario]: [Boundary condition]
+3. [Scenario]: [Race condition or timing issue]
+
+### Test Data Requirements
+
+**Test Users:**
+- Admin user (from CLAUDE.md test credentials)
+- Regular user (from CLAUDE.md test credentials)
+- User with special permissions
+
+**Test Data:**
+- [Resource type] - Valid examples
+- [Resource type] - Invalid examples (for validation testing)
+- [Resource type] - Edge cases (empty, very large, special characters)
+
+**Important:** Follow CLAUDE.md "Test Credentials & Data" guidelines:
+- Generate random passwords (14+ chars)
+- Store in `.env.test` (gitignored)
+- Reference via environment variables
+- Never hardcode credentials
+
+### CI/CD Integration
+
+**Pre-commit:**
+- Linting
+- Type checking
+
+**On Pull Request:**
+- Unit tests
+- Integration tests
+- Code coverage report (must be > X%)
+
+**Before Deployment:**
+- Full test suite
+- E2E tests
+- Security scan
+
+---
+
+## Multi-Agent Coordination
+[Only include this section if multi-agent mode is enabled]
+
+### Domain Breakdown
+
+**Domains Involved:**
+- **Backend:** [Responsibilities]
+- **Frontend:** [Responsibilities]
+- **DevOps:** [Responsibilities]
+- **Database:** [Responsibilities] (if complex DB work)
+
+### Domain Responsibilities
+
+**Backend Domain:**
+- API endpoint implementation
+- Business logic services
+- Database models and migrations
+- Authentication/authorization logic
+- Backend unit and integration tests
+
+**Frontend Domain:**
+- UI components
+- State management
+- Frontend routing
+- Form validation
+- User interaction handling
+- Frontend tests (component, integration)
+
+**DevOps Domain:**
+- Environment configuration
+- Secret management
+- CI/CD pipeline updates
+- Docker/deployment configuration
+- Infrastructure changes
+
+### Task Dependencies & Handoff Points
+
+**Dependency Graph:**
+```
+Backend (T1-T5) → Frontend (T6-T9)
+                     ↓
+                  Testing (T10-T13)
+                     ↓
+DevOps (T14-T15) → Deployment
+```
+
+**Handoff Points:**
+
+**Backend → Frontend:**
+- **Deliverable:** API endpoint contracts
+- **Format:** OpenAPI/Swagger spec or API documentation
+- **Includes:**
+  - Endpoint URLs and methods
+  - Request/response schemas
+  - Error response formats
+  - Authentication requirements
+  - Example requests/responses
+
+**Backend → DevOps:**
+- **Deliverable:** Environment variable requirements
+- **Includes:**
+  - New env vars needed
+  - Database migration files
+  - Dependency updates
+
+**Frontend → DevOps:**
+- **Deliverable:** Build configuration
+- **Includes:**
+  - Environment-specific configs
+  - Static asset handling
+  - Routing rules
+
+### MCP Integration (if enabled)
+
+**MCP Servers Required:**
+- `@claude-spec/backend-mcp-server` for backend domain
+- `@claude-spec/frontend-mcp-server` for frontend domain
+- `@claude-spec/devops-mcp-server` for devops domain
+
+**MCP Tools Available:**
+
+**Backend Expert:**
+- `query_database` - Direct SQL queries for analysis
+- `test_api_endpoint` - HTTP request testing
+- `run_migration` - Database migration execution
+- `run_tests` - Test suite execution
+
+**Frontend Expert:**
+- `launch_browser` - Browser automation for testing
+- `take_screenshot` - Visual regression testing
+- `run_tests` - Frontend test execution
+
+**DevOps Expert:**
+- `check_container_status` - Docker container monitoring
+- `view_logs` - Container log access
+- `deploy_service` - Deployment execution
+
+**Fallback Strategy:**
+If MCP servers unavailable, fall back to prompt-based domain experts using general tools.
+
+---
+
+## Implementation Phases
+
+### Phase 1: Setup & Foundation
+
+**Goal:** Establish infrastructure and dependencies
+
+**Tasks:**
+- **T1:** Install external dependencies
+  - Dependencies: None
+  - Domain: [backend/frontend/devops/all]
+  - Assigned Agent: [backend-expert/frontend-expert/etc.]
+  - Files: `package.json` or `requirements.txt`
+
+- **T2:** Create data models and migrations
+  - Dependencies: T1
+  - Domain: [backend]
+  - Assigned Agent: [backend-expert]
+  - Files: `[model-file]`, `[migration-file]`
+
+- **T3:** Set up test framework (if TDD)
+  - Dependencies: T1
+  - Domain: [all]
+  - Assigned Agent: [backend-expert]
+  - Files: Test configuration files
+
+**Critical Path:** T1 → T2
+
+**Risks:**
+- Dependency conflicts → Mitigation: Version lock in package.json
+- Database migration issues → Mitigation: Test migrations in dev first
+
+**Completion Criteria:**
+- All dependencies installed
+- Data models created and migrated
+- Test framework configured (if TDD)
+- No build errors
+
+---
+
+### Phase 2: Core Implementation
+
+**Goal:** Build the main feature functionality
+
+**Tasks:**
+- **T4:** Implement [core service/component]
+  - Dependencies: T2
+  - Domain: [backend/frontend]
+  - Assigned Agent: [domain-expert]
+  - Files: `[file-path]`
+
+- **T5:** Create API endpoints
+  - Dependencies: T4
+  - Domain: [backend]
+  - Assigned Agent: [backend-expert]
+  - Files: `[controller-file]`
+
+- **T6:** Implement frontend components
+  - Dependencies: T5
+  - Domain: [frontend]
+  - Assigned Agent: [frontend-expert]
+  - Files: `[component-files]`
+
+**Critical Path:** T4 → T5 → T6
+
+**Risks:**
+- Integration issues between frontend and backend → Mitigation: API contract testing
+- State management complexity → Mitigation: Follow existing patterns
+
+**Completion Criteria:**
+- All core functionality implemented
+- API endpoints working
+- Frontend components render correctly
+- Basic error handling in place
+
+---
+
+### Phase 3: Testing & Polish
+
+**Goal:** Ensure production readiness
+
+**Tasks:**
+- **T7:** Unit tests for services
+  - Dependencies: T4
+  - Domain: [backend/frontend]
+  - Assigned Agent: [domain-expert]
+  - Files: Test files
+
+- **T8:** Integration tests for API
+  - Dependencies: T5, T7
+  - Domain: [backend]
+  - Assigned Agent: [backend-expert]
+  - Files: Integration test files
+
+- **T9:** E2E tests for critical flows
+  - Dependencies: T6, T8
+  - Domain: [all]
+  - Assigned Agent: [frontend-expert]
+  - Files: E2E test files
+
+- **T10:** Security audit (OWASP checklist)
+  - Dependencies: T9
+  - Domain: [all]
+  - Assigned Agent: [backend-expert]
+  - Files: Security checklist
+
+- **T11:** Performance optimization
+  - Dependencies: T9
+  - Domain: [all]
+  - Assigned Agent: [domain-expert]
+  - Files: Various
+
+**Critical Path:** T7 → T8 → T9 → T10
+
+**Risks:**
+- Test coverage gaps → Mitigation: Code coverage reporting
+- Performance issues discovered late → Mitigation: Performance budgets
+
+**Completion Criteria:**
+- All tests passing
+- Test coverage > [X]%
+- OWASP security checklist complete
+- Performance metrics within targets
+- No critical bugs
+
+---
+
+## Risk Assessment
+
+### High Risks
+
+**Risk:** [Description of high-impact risk]
+- **Impact:** [What happens if this occurs]
+- **Probability:** High/Medium/Low
+- **Mitigation:**
+  - [Action 1]
+  - [Action 2]
+- **Contingency:** [Backup plan if mitigation fails]
+
+### Medium Risks
+
+**Risk:** [Description of medium-impact risk]
+- **Impact:** [What happens if this occurs]
+- **Probability:** High/Medium/Low
+- **Mitigation:**
+  - [Action 1]
+- **Contingency:** [Backup plan]
+
+### Low Risks
+
+**Risk:** [Description of low-impact risk]
+- **Impact:** [Minor inconvenience or delay]
+- **Probability:** High/Medium/Low
+- **Mitigation:** [Quick fix or workaround]
+
+---
+
+## File Structure
+
+```
+[app-folder]/
+├── [backend/src/] (if backend domain)
+│   ├── controllers/
+│   │   └── [feature].controller.ts (T5)
+│   ├── services/
+│   │   └── [feature].service.ts (T4)
+│   ├── models/
+│   │   └── [feature].model.ts (T2)
+│   ├── migrations/
+│   │   └── YYYYMMDD_create_[table].sql (T2)
+│   ├── middleware/
+│   │   └── [feature].middleware.ts (if needed)
+│   └── validators/
+│       └── [feature].validator.ts (if needed)
+│
+├── [frontend/src/] (if frontend domain)
+│   ├── components/
+│   │   └── [FeatureName]/ (T6)
+│   │       ├── index.tsx
+│   │       ├── [FeatureName].tsx
+│   │       └── [FeatureName].test.tsx
+│   ├── hooks/
+│   │   └── use[FeatureName].ts (if custom hooks)
+│   ├── contexts/
+│   │   └── [FeatureName]Context.tsx (if context API)
+│   └── services/
+│       └── [feature].service.ts (API client)
+│
+├── tests/
+│   ├── unit/
+│   │   └── [feature]/ (T7)
+│   ├── integration/
+│   │   └── [feature]/ (T8)
+│   └── e2e/
+│       └── [feature]/ (T9)
+│
+└── docs/
+    └── [feature]/ (optional)
+        ├── api.md
+        └── architecture.md (this file)
+```
+
+---
+
+## References
+
+### Similar Features in Codebase
+
+**[Feature Name]** at `[file:line]`:
+- Pattern: [What pattern to follow]
+- Reusable: [What can be reused]
+- Avoid: [Anti-patterns to avoid]
+
+### Patterns to Follow
+
+**API Endpoint Pattern:**
+- File: `[example-file:line]`
+- Convention: [Description]
+
+**Database Model Pattern:**
+- File: `[example-file:line]`
+- Convention: [Description]
+
+**Component Pattern:**
+- File: `[example-file:line]`
+- Convention: [Description]
+
+**Test Pattern:**
+- File: `[example-file:line]`
+- Convention: [Description]
+
+### Components to Reuse
+
+**[ComponentName]** at `[file-path]`:
+- Purpose: [What it does]
+- How to use: [Brief usage]
+
+**[ServiceName]** at `[file-path]`:
+- Purpose: [What it does]
+- How to use: [Brief usage]
+
+**[UtilityName]** at `[file-path]`:
+- Purpose: [What it does]
+- How to use: [Brief usage]
+
+---
+
+## Success Criteria
+
+**Functional:**
+- [ ] User can [perform action]
+- [ ] System correctly handles [scenario]
+- [ ] All acceptance criteria met
+
+**Non-Functional:**
+- [ ] Response time < [X]ms for [endpoint]
+- [ ] Test coverage > [X]%
+- [ ] No critical security vulnerabilities
+- [ ] OWASP Top 10 mitigations implemented
+
+**Quality:**
+- [ ] Code follows project style guidelines
+- [ ] All tests passing
+- [ ] No linting errors
+- [ ] Documentation complete
+
+**Deployment:**
+- [ ] Can be deployed without downtime
+- [ ] Rollback plan documented
+- [ ] Monitoring and alerting configured
+
+---
+
+## Out of Scope
+
+[List what is explicitly NOT included in this feature]
+
+- [Item 1]
+- [Item 2]
+- [Item 3]
+
+---
+
+## Future Enhancements
+
+[Ideas for future iterations]
+
+- [Enhancement 1]: [Description and potential value]
+- [Enhancement 2]: [Description and potential value]
+- [Enhancement 3]: [Description and potential value]
+
+---
+
+**Document Version:** 1.0
+**Last Updated:** [YYYY-MM-DD]
+**Next Review:** [When to review this architecture]

@@ -215,48 +215,7 @@ Provide comprehensive plan following the project's established architecture.
 
 This will hold all files for the current feature.
 
-### 8. Create Feature Architecture
-
-**Create: `.specs/active-task/architecture.md`**
-
-Use the template at `.specs/template/architecture.md.template` as the base.
-
-**IMPORTANT modifications:**
-- Add header linking to project architecture
-- Reference project ADRs where applicable
-- Note which project patterns are being followed
-- Align with project security guidelines
-
-**Header addition:**
-```markdown
-# Architecture: [Feature Name]
-
-> **Project Architecture:** See `.specs/architecture.md` for system-wide design
-> **Feature:** [Feature ID] from `.specs/roadmap.yml`
-
-## Alignment with Project Architecture
-
-**Referenced ADRs:**
-- ADR-002: Uses PostgreSQL (project standard)
-- ADR-003: Uses JWT authentication (project standard)
-
-**Project Patterns:**
-- Follows layered architecture
-- Uses established error handling
-- Follows project naming conventions
-
-**Integration Points:**
-- [Existing feature A]: [How this integrates]
-- [Existing feature B]: [How this integrates]
-
----
-
-[Rest of feature architecture...]
-```
-
-Fill in comprehensive feature architecture based on Step 6 planning.
-
-### 9. Create Spec File
+### 8. Create Spec File
 
 **Create: `.specs/active-task/spec.yml`**
 
@@ -265,16 +224,17 @@ Use the template at `.specs/template/spec.yml.template`.
 **Fill in based on:**
 - Feature details from roadmap
 - Planning from Step 6
-- Project architecture alignment
-- Testing approach from project
+- Project architecture alignment (read `.specs/architecture.md`)
+- Testing approach from project guidelines
 
-**Key metadata to add:**
+**Key metadata:**
 ```yaml
 metadata:
   feature_name: "[feature-name]"
   feature_id: "[F3]"  # From roadmap
-  architecture_doc: "architecture.md"
-  project_architecture: "../architecture.md"  # Link to project arch
+  project_architecture: "../architecture.md"
+  roadmap: "../roadmap.yml"
+  guidelines: "../guidelines.md"
 
   # From roadmap
   priority: "[priority from roadmap]"
@@ -287,7 +247,17 @@ metadata:
   mcp_integration: [from project architecture]
 ```
 
-### 10. Create Progress Tracker
+**Technical design section should include:**
+- **Referenced ADRs:** List ADRs from `.specs/architecture.md` that apply
+- **Architecture Patterns:** Which project patterns this feature follows
+- **Components:** New components needed for this feature
+- **Integration Points:** How this integrates with existing features
+- **Database Schema:** Any tables/collections needed
+- **API Design:** Endpoints/interfaces for this feature
+- **Security:** Feature-specific security considerations
+- **Implementation Phases:** 3-phase breakdown (Foundation, Core, Polish)
+
+### 9. Create Progress Tracker
 
 **Create: `.specs/active-task/progress.yml`**
 
@@ -300,7 +270,7 @@ Use the template at `.specs/template/progress.yml.template`.
 
 **Tasks should come from feature architecture Step 8.**
 
-### 11. Create Context File
+### 10. Create Context File
 
 **Create `.specs/active-task/context.md`**
 
@@ -329,7 +299,7 @@ Planning complete for [feature-name]
 Ready to begin implementation with `/cspec:implement`
 ```
 
-### 12. Update Roadmap Status
+### 11. Update Roadmap Status
 
 **Update `.specs/roadmap.yml`:**
 
@@ -376,8 +346,7 @@ Phase 3: [Phase name] ([Z tasks])
 Total: [N tasks] across [M phases]
 
 📂 Files Created:
-- .specs/active-task/architecture.md (feature design)
-- .specs/active-task/spec.yml (requirements)
+- .specs/active-task/spec.yml (requirements & technical design)
 - .specs/active-task/progress.yml (task tracking)
 - .specs/active-task/context.md (resumption context)
 

@@ -41,8 +41,7 @@ Init → Architect → Task → Implement → Archive
 - `guidelines.md` - Development standards
 
 **Feature level (.specs/active-task/):**
-- `architecture.md` - Feature design
-- `spec.yml` - Requirements
+- `spec.yml` - Requirements & technical design
 - `progress.yml` - Task tracking
 - `context.md` - Resumption context
 

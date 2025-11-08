@@ -98,18 +98,19 @@ your-project/
     ├── roadmap.yml               # Feature roadmap with priorities
     ├── guidelines.md             # Development standards
     ├── active-task/              # Current feature being worked on
-    │   ├── architecture.md       # Feature design
-    │   ├── spec.yml              # Requirements
+    │   ├── spec.yml              # Requirements & technical design
     │   ├── progress.yml          # Task tracking
     │   └── context.md            # Resumption context
     ├── completed-tasks/          # Archived features
     └── template/                 # Templates
+        ├── CLAUDE.md.template
+        ├── .claudeignore.template
         ├── architecture.md.template
         ├── spec.yml.template
-        ├── roadmap.yml.template
-        ├── guidelines.md.template
         ├── progress.yml.template
-        └── context.md.template
+        ├── context.md.template
+        ├── roadmap.yml.template
+        └── guidelines.md.template
 ```
 
 ### Six Essential Commands
@@ -180,7 +181,7 @@ Claude Code doesn't persist context between sessions. This template provides **f
 [You review architecture.md and roadmap.yml]
 
 Created:
-- .specs/architecture.md (master architecture, ADRs)
+- .specs/architecture.md (project architecture with ADRs)
 - .specs/roadmap.yml (12 features across 4 phases)
 - .specs/guidelines.md (development standards)
 ```

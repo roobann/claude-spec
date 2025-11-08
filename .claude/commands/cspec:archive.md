@@ -76,7 +76,7 @@ Continue with archive? (yes/no)
 
 Before moving files, create a completion summary:
 
-Read all files (spec.yml, progress.yml, context.yml, context.md) and create a summary document `SUMMARY.md`:
+Read all files (spec.yml, progress.yml, context.md) and create a summary document `SUMMARY.md`:
 
 ```markdown
 # [Feature Name] - Completion Summary
@@ -171,7 +171,6 @@ mv .specs/active-task/ .specs/completed-tasks/[archive-name]/
 Include all files:
 - spec.yml
 - progress.yml
-- context.yml
 - context.md
 - SUMMARY.md (newly created)
 - Any other files in the directory
@@ -221,7 +220,7 @@ Show the user what happened:
 📝 Files Archived:
 - spec.yml - Original specification (YAML format)
 - progress.yml - Task tracking (YAML format)
-- context.yml - Structured metadata (YAML format)
+- context.md - Resumption context
 - context.md - Human-readable context (Markdown)
 - SUMMARY.md - Completion summary
 
@@ -317,20 +316,17 @@ After archiving, structure should look like:
 │   ├── user-authentication/
 │   │   ├── spec.yml
 │   │   ├── progress.yml
-│   │   ├── context.yml
 │   │   ├── context.md
 │   │   └── SUMMARY.md
 │   ├── payment-integration/
 │   │   ├── spec.yml
 │   │   ├── progress.yml
-│   │   ├── context.yml
 │   │   ├── context.md
 │   │   └── SUMMARY.md
 │   └── [other-archived-tasks]/
 └── template/
     ├── spec.yml.template
     ├── progress.yml.template
-    ├── context.yml.template
     └── context.md.template
 ```
 

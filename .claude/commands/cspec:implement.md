@@ -69,27 +69,20 @@ If the Tech Stack section specifies an "App Folder", all application code should
 
 ### 3. Load Context Files
 
-Read all context files in order of importance. **Files are now in YAML format for better structure and token efficiency.**
+Read all context files in order of importance.
 
-**A) Read context.md + context.yml** - Most important (resumption lifeline)
+**A) Read context.md** - Most important (resumption lifeline)
 
-First read **context.yml** for structured metadata:
-- `session.focus`: Current focus, phase, file, line, action
-- `session.docker`: Rebuild status
-- `session.git`: Branch and file status
-- `files`: Active/modified/next to modify
-- `status`: What's working vs needs work
-- `architecture`: Patterns and related code
-- `next_session.immediate_actions`: Prioritized next steps
+Contains comprehensive context including:
+- **Current Focus**: What you're working on RIGHT NOW (file, line, action)
+- **Session Status**: Docker rebuild status, git status, active files
+- **What's Working**: Completed functionality
+- **What Needs Work**: Remaining items and blockers
+- **For Next Session**: Specific instructions with file paths and line numbers
+- **Architecture Context**: Patterns being followed, related code
+- **Technical Notes**: Tricky areas, gotchas, decisions made
 
-Then read **context.md** for human narrative:
-- What we're building (summary)
-- Current state and testing strategy
-- Architecture context and decisions
-- For next session (detailed instructions)
-- Technical context and tricky areas
-
-**B) Read progress.yml** - Current status (YAML format)
+**B) Read progress.yml** - Current status
 - `metadata`: Status, dates, current phase, testing approach
 - `progress_summary`: Completion percentages and counts
 - `phases`: Array of phases with tasks and their statuses
@@ -99,7 +92,7 @@ Then read **context.md** for human narrative:
 - `issues`: Problems encountered and resolutions
 - `time_tracking`: Hours spent and remaining
 
-**C) Read spec.yml** - Original requirements (YAML format)
+**C) Read spec.yml** - Original requirements
 - `metadata`: Feature name, status, priority
 - `overview`: Description, user problem, user stories
 - `requirements`: Functional and non-functional requirements
@@ -115,7 +108,7 @@ Run `git status` to understand:
 - Staged/unstaged changes
 - Any uncommitted work
 
-Compare with context.yml/context.md to detect discrepancies.
+Compare with context.md to detect discrepancies.
 
 ### 5. Analyze Current State
 
@@ -124,13 +117,13 @@ Determine whether this is a **fresh start** or **resuming**:
 **Fresh Start Indicators:**
 - progress.yml status is "not_started" or "planning"
 - No completed tasks in progress.yml (completed_tasks: 0)
-- context.yml/context.md say "Planning Complete" or similar
+- context.md says "Planning Complete" or similar
 - No modified files in git related to this feature
 
 **Resuming Indicators:**
 - Some tasks marked complete in progress.yml phases
 - Status is "in_progress", "testing", etc.
-- Files exist that match context.yml/context.md references
+- Files exist that match context.md references
 - Git shows related uncommitted/committed work
 
 **Determine:**
@@ -144,7 +137,7 @@ Determine whether this is a **fresh start** or **resuming**:
 
 **Check if multi-agent mode is enabled:**
 
-Read `metadata.agent_coordination` from spec.yml, progress.yml, and context.yml:
+Read `metadata.agent_coordination` from spec.yml and progress.yml:
 - If `agent_coordination: false` → Standard single-agent mode (skip to step 6)
 - If `agent_coordination: true` → Multi-agent mode (continue below)
 
@@ -274,7 +267,7 @@ Task T1: "Set up JWT authentication service"
 
 3. Update progress.yml after completion:
    - Mark T1 as complete
-   - Update domain_context.backend in context.yml
+   - Update domain context notes in context.md
    - Add handoff notes for other domains
 ```
 
@@ -287,7 +280,7 @@ Task T1: "Set up JWT authentication service"
 
 **After Completion:**
 1. Update progress.yml (mark domain tasks complete)
-2. Update context.yml domain_context.[domain]
+2. Update context.md with domain-specific progress
 3. Check for next unblocked domain
 4. If more domains pending → Repeat from Step A
 5. If all domains complete → Continue to Step 6
@@ -316,11 +309,10 @@ You will implement tasks assigned to the [DOMAIN] domain. Other domain experts h
 ## Context
 
 Read these files in order:
-1. .specs/active-task/context.yml - Focus on domain_context.[DOMAIN]
-2. .specs/active-task/context.md - General context
-3. .specs/active-task/progress.yml - Focus on tasks where domain=[DOMAIN]
-4. .specs/active-task/spec.yml - Focus on technical_design.domain_design.[DOMAIN]
-5. CLAUDE.md - Project configuration
+1. .specs/active-task/context.md - General context and domain-specific notes
+2. .specs/active-task/progress.yml - Focus on tasks where domain=[DOMAIN]
+3. .specs/active-task/spec.yml - Focus on technical_design.domain_design.[DOMAIN]
+4. CLAUDE.md - Project configuration
 
 ## Your Tasks
 
@@ -338,20 +330,19 @@ From progress.yml, work on tasks where:
 1. **Focus only on your domain** - Don't work on tasks assigned to other domains
 2. **Check dependencies** - Verify dependent tasks are complete before starting
 3. **Update progress.yml** - Mark your tasks complete with timestamps
-4. **Update context.yml domain_context.[DOMAIN]** - Log your progress:
-   - active_files: Files you're working on
-   - completed_tasks: Tasks you've finished
-   - blockers: Any issues encountered
-   - handoff_notes: What other domains need to know
+4. **Update context.md** - Log your progress in domain-specific section:
+   - Active files you're working on
+   - Completed tasks
+   - Blockers encountered
+   - Handoff notes for other domains
 5. **Follow domain-specific design** from spec.yml technical_design.domain_design.[DOMAIN]
-6. **Update context.md** if making important decisions
 7. **Respect app folder structure** from CLAUDE.md
 
 ## When Complete
 
 After finishing your assigned tasks:
 1. Update progress.yml (mark tasks complete, update by_domain progress)
-2. Update context.yml domain_context.[DOMAIN]
+2. Update context.md with domain-specific progress notes
 3. Report back:
    - What you completed
    - Any handoff notes for other domains
@@ -419,12 +410,10 @@ When the domain expert agent finishes:
 
 1. **Read updated files:**
    - progress.yml (verify tasks marked complete)
-   - context.yml (check domain_context updates)
-   - context.md (any new notes)
+   - context.md (check domain progress updates)
 
 2. **Update orchestration metadata:**
    - progress.yml metadata.current_domain → next domain or null
-   - context.yml metadata.current_domain → next domain or null
 
 3. **Check for next domain:**
    - Are there more pending tasks in other domains?
@@ -521,15 +510,15 @@ Wait for user response before continuing.
 Work through tasks sequentially:
 
 #### A. Load Relevant Files
-- Files mentioned in context.yml/context.md "For Next Session"
-- Files being modified according to context.yml
+- Files mentioned in context.md "For Next Session"
+- Files being modified according to context.md
 - Related files for reference
 
 #### B. Work on Next Task
 - Start with the first pending task in the current phase (check progress.yml)
 - Follow the technical design from spec.yml
-- Follow patterns identified in context.yml/context.md
-- Reference related code mentioned in context.yml architecture section
+- Follow patterns identified in context.md
+- Reference related code mentioned in context.md architecture section
 
 #### C. After Completing Each Phase
 **STOP AND UPDATE progress.yml (MANDATORY):**
@@ -606,7 +595,7 @@ Options:
 **If "No" selected:**
 - Update Phase 3 tasks in progress.yml: set status to "skipped", add notes
 - Update progress.yml metadata.status to "complete"
-- Note in context.yml and context.md: "Polish phase skipped - core functionality complete"
+- Note in context.md: "Polish phase skipped - core functionality complete"
 - Ready for `/archive`
 
 **If "Partial" selected:**
@@ -628,25 +617,19 @@ Options:
 - Best for production-ready code
 
 #### D. Update Context Periodically (Required)
-You MUST update context.yml and context.md when:
+You MUST update context.md when:
 - Making important architectural decisions
 - Discovering tricky areas or gotchas
 - Changing approach from original plan
 - Before moving to a new phase
 - When stopping for any reason
 
-**Update context.yml (structured data):**
-- `session.focus`: Update summary, phase, current file/line, action
-- `session.docker`: Update rebuild_needed status
-- `session.git`: Update branch and file counts
-- `files.active`: Current files being edited with progress
-- `files.modified_today`: List of changed files
-- `files.next_to_modify`: Upcoming files to work on
-- `status.working`: Completed functionality
-- `status.needs_work`: Remaining items
-- `next_session.immediate_actions`: Prioritized next steps
-
-**Update context.md (human narrative):**
+**Update context.md with these sections:**
+- **Current Focus**: What you're working on RIGHT NOW (summary, phase, file, line, action)
+- **Session Status**: Docker rebuild status, git branch and file counts
+- **Active Files**: Current files being edited with progress notes
+- **Modified Files**: Files changed today with descriptions
+- **Next Files**: Upcoming files to work on
 - "Current Focus" - What you're working on RIGHT NOW
 - "Files Modified" - Detailed status of each file
 - "What's Working" - Completed functionality (expanded description)
@@ -844,14 +827,14 @@ Would you like me to run the tests now?
 
 ### Case: Context is Outdated
 
-If context.yml/context.md mention files/approaches that no longer exist:
+If context.md mentions files/approaches that no longer exist:
 ```
 ⚠️ Context Update Needed
 
 The context files mention working on [X], but I notice [Y has changed].
 
 Options:
-1. Update context.yml and context.md, proceed with current state (recommended)
+1. Update context.md, proceed with current state (recommended)
 2. Ask you about the best path forward
 3. Stick with original plan despite changes
 
@@ -923,11 +906,11 @@ What would you like to do?
 
 ### Case: No Clear Next Step
 
-If context.yml next_session.immediate_actions is empty or vague, and progress.yml next_steps is unclear:
+If context.md next session instructions are empty or vague, and progress.yml next_steps is unclear:
 ```
 ❓ Next steps are unclear.
 
-Context: [What we know from context.yml]
+Context: [What we know from context.md]
 Last completed: [Last item from progress.yml]
 
 Need more specific direction. Could you clarify:
@@ -953,8 +936,8 @@ You MUST update progress.yml:
 ### Follow the Plan
 - Reference spec.yml for requirements (check requirements section)
 - Follow technical design from spec.yml (technical_design section)
-- Use patterns identified in context.yml/context.md (architecture section)
-- Reuse components mentioned in context.yml
+- Use patterns identified in context.md (architecture section)
+- Reuse components mentioned in context.md
 
 ### Communicate Progress
 - Show what you're working on
@@ -1004,8 +987,8 @@ phases:
 ## Tips for Effective Implementation
 
 **For the AI:**
-- Read context.yml + context.md first (most important for resumption)
-- Parse YAML files properly (spec.yml, progress.yml, context.yml)
+- Read context.md first (most important for resumption)
+- Parse YAML files properly (spec.yml, progress.yml)
 - Verify file existence before referencing
 - Be specific about what you're doing
 - Update progress.yml in real-time (update counts, percentages, timestamps)
@@ -1013,17 +996,17 @@ phases:
 - Don't make assumptions - check spec.yml
 
 **For the User:**
-- Context files (YAML + MD) updated automatically for better resumption
+- Context files updated automatically for better resumption
 - Use `/implement` after any break
 - Interrupt anytime to ask questions or give direction
 
 ## Success Criteria
 
-- Context files successfully loaded (YAML + Markdown)
+- Context files successfully loaded (context.md + progress.yml + spec.yml)
 - Current state correctly identified (fresh vs resuming)
-- Next actions are clear and actionable (from context.yml + progress.yml)
+- Next actions are clear and actionable (from context.md + progress.yml)
 - Implementation follows spec.yml requirements
 - Progress.yml updated after each phase (with accurate counts)
-- Context.yml + context.md updated with important changes
+- Context.md updated with important changes
 - Work continues smoothly from last stopping point
 - Quality code produced following project standards

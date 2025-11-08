@@ -300,48 +300,33 @@ Use the template at `.specs/template/progress.yml.template`.
 
 **Tasks should come from feature architecture Step 8.**
 
-### 11. Create Context Files
+### 11. Create Context File
 
-**A) Create `.specs/active-task/context.yml`**
-
-Use template at `.specs/template/context.yml.template`.
-
-**Key additions:**
-```yaml
-metadata:
-  feature_name: "[feature-name]"
-  feature_id: "[F3]"
-  architecture_doc: "architecture.md"
-  project_architecture: "../architecture.md"
-  status: "planning"
-
-architecture:
-  reference_doc: "architecture.md"
-  project_reference: "../architecture.md"
-  key_decisions:
-    - "Follows ADR-002 for database"
-    - "Follows ADR-003 for auth"
-  integration_points:
-    - system: "[Existing feature]"
-      interaction: "[How we integrate]"
-```
-
-**B) Create `.specs/active-task/context.md`**
+**Create `.specs/active-task/context.md`**
 
 Use template at `.specs/template/context.md.template`.
 
-**Add project context section:**
+**Add structured sections:**
 ```markdown
+## Current Focus
+Planning complete for [feature-name]
+
 ## Project Context
+- **Project Architecture:** `.specs/architecture.md`
+- **This Feature:** [F3] in roadmap
+- **Dependencies:** [List completed dependencies]
+- **Alignment:**
+  - Uses [pattern] from project architecture
+  - Follows [ADR-X] for [decision]
+  - Integrates with [existing features]
 
-**Project Architecture:** `.specs/architecture.md`
-**This Feature:** [F3] in roadmap
-**Dependencies:** [List completed dependencies]
+## Architecture Context
+- Key decisions to follow
+- Integration points with existing features
+- Patterns being used
 
-**Alignment:**
-- Uses [pattern] from project architecture
-- Follows [ADR-X] for [decision]
-- Integrates with [existing features]
+## For Next Session
+Ready to begin implementation with `/cspec:implement`
 ```
 
 ### 12. Update Roadmap Status
@@ -394,8 +379,7 @@ Total: [N tasks] across [M phases]
 - .specs/active-task/architecture.md (feature design)
 - .specs/active-task/spec.yml (requirements)
 - .specs/active-task/progress.yml (task tracking)
-- .specs/active-task/context.yml (metadata)
-- .specs/active-task/context.md (human context)
+- .specs/active-task/context.md (resumption context)
 
 📝 Roadmap Updated:
 - Feature status: not_started → in_progress

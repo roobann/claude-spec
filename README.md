@@ -101,8 +101,7 @@ your-project/
     │   ├── architecture.md       # Feature design
     │   ├── spec.yml              # Requirements
     │   ├── progress.yml          # Task tracking
-    │   ├── context.yml           # Metadata
-    │   └── context.md            # Human context
+    │   └── context.md            # Resumption context
     ├── completed-tasks/          # Archived features
     └── template/                 # Templates
         ├── architecture.md.template
@@ -110,7 +109,6 @@ your-project/
         ├── roadmap.yml.template
         ├── guidelines.md.template
         ├── progress.yml.template
-        ├── context.yml.template
         └── context.md.template
 ```
 

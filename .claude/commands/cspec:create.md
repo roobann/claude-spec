@@ -214,7 +214,7 @@ Ready to build!
 
 ### 2. Generate CLAUDE.md
 
-Read `.claude/templates/CLAUDE.md.template` and replace:
+Read `.specs/template/CLAUDE.md.template` and replace:
 
 **{{PROJECT_NAME}}**: Current directory name
 
@@ -266,7 +266,7 @@ tests/                  # Test files
 
 ### 3. Generate .claudeignore
 
-Read `.claude/templates/.claudeignore.template` and add language-specific patterns:
+Read `.specs/template/.claudeignore.template` and add language-specific patterns:
 
 **For TypeScript/JavaScript:**
 ```

@@ -44,8 +44,7 @@ Init → Architect → Task → Implement → Archive
 - `architecture.md` - Feature design
 - `spec.yml` - Requirements
 - `progress.yml` - Task tracking
-- `context.yml` - Metadata
-- `context.md` - Human context
+- `context.md` - Resumption context
 
 ## Related
 

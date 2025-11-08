@@ -19,7 +19,6 @@ COMMANDS_TARGET_DIR="$(pwd)/.claude/commands"
 SPECS_TEMPLATE_DIR="${SCRIPT_DIR}/.specs/template"
 SPECS_TARGET_DIR="$(pwd)/.specs/template"
 TEMPLATES_SOURCE_DIR="${SCRIPT_DIR}"
-TEMPLATES_TARGET_DIR="$(pwd)/.claude/templates"
 
 echo -e "${BLUE}╔══════════════════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║   Claude-Native Spec System - Setup Script              ║${NC}"
@@ -46,11 +45,6 @@ fi
 if [ ! -d "$SPECS_TARGET_DIR" ]; then
     mkdir -p "$SPECS_TARGET_DIR"
     echo -e "${GREEN}✓ Created .specs/template/${NC}"
-fi
-
-if [ ! -d "$TEMPLATES_TARGET_DIR" ]; then
-    mkdir -p "$TEMPLATES_TARGET_DIR"
-    echo -e "${GREEN}✓ Created .claude/templates/${NC}"
 fi
 
 echo ""
@@ -114,13 +108,13 @@ fi
 echo ""
 
 # ═══════════════════════════════════════════════════════════
-# 3. Copy Root Template Files (CLAUDE.md.template, .claudeignore.template)
+# 3. Copy Init Template Files (CLAUDE.md.template, .claudeignore.template) to .specs/template/
 # ═══════════════════════════════════════════════════════════
-echo -e "${BLUE}Copying root template files...${NC}"
+echo -e "${BLUE}Copying init template files...${NC}"
 
 # Copy CLAUDE.md.template
 if [ -f "${TEMPLATES_SOURCE_DIR}/CLAUDE.md.template" ]; then
-    target_file="${TEMPLATES_TARGET_DIR}/CLAUDE.md.template"
+    target_file="${SPECS_TARGET_DIR}/CLAUDE.md.template"
     if [ -f "$target_file" ]; then
         cp "${TEMPLATES_SOURCE_DIR}/CLAUDE.md.template" "$target_file"
         echo -e "${GREEN}✓ Replaced:${NC} CLAUDE.md.template"
@@ -134,7 +128,7 @@ fi
 
 # Copy .claudeignore.template
 if [ -f "${TEMPLATES_SOURCE_DIR}/.claudeignore.template" ]; then
-    target_file="${TEMPLATES_TARGET_DIR}/.claudeignore.template"
+    target_file="${SPECS_TARGET_DIR}/.claudeignore.template"
     if [ -f "$target_file" ]; then
         cp "${TEMPLATES_SOURCE_DIR}/.claudeignore.template" "$target_file"
         echo -e "${GREEN}✓ Replaced:${NC} .claudeignore.template"
@@ -174,9 +168,8 @@ if [ "$total_copied" -gt 0 ] || [ "$total_replaced" -gt 0 ]; then
 fi
 
 echo -e "${BLUE}Files copied to:${NC}"
-echo -e "  ${GREEN}.claude/commands/${NC}   - Command files"
-echo -e "  ${GREEN}.claude/templates/${NC}  - CLAUDE.md and .claudeignore templates"
-echo -e "  ${GREEN}.specs/template/${NC}    - Spec file templates"
+echo -e "  ${GREEN}.claude/commands/${NC}  - Command files"
+echo -e "  ${GREEN}.specs/template/${NC}   - All templates (spec files + init templates)"
 echo ""
 
 echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"

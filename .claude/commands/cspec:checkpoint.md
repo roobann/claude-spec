@@ -24,7 +24,7 @@ Look for `.specs/active-task/` directory.
 ```
 ❌ No active task to checkpoint.
 
-Start a new feature first: /plan [feature-name]
+Start a new feature first: /architect [feature-name]
 ```
 
 **If found:** Proceed with checkpoint.
@@ -604,7 +604,7 @@ Current task state saved:
 To switch tasks:
 1. /checkpoint (already done ✓)
 2. /clear (to reset Claude's context)
-3. /plan or /implement (for other task)
+3. /architect or /implement (for other task)
 
 To return to this task later:
 - /implement will load this checkpoint and continue working

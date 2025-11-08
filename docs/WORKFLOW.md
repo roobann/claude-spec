@@ -5,7 +5,7 @@ Practical patterns for using Claude-Native Spec in your daily development.
 ## Quick Reference
 
 ```bash
-/plan [name]    # Start new feature
+/architect [name]    # Start new feature
 /resume                 # Resume current work
 /checkpoint             # Save progress
 /archive           # Complete and archive
@@ -20,7 +20,7 @@ Practical patterns for using Claude-Native Spec in your daily development.
 ```bash
 # Day 1 - Planning
 $ claude
-> /plan user-authentication
+> /architect user-authentication
 
 Claude: "Let me ask some clarifying questions..."
 [Answer questions about requirements]
@@ -98,7 +98,7 @@ Claude: "Progress saved for user-authentication"
 > /clear
 [Context window cleared]
 
-> /plan bug-fix-payment-error
+> /architect bug-fix-payment-error
 [Work on bug fix]
 [Complete bug fix]
 
@@ -120,7 +120,7 @@ Claude: "Resuming user-authentication from [exact point]"
 ```bash
 # Monday
 $ claude
-> /plan dashboard-redesign
+> /architect dashboard-redesign
 [Create comprehensive spec]
 [Work 4 hours - complete Phase 1]
 > /checkpoint
@@ -258,7 +258,7 @@ Claude: "...using Zustand for state (decided because...)..."
 **Scenario:** Requirements evolve during implementation
 
 ```bash
-> /plan user-settings
+> /architect user-settings
 [Start implementing]
 [Discover edge case not in spec]
 
@@ -289,7 +289,7 @@ $ claude
 [Confirm and continue]
 
 # If starting fresh
-> /plan today's-feature
+> /architect today's-feature
 ```
 
 ### Lunch Break
@@ -382,7 +382,7 @@ Claude: [Updates context.md]
 [Continue with current feature]
 [Later, or in separate task]
 
-> /plan refactor-auth-service
+> /architect refactor-auth-service
 [Address technical debt properly]
 ```
 
@@ -397,13 +397,13 @@ You: "Explain the codebase structure"
 [Claude reads CLAUDE.md and explains]
 
 # Start small
-> /plan small-bug-fix
+> /architect small-bug-fix
 [Learn patterns while fixing]
 
 > /checkpoint
 
 # Gradually tackle bigger work
-> /plan medium-feature
+> /architect medium-feature
 [Use patterns learned]
 ```
 

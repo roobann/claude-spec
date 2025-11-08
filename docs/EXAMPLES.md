@@ -10,7 +10,7 @@ Practical examples showing how to use Claude-Native Spec for different scenarios
 
 ```bash
 $ claude
-> /plan products-api
+> /architect products-api
 
 Claude: "Let me clarify the requirements..."
 
@@ -122,7 +122,7 @@ Full CRUD API for products with authentication and authorization
 ### Session Transcript
 
 ```bash
-> /plan data-table-component
+> /architect data-table-component
 
 You: "Need a reusable data table with sorting, filtering, pagination"
 
@@ -167,7 +167,7 @@ The spec evolved during development, and that's OK. The system tracks:
 ### Session Transcript
 
 ```bash
-> /plan bug-fix-payment-timeout
+> /architect bug-fix-payment-timeout
 
 Claude: "What's the issue?"
 
@@ -210,7 +210,7 @@ Even bugs benefit from specs:
 ### Session Transcript
 
 ```bash
-> /plan user-profile-expansion
+> /architect user-profile-expansion
 
 Claude: [Creates spec including:]
 - New fields: avatar_url, bio, location
@@ -253,7 +253,7 @@ Database changes require extra care. The spec includes:
 ### Session Transcript
 
 ```bash
-> /plan refactor-auth-logic
+> /architect refactor-auth-logic
 
 Claude: [Analyzes existing code]
 
@@ -288,7 +288,7 @@ Spec includes:
 ### Session Transcript
 
 ```bash
-> /plan stripe-integration
+> /architect stripe-integration
 
 Claude: "Let me ask about requirements..."
 
@@ -338,7 +338,7 @@ Spec includes:
 ### Developer A (Day 1)
 
 ```bash
-> /plan social-sharing
+> /architect social-sharing
 
 [Creates comprehensive spec]
 
@@ -421,7 +421,7 @@ The spec system enables:
 
 ```bash
 # Monday
-> /plan dashboard-redesign
+> /architect dashboard-redesign
 [Comprehensive planning session]
 [Implement Phase 1: Data layer]
 > /checkpoint
@@ -490,7 +490,7 @@ Success factors:
 
 > /clear
 
-> /plan hotfix-critical-bug
+> /architect hotfix-critical-bug
 
 Claude: [Minimal spec - just fix description]
 
@@ -535,7 +535,7 @@ Claude: [Shows patterns]
 
 You: "I'll start with a small bug fix"
 
-> /plan bug-fix-typo
+> /architect bug-fix-typo
 
 [Simple fix to learn workflow]
 
@@ -545,7 +545,7 @@ You: "I'll start with a small bug fix"
 ### First Week
 
 ```bash
-> /plan small-feature
+> /architect small-feature
 
 [Builds confidence]
 [Learns patterns]
@@ -557,7 +557,7 @@ You: "I'll start with a small bug fix"
 ### Second Week
 
 ```bash
-> /plan medium-feature
+> /architect medium-feature
 
 [More complex work]
 [Contributing meaningfully]
@@ -575,7 +575,7 @@ New developers can:
 
 ## Common Patterns Across Examples
 
-### 1. Always Start with /plan
+### 1. Always Start with /architect
 Even for small work, planning helps
 
 ### 2. Checkpoint Frequently

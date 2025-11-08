@@ -15,7 +15,7 @@ cd test-todo-app
 npm init -y
 
 # Copy template
-cp -r /path/to/claude-native-spec/* .
+cp -r /path/to/claude-spec/* .
 
 # Start Claude
 claude
@@ -33,7 +33,7 @@ claude
 ✓ Should initialize .specs/
 
 # 2. Test feature planning
-> /plan todo-list
+> /architect todo-list
 
 ✓ Should ask clarifying questions
 ✓ Should create spec.md
@@ -86,7 +86,7 @@ npx create-next-app@latest test-todo --typescript --tailwind --app
 cd test-todo
 
 # Copy template
-cp -r /path/to/claude-native-spec/* .
+cp -r /path/to/claude-spec/* .
 
 # Start Claude
 claude
@@ -119,7 +119,7 @@ $ ls .specs/  # Should have active/, completed/, template/
 ### Phase 2: Feature Planning (10 min)
 
 ```bash
-> /plan todo-crud
+> /architect todo-crud
 
 Claude: "Let me ask about requirements..."
 
@@ -211,7 +211,7 @@ Ready to continue?
 > /clear
 
 # Work on something else
-> /plan add-styling
+> /architect add-styling
 
 [Make some styling changes]
 
@@ -259,7 +259,7 @@ $ ls .specs/active/
 ### Phase 7: Start New Feature (5 min)
 
 ```bash
-> /plan add-persistence
+> /architect add-persistence
 
 [Plan a follow-up feature]
 
@@ -314,7 +314,7 @@ After completing the test, rate these aspects:
 ### Test 1: Long Interruption
 
 ```bash
-> /plan test-feature
+> /architect test-feature
 [Work for 15 minutes]
 > /checkpoint
 
@@ -330,7 +330,7 @@ Question: Can you resume with zero ramp-up time?
 ### Test 2: Complex Feature
 
 ```bash
-> /plan complex-multi-phase-feature
+> /architect complex-multi-phase-feature
 [Create spec with 5 phases, 30+ tasks]
 [Implement over multiple sessions]
 [Checkpoint between each session]
@@ -342,12 +342,12 @@ Question: Does system handle complexity well?
 ### Test 3: Multiple Context Switches
 
 ```bash
-> /plan feature-a
+> /architect feature-a
 [Work]
 > /checkpoint
 > /clear
 
-> /plan feature-b
+> /architect feature-b
 [Work]
 > /checkpoint
 > /clear
@@ -357,7 +357,7 @@ Question: Does it resume feature-b (last active)?
 
 > /archive
 
-> /plan feature-c
+> /architect feature-c
 [Work]
 > /checkpoint
 
@@ -368,7 +368,7 @@ Question: Does it resume feature-b (last active)?
 
 ```bash
 # Person A
-> /plan shared-feature
+> /architect shared-feature
 [Implement half]
 > /checkpoint
 $ git commit && git push
@@ -397,7 +397,7 @@ Total: ___ minutes
 ### With Template
 
 Time the same task:
-1. /plan: ___ min
+1. /architect: ___ min
 2. Implement: ___ min
 3. /checkpoint: ___ min
 4. /resume next day: ___ min
@@ -518,14 +518,14 @@ After testing, use it for real:
 cd /path/to/real-project
 
 # Copy template
-cp -r /path/to/claude-native-spec/* .
+cp -r /path/to/claude-spec/* .
 
 # Initialize
 claude
 > /init
 
 # Use for next feature
-> /plan actual-feature
+> /architect actual-feature
 ```
 
 Start small:

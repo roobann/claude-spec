@@ -214,7 +214,7 @@ Ready to build!
 
 ### 2. Generate CLAUDE.md
 
-Read `claude-native-spec/CLAUDE.md.template` and replace:
+Read `claude-spec/CLAUDE.md.template` and replace:
 
 **{{PROJECT_NAME}}**: Current directory name
 
@@ -266,7 +266,7 @@ tests/                  # Test files
 
 ### 3. Generate .claudeignore
 
-Read `claude-native-spec/.claudeignore.template` and add language-specific patterns:
+Read `claude-spec/.claudeignore.template` and add language-specific patterns:
 
 **For TypeScript/JavaScript:**
 ```
@@ -313,8 +313,8 @@ build/
 ### 4. Initialize .specs/ Structure
 
 - Create `active-task/`, `completed-tasks/`, `template/` directories
-- Copy template files from `claude-native-spec/.specs/template/`
-- Copy README.md from `claude-native-spec/.specs/README.md`
+- Copy template files from `claude-spec/.specs/template/`
+- Copy README.md from `claude-spec/.specs/README.md`
 
 ### 5. Handle Edge Cases
 

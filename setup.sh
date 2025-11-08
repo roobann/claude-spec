@@ -27,7 +27,7 @@ if [ ! -d "$TEMPLATE_DIR" ]; then
     echo -e "${RED}✗ Error: Template directory not found at:${NC}"
     echo -e "  ${TEMPLATE_DIR}"
     echo ""
-    echo -e "Make sure the script is in the claude-native-spec folder with .claude/commands/ subdirectory."
+    echo -e "Make sure the script is in the claude-spec folder with .claude/commands/ subdirectory."
     exit 1
 fi
 

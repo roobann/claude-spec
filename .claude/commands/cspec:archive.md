@@ -23,7 +23,7 @@ Look for `.specs/active-task/` directory.
 ```
 ❌ No active task to archive.
 
-Start a new feature: /plan [feature-name]
+Start a new feature: /architect [feature-name]
 ```
 
 **If found:** Proceed with archiving.
@@ -232,7 +232,7 @@ Show the user what happened:
 
 Next steps:
 1. Commit the archive to git (recommended)
-2. Start new feature: /plan [name]
+2. Start new feature: /architect [name]
 3. Or review other work
 
 Great job completing this feature!
@@ -246,7 +246,7 @@ Confirm the active workspace is clean:
 ✨ Active workspace is now clean and ready for next task.
 
 To start next feature:
-/plan [feature-name]
+/architect [feature-name]
 
 To see all archived tasks:
 Check .specs/completed-tasks/ directory

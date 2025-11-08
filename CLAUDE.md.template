@@ -10,7 +10,7 @@
 
 {{PROJECT_STRUCTURE}}
 
-**IMPORTANT:** When implementing features with `/plan` and `/implement`, all application code should be placed in the appropriate directories according to the structure above. If an app folder is specified in the Tech Stack section, all code should be organized within that folder.
+**IMPORTANT:** When implementing features with `/architect` and `/implement`, all application code should be placed in the appropriate directories according to the structure above. If an app folder is specified in the Tech Stack section, all code should be organized within that folder.
 
 ## Critical Rules
 
@@ -235,7 +235,7 @@ In spec.md, document like this:
 ## Workflow
 
 ### Starting New Feature
-1. Run `/plan [feature-name]`
+1. Run `/architect [feature-name]`
 2. Review the generated spec in `.specs/active-task/spec.md`
 3. Run `/implement` when ready to begin
 4. Progress updates automatically after each phase
@@ -310,7 +310,7 @@ docker compose exec [service-name] bash  # Interactive shell
 ### Spec-Driven Development
 
 This project uses spec-driven development with Claude Code. All features should:
-1. Start with `/plan` to create specification
+1. Start with `/architect` to create specification
 2. Have clear requirements in `spec.md`
 3. Track progress in `progress.md`
 4. Maintain resumption context in `context.md`

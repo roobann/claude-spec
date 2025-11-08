@@ -26,7 +26,7 @@ Start or continue implementation of the current task.
   - Best for: Time-constrained development, MVP features
 
 This command handles both:
-- **Fresh start:** Beginning implementation after `/plan`
+- **Fresh start:** Beginning implementation after `/architect`
 - **Resuming work:** Continuing after breaks
 
 ## Process
@@ -47,7 +47,7 @@ Look for `.specs/active-task/` directory.
 ```
 ❌ No active task found.
 
-To start a new feature, run: /plan [feature-name]
+To start a new feature, run: /architect [feature-name]
 To see archived tasks, check: .specs/completed-tasks/
 ```
 

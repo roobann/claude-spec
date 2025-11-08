@@ -61,9 +61,9 @@ Edit `CLAUDE.md` to add your constraints:
 
 Edit files in `.claude/commands/`:
 
-**Example: Customize /plan**
+**Example: Customize /architect**
 
-Edit `.claude/commands/plan.md`:
+Edit `.claude/commands/architect.md`:
 
 ```markdown
 ---
@@ -332,7 +332,7 @@ Simplify:
 
 ### Quick Start
 - Skip extensive planning for small features
-- Use /plan but keep specs minimal
+- Use /architect but keep specs minimal
 - Checkpoint less frequently if not needed
 - Archive is optional for tiny features
 
@@ -350,7 +350,7 @@ Enhance:
 ## Team Workflow
 
 ### Spec Review Process
-1. Author creates spec with /plan
+1. Author creates spec with /architect
 2. Commits spec to branch
 3. Creates "Spec Review" PR
 4. Team reviews spec (not code yet)
@@ -470,7 +470,7 @@ Create different templates for different work:
 └── spike.spec.md
 ```
 
-Modify `/plan` to ask which type.
+Modify `/architect` to ask which type.
 
 ### Sub-Commands
 
@@ -480,7 +480,7 @@ Create command chains:
 
 ```markdown
 Run complete feature workflow:
-1. /plan to create spec
+1. /architect to create spec
 2. Get approval from user
 3. Implement following the spec
 4. Run tests

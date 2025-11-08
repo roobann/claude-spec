@@ -947,7 +947,6 @@ Need more specific direction. Could you clarify:
 You MUST update progress.yml:
 - After completing each task (update task status and timestamps)
 - After completing each phase (STOP and update before continuing)
-- Before taking breaks (via `/checkpoint`)
 - When making important decisions (add to decisions array)
 - Update progress_summary counts and percentages
 
@@ -1014,9 +1013,8 @@ phases:
 - Don't make assumptions - check spec.yml
 
 **For the User:**
-- Run `/checkpoint` before breaks to save state
 - Context files (YAML + MD) updated automatically for better resumption
-- Use `/implement` after any break (replaces `/resume`)
+- Use `/implement` after any break
 - Interrupt anytime to ask questions or give direction
 
 ## Success Criteria

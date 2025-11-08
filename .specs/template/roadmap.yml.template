@@ -1,0 +1,215 @@
+---
+# Project Roadmap (YAML Format)
+# Feature breakdown with priorities, dependencies, and estimates
+
+metadata:
+  project_name: "{{PROJECT_NAME}}"
+  created: "{{CREATED_DATE}}"
+  updated: "{{CREATED_DATE}}"
+  version: "1.0"
+
+  # Timeline (optional)
+  start_date: null
+  target_completion: null
+
+  # Multi-agent mode settings
+  agent_coordination: false  # Set to true if using domain experts
+  domains: []  # List: backend, frontend, devops, database, infrastructure
+
+progress_summary:
+  total_features: 0
+  completed_features: 0
+  in_progress_features: 0
+  not_started_features: 0
+  completion_percentage: 0
+
+  # Multi-agent mode summary (optional)
+  by_domain: {}
+    # backend:
+    #   total_features: 3
+    #   completed: 1
+    #   in_progress: 1
+    # frontend:
+    #   total_features: 2
+    #   completed: 0
+    #   in_progress: 1
+
+phases:
+  - id: 1
+    name: "Foundation"
+    description: "Core infrastructure and setup"
+    priority: "critical"
+    status: "not_started"  # not_started | in_progress | completed
+    started: null
+    completed: null
+
+    features:
+      - id: "F1"
+        name: "feature-name"
+        description: "Brief description of what this feature does"
+        priority: "critical"  # critical | high | medium | low
+        estimated_days: 3
+        status: "not_started"  # not_started | in_progress | completed | blocked
+        started: null
+        completed: null
+        dependencies: []  # Array of feature IDs this depends on
+
+        # Multi-agent mode (optional)
+        domains: []  # List: backend, frontend, devops
+
+        # Additional metadata (optional)
+        tags: []  # e.g., ["security", "performance", "refactor"]
+        assigned_to: null  # Team member (if applicable)
+        notes: ""
+
+      - id: "F2"
+        name: "another-feature"
+        description: "Another feature description"
+        priority: "critical"
+        estimated_days: 5
+        status: "not_started"
+        started: null
+        completed: null
+        dependencies: ["F1"]  # Depends on F1
+        domains: []
+        tags: []
+        assigned_to: null
+        notes: ""
+
+  - id: 2
+    name: "Core Features"
+    description: "Main application features"
+    priority: "high"
+    status: "not_started"
+    started: null
+    completed: null
+
+    features:
+      - id: "F3"
+        name: "core-feature-one"
+        description: "First core feature"
+        priority: "high"
+        estimated_days: 7
+        status: "not_started"
+        started: null
+        completed: null
+        dependencies: ["F1", "F2"]  # Depends on foundation
+        domains: []
+        tags: []
+        assigned_to: null
+        notes: ""
+
+      - id: "F4"
+        name: "core-feature-two"
+        description: "Second core feature"
+        priority: "high"
+        estimated_days: 5
+        status: "not_started"
+        started: null
+        completed: null
+        dependencies: ["F3"]
+        domains: []
+        tags: []
+        assigned_to: null
+        notes: ""
+
+  - id: 3
+    name: "Advanced Features"
+    description: "Nice-to-have and advanced features"
+    priority: "medium"
+    status: "not_started"
+    started: null
+    completed: null
+
+    features:
+      - id: "F5"
+        name: "advanced-feature"
+        description: "Advanced functionality"
+        priority: "medium"
+        estimated_days: 4
+        status: "not_started"
+        started: null
+        completed: null
+        dependencies: ["F3", "F4"]
+        domains: []
+        tags: []
+        assigned_to: null
+        notes: ""
+
+  - id: 4
+    name: "Polish & Optimization"
+    description: "Performance, security, and UX improvements"
+    priority: "medium"
+    status: "not_started"
+    started: null
+    completed: null
+
+    features:
+      - id: "F6"
+        name: "performance-optimization"
+        description: "Optimize performance and caching"
+        priority: "medium"
+        estimated_days: 3
+        status: "not_started"
+        started: null
+        completed: null
+        dependencies: ["F3", "F4", "F5"]
+        domains: []
+        tags: ["performance"]
+        assigned_to: null
+        notes: ""
+
+      - id: "F7"
+        name: "security-audit"
+        description: "Complete OWASP security audit"
+        priority: "high"
+        estimated_days: 2
+        status: "not_started"
+        started: null
+        completed: null
+        dependencies: []  # Can run in parallel
+        domains: []
+        tags: ["security"]
+        assigned_to: null
+        notes: ""
+
+# Timeline estimates
+timeline:
+  phase_1_weeks: 1
+  phase_2_weeks: 2
+  phase_3_weeks: 2
+  phase_4_weeks: 1
+  total_weeks: 6
+  total_features: 7
+
+# Milestones (optional)
+milestones:
+  - name: "MVP Complete"
+    target_date: null
+    features: ["F1", "F2", "F3", "F4"]
+    status: "not_started"
+
+  - name: "Beta Release"
+    target_date: null
+    features: ["F1", "F2", "F3", "F4", "F5"]
+    status: "not_started"
+
+  - name: "Production Launch"
+    target_date: null
+    features: ["F1", "F2", "F3", "F4", "F5", "F6", "F7"]
+    status: "not_started"
+
+# Notes and decisions
+notes: |
+  General notes about the roadmap, timeline, or priorities.
+
+  Example:
+  - F1 and F2 can be worked on in parallel
+  - F3 is the most critical feature for MVP
+  - Security audit (F7) should run throughout, mark complete at end
+
+# Change log (optional)
+changes:
+  # - date: "2025-01-08"
+  #   change: "Added F8 for new requirement"
+  #   author: "Team"

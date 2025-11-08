@@ -1,23 +1,23 @@
 ---
-name: cspec:init-existing
-description: Initialize spec system for existing project with auto-detection
+name: cspec:configure
+description: Configure existing project with auto-detection
 ---
 
-Initialize Claude-Native Spec system for an **existing project** that already has code. This command auto-detects your tech stack from existing files and confirms with you before generating configuration.
+Configure Claude-Native Spec system for an **existing project** that already has code. This command auto-detects your tech stack from existing files and confirms with you before generating configuration.
 
 ## When to Use
 
-Use `/cspec:init-existing` when:
+Use `/cspec:configure` when:
 - You have an existing codebase
 - package.json, go.mod, Cargo.toml, or other config files already exist
 - You want to add the spec system to your current project
 
-For brand new projects without code, use `/cspec:init-new` instead.
+For brand new projects without code, use `/cspec:create` instead.
 
 ## Usage
 
 ```bash
-/cspec:init-existing
+/cspec:configure
 ```
 
 The command will scan your project, show what it detected, and ask for confirmation.
@@ -127,7 +127,7 @@ Skip questions where user confirms the detected value.
 
 ### Step 4: Generate Configuration
 
-Same as `/cspec:init-new`:
+Same as `/cspec:create`:
 - Create CLAUDE.md with tech stack
 - Create .claudeignore with language-specific patterns
 - Initialize .specs/ directory structure
@@ -137,7 +137,7 @@ Same as `/cspec:init-new`:
 ### Full Auto-Detection
 
 ```
-> /cspec:init-existing
+> /cspec:configure
 
 🔍 Scanning project...
 
@@ -179,7 +179,7 @@ Ready to use!
 ### With Adjustments
 
 ```
-> /cspec:init-existing
+> /cspec:configure
 
 🔍 Scanning project...
 
@@ -283,7 +283,7 @@ ls -d */ 2>/dev/null
 
 ## What Gets Created
 
-Same as `/cspec:init-new`:
+Same as `/cspec:create`:
 
 1. **CLAUDE.md** - Project context with detected tech stack
 2. **.claudeignore** - Language-specific ignore patterns
@@ -357,7 +357,7 @@ async function detectTechStack() {
 ### Edge Cases
 
 **No detection possible:**
-- Fall back to asking all questions like `/cspec:init-new`
+- Fall back to asking all questions like `/cspec:create`
 - Inform user: "Couldn't auto-detect tech stack. Let's configure manually."
 
 **Partial detection:**

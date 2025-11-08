@@ -1,23 +1,23 @@
 ---
-name: cspec:init-new
-description: Initialize spec system for a new project with interactive configuration
+name: cspec:create
+description: Create new project with interactive tech stack configuration
 ---
 
-Initialize Claude-Native Spec system for a **new project** that you're starting from scratch. This command guides you through selecting your tech stack and sets up the complete development environment.
+Create a **new project** with Claude-Native Spec system. This command guides you through selecting your tech stack and sets up the complete development environment.
 
 ## When to Use
 
-Use `/cspec:init-new` when:
+Use `/cspec:create` when:
 - Starting a brand new project
 - You want to interactively choose your tech stack
 - No package.json, go.mod, or other language config files exist yet
 
-For existing projects with code already written, use `/cspec:init-existing` instead.
+For existing projects with code already written, use `/cspec:configure` instead.
 
 ## Usage
 
 ```bash
-/cspec:init-new
+/cspec:create
 ```
 
 The command will ask you a series of questions to configure your project.
@@ -152,7 +152,7 @@ Patterns for files Claude should ignore:
 ## Example Session
 
 ```
-> /cspec:init-new
+> /cspec:create
 
 Which programming language will you use?
 > TypeScript
@@ -214,7 +214,7 @@ Ready to build!
 
 ### 2. Generate CLAUDE.md
 
-Read `claude-spec/CLAUDE.md.template` and replace:
+Read `.claude/templates/CLAUDE.md.template` and replace:
 
 **{{PROJECT_NAME}}**: Current directory name
 
@@ -266,7 +266,7 @@ tests/                  # Test files
 
 ### 3. Generate .claudeignore
 
-Read `claude-spec/.claudeignore.template` and add language-specific patterns:
+Read `.claude/templates/.claudeignore.template` and add language-specific patterns:
 
 **For TypeScript/JavaScript:**
 ```

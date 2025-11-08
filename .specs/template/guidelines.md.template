@@ -1,0 +1,603 @@
+# Development Guidelines
+
+**Project:** {{PROJECT_NAME}}
+**Created:** {{CREATED_DATE}}
+**Status:** Active
+
+> **Note:** These guidelines are extracted from the project architecture (`.specs/architecture.md`).
+> All developers must follow these standards for consistency and quality.
+
+---
+
+## Table of Contents
+
+1. [Code Organization](#code-organization)
+2. [Naming Conventions](#naming-conventions)
+3. [Testing Requirements](#testing-requirements)
+4. [Security Checklist](#security-checklist)
+5. [Performance Guidelines](#performance-guidelines)
+6. [Documentation Standards](#documentation-standards)
+7. [Git Workflow](#git-workflow)
+8. [Code Review Process](#code-review-process)
+
+---
+
+## Code Organization
+
+### Directory Structure
+
+```
+[app-folder]/
+├── src/
+│   ├── api/              # API endpoints and routes
+│   ├── services/         # Business logic layer
+│   ├── models/           # Data models and schemas
+│   ├── middleware/       # Framework middleware
+│   ├── utils/            # Utility functions and helpers
+│   ├── config/           # Configuration files
+│   └── types/            # TypeScript type definitions
+├── tests/
+│   ├── unit/             # Unit tests
+│   ├── integration/      # Integration tests
+│   └── e2e/              # End-to-end tests
+├── docs/                 # Project documentation
+├── scripts/              # Build and deployment scripts
+└── migrations/           # Database migrations
+```
+
+### Module Structure
+
+Each module should follow this pattern:
+
+```
+feature/
+├── feature.controller.ts    # HTTP handlers
+├── feature.service.ts       # Business logic
+├── feature.model.ts         # Data model
+├── feature.validator.ts     # Input validation
+├── feature.types.ts         # TypeScript types
+└── __tests__/
+    ├── feature.controller.test.ts
+    └── feature.service.test.ts
+```
+
+### Separation of Concerns
+
+- **Controllers:** Handle HTTP requests/responses only
+- **Services:** Contain business logic
+- **Models:** Define data structure and database interactions
+- **Validators:** Validate and sanitize input
+- **Middleware:** Cross-cutting concerns (auth, logging, etc.)
+
+---
+
+## Naming Conventions
+
+### Files and Directories
+
+- **Files:** `kebab-case.ts` for TypeScript/JavaScript files
+- **React Components:** `PascalCase.tsx` for component files
+- **Test Files:** `file-name.test.ts` or `file-name.spec.ts`
+- **Directories:** `kebab-case/` for folders
+
+**Examples:**
+```
+✅ user-service.ts
+✅ LoginForm.tsx
+✅ user-service.test.ts
+❌ UserService.ts
+❌ login_form.tsx
+```
+
+### Code Naming
+
+**Variables and Functions:**
+```typescript
+// camelCase for variables and functions
+const userId = "123";
+function getUserById(id: string) { }
+```
+
+**Classes and Types:**
+```typescript
+// PascalCase for classes, interfaces, types
+class UserService { }
+interface UserData { }
+type UserId = string;
+```
+
+**Constants:**
+```typescript
+// UPPER_CASE for constants
+const MAX_LOGIN_ATTEMPTS = 5;
+const API_BASE_URL = "https://api.example.com";
+```
+
+**Private Methods:**
+```typescript
+// Prefix with underscore
+class UserService {
+  private _validateEmail(email: string) { }
+}
+```
+
+### Database Naming
+
+- **Tables:** `snake_case`, plural (`users`, `user_sessions`)
+- **Columns:** `snake_case` (`user_id`, `created_at`)
+- **Indexes:** `idx_[table]_[column]` (`idx_users_email`)
+- **Foreign Keys:** `fk_[table]_[column]` (`fk_sessions_user_id`)
+
+**Example:**
+```sql
+CREATE TABLE user_sessions (
+  id UUID PRIMARY KEY,
+  user_id UUID NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW(),
+  CONSTRAINT fk_sessions_user_id FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE INDEX idx_user_sessions_user_id ON user_sessions(user_id);
+```
+
+---
+
+## Testing Requirements
+
+### Coverage Targets
+
+| Type | Minimum Coverage | Goal |
+|------|------------------|------|
+| Overall | 80% | 90% |
+| Critical Paths | 100% | 100% |
+| New Code | 80% | 100% |
+
+### Test Pyramid
+
+```
+        /\
+       /  \  10% - E2E Tests (Critical user flows)
+      /____\
+     /      \
+    /        \ 30% - Integration Tests (API, DB, Services)
+   /__________\
+  /            \
+ /              \ 60% - Unit Tests (Functions, Classes, Utils)
+/________________\
+```
+
+### Testing Standards
+
+**1. Unit Tests**
+- Test individual functions and classes in isolation
+- Mock external dependencies
+- Fast execution (< 100ms per test)
+- Use AAA pattern (Arrange, Act, Assert)
+
+**Example:**
+```typescript
+describe('UserService', () => {
+  it('should hash password before storing', async () => {
+    // Arrange
+    const service = new UserService();
+    const plainPassword = 'MyPassword123!';
+
+    // Act
+    const hashedPassword = await service.hashPassword(plainPassword);
+
+    // Assert
+    expect(hashedPassword).not.toBe(plainPassword);
+    expect(hashedPassword).toMatch(/^\$2[aby]\$\d+\$/); // bcrypt format
+  });
+});
+```
+
+**2. Integration Tests**
+- Test component interactions
+- Use test database
+- Test API endpoints end-to-end
+- Verify database operations
+
+**Example:**
+```typescript
+describe('POST /api/users', () => {
+  it('should create user and return 201', async () => {
+    const response = await request(app)
+      .post('/api/users')
+      .send({ email: 'test@example.com', password: 'SecurePass123!' });
+
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty('id');
+
+    // Verify database
+    const user = await db.users.findById(response.body.id);
+    expect(user.email).toBe('test@example.com');
+  });
+});
+```
+
+**3. E2E Tests**
+- Test critical user journeys
+- Use real browser (Playwright/Cypress)
+- Test across environments
+- Include auth flows
+
+### Test Naming
+
+Use descriptive names with "should" pattern:
+
+```typescript
+✅ it('should return 401 when token is expired')
+✅ it('should create user with hashed password')
+✅ it('should validate email format before signup')
+
+❌ it('test login')
+❌ it('works')
+```
+
+### Test Data
+
+- **Never hardcode passwords** - Use environment variables
+- **Random generation** - For emails, IDs, etc.
+- **Fixtures** - Store in `tests/fixtures/`
+- **Cleanup** - Always clean up after tests
+
+---
+
+## Security Checklist
+
+### OWASP Top 10 Compliance
+
+Every feature MUST address applicable OWASP items:
+
+#### A01 - Broken Access Control
+- [ ] Authentication required on protected endpoints
+- [ ] Authorization checks before operations
+- [ ] User can only access their own resources
+- [ ] Admin privileges verified for admin operations
+- [ ] Rate limiting implemented
+
+#### A02 - Cryptographic Failures
+- [ ] Passwords hashed with bcrypt (cost factor 12+)
+- [ ] Sensitive data encrypted at rest
+- [ ] TLS 1.3 for data in transit
+- [ ] Secrets stored in environment variables
+- [ ] No secrets in code or version control
+
+#### A03 - Injection
+- [ ] Parameterized queries (no string concatenation)
+- [ ] Input validation with schema validators
+- [ ] Output encoding to prevent XSS
+- [ ] Content Security Policy headers
+- [ ] SQL, NoSQL, OS command injection prevented
+
+#### A04 - Insecure Design
+- [ ] Threat modeling completed for feature
+- [ ] Security requirements defined upfront
+- [ ] Secure by default configuration
+
+#### A05 - Security Misconfiguration
+- [ ] Security headers set (HSTS, CSP, X-Frame-Options)
+- [ ] Error messages sanitized (no stack traces in production)
+- [ ] Unnecessary features disabled
+- [ ] Default credentials changed
+
+#### A06 - Vulnerable Components
+- [ ] Dependencies scanned (`npm audit`, `snyk`)
+- [ ] Regular updates scheduled
+- [ ] Known vulnerabilities addressed
+
+#### A07 - Authentication Failures
+- [ ] Strong password policy enforced
+- [ ] Multi-factor authentication available
+- [ ] Account lockout after failed attempts
+- [ ] Session management secure
+
+#### A08 - Software and Data Integrity
+- [ ] Signed packages and artifacts
+- [ ] CI/CD pipeline secured
+- [ ] Code review required
+
+#### A09 - Logging and Monitoring
+- [ ] Security events logged
+- [ ] Failed login attempts monitored
+- [ ] Alerts configured for anomalies
+
+#### A10 - SSRF (Server-Side Request Forgery)
+- [ ] URL validation for external requests
+- [ ] Allowlist for approved domains
+- [ ] No user-controlled URLs to internal resources
+
+### Code Security Practices
+
+**DO:**
+- ✅ Use environment variables for secrets
+- ✅ Validate all user input
+- ✅ Use parameterized queries
+- ✅ Escape output in HTML contexts
+- ✅ Implement rate limiting
+- ✅ Log security events
+
+**DON'T:**
+- ❌ Hardcode credentials
+- ❌ Trust user input
+- ❌ Concatenate SQL queries
+- ❌ Expose stack traces
+- ❌ Store passwords in plain text
+- ❌ Disable security features
+
+---
+
+## Performance Guidelines
+
+### Response Time Targets
+
+| Operation Type | Target | Maximum |
+|---------------|--------|---------|
+| API Read (GET) | < 100ms | < 200ms |
+| API Write (POST/PUT) | < 200ms | < 500ms |
+| Page Load (First Contentful Paint) | < 1s | < 2s |
+| Search/Filter | < 300ms | < 1s |
+
+### Optimization Strategies
+
+**Database:**
+- Create indexes for frequently queried columns
+- Use pagination for large datasets
+- Optimize N+1 queries (use joins or eager loading)
+- Connection pooling enabled
+
+**Caching:**
+- Cache frequently accessed data (Redis)
+- Set appropriate TTL values
+- Invalidate cache on updates
+- Cache at multiple levels (CDN, app, DB)
+
+**API:**
+- Compress responses (gzip/brotli)
+- Use pagination and filtering
+- Implement field selection (GraphQL-style)
+- Batch requests where possible
+
+**Frontend:**
+- Lazy load images and components
+- Code splitting for routes
+- Minimize bundle size
+- Use CDN for static assets
+
+### Performance Budgets
+
+- **JavaScript Bundle:** < 200KB (gzipped)
+- **CSS Bundle:** < 50KB (gzipped)
+- **Images:** < 500KB per image, use WebP
+- **Time to Interactive:** < 3s on 3G
+
+---
+
+## Documentation Standards
+
+### Code Documentation
+
+**JSDoc for Functions:**
+```typescript
+/**
+ * Creates a new user with hashed password
+ *
+ * @param email - User email address (must be valid format)
+ * @param password - Plain text password (min 8 chars)
+ * @returns Promise<User> - Created user object without password
+ * @throws {ValidationError} If email is invalid
+ * @throws {ConflictError} If email already exists
+ */
+async function createUser(email: string, password: string): Promise<User> {
+  // Implementation
+}
+```
+
+**Inline Comments:**
+- Explain "why" not "what"
+- Document complex logic
+- Note gotchas and edge cases
+
+**README Files:**
+- Every major module should have a README
+- Explain purpose, usage, examples
+- Document configuration options
+
+### API Documentation
+
+- OpenAPI/Swagger spec maintained
+- Example requests and responses
+- Error codes documented
+- Authentication requirements clear
+
+### Architecture Documentation
+
+- Update `.specs/architecture.md` for major changes
+- Document ADRs (Architecture Decision Records)
+- Keep diagrams up-to-date
+
+---
+
+## Git Workflow
+
+### Branch Naming
+
+```
+feature/[feature-name]     # New features
+bugfix/[issue-description] # Bug fixes
+hotfix/[issue-description] # Production hotfixes
+refactor/[description]     # Code refactoring
+docs/[description]         # Documentation updates
+```
+
+**Examples:**
+```
+feature/user-authentication
+bugfix/login-timeout-error
+hotfix/payment-validation
+refactor/database-connection-pool
+```
+
+### Commit Messages
+
+Follow conventional commits format:
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+**Types:**
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation
+- `style`: Code style (formatting, no logic change)
+- `refactor`: Code refactoring
+- `test`: Adding tests
+- `chore`: Maintenance tasks
+
+**Examples:**
+```
+feat(auth): add JWT token generation
+
+Implement JWT token generation for user authentication
+using HS256 algorithm with 24h expiration.
+
+Closes #123
+```
+
+```
+fix(api): handle null user in getProfile endpoint
+
+Add null check before accessing user properties to
+prevent UnhandledPromiseRejection error.
+
+Fixes #456
+```
+
+### Commit Frequency
+
+- Commit often (atomic commits)
+- One logical change per commit
+- Don't commit broken code
+- Don't commit secrets or sensitive data
+
+---
+
+## Code Review Process
+
+### Before Submitting PR
+
+- [ ] All tests pass locally
+- [ ] Code follows style guidelines
+- [ ] No linting errors
+- [ ] Documentation updated
+- [ ] Security checklist reviewed
+- [ ] Performance impact assessed
+
+### PR Description Template
+
+```markdown
+## Description
+[Brief description of changes]
+
+## Type of Change
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Breaking change
+- [ ] Documentation update
+
+## Testing
+[How this was tested]
+
+## Security
+[OWASP items addressed, if applicable]
+
+## Checklist
+- [ ] Tests added/updated
+- [ ] Documentation updated
+- [ ] Security review completed
+- [ ] Performance impact assessed
+```
+
+### Review Criteria
+
+**Reviewers should check:**
+1. **Correctness:** Does it work? Does it solve the problem?
+2. **Security:** Any vulnerabilities? OWASP compliance?
+3. **Performance:** Any performance regressions?
+4. **Tests:** Adequate test coverage?
+5. **Style:** Follows guidelines?
+6. **Documentation:** Clear and complete?
+
+### Review Etiquette
+
+**DO:**
+- ✅ Be constructive and specific
+- ✅ Ask questions to understand intent
+- ✅ Suggest alternatives
+- ✅ Praise good practices
+- ✅ Approve when satisfied
+
+**DON'T:**
+- ❌ Be personal or harsh
+- ❌ Block PRs for style preferences
+- ❌ Request changes without explanation
+- ❌ Approve without reviewing
+
+---
+
+## Additional Guidelines
+
+### Error Handling
+
+- Always use try-catch for async operations
+- Log errors with context
+- Return user-friendly error messages
+- Never expose internal details
+
+```typescript
+try {
+  await service.createUser(email, password);
+} catch (error) {
+  logger.error('User creation failed', { email, error });
+
+  if (error instanceof ValidationError) {
+    return res.status(400).json({ error: 'Invalid input' });
+  }
+
+  return res.status(500).json({ error: 'Internal server error' });
+}
+```
+
+### Logging
+
+- Use structured logging (JSON)
+- Include request IDs for tracing
+- Log levels: DEBUG (dev), INFO (prod), ERROR (always)
+- Don't log sensitive data (passwords, tokens, PII)
+
+```typescript
+logger.info('User login successful', {
+  requestId,
+  userId,
+  timestamp: new Date().toISOString()
+});
+```
+
+### Dependencies
+
+- Keep dependencies updated
+- Review licenses before adding
+- Avoid large/unused dependencies
+- Pin versions in production
+
+---
+
+**Last Updated:** {{LAST_UPDATED}}
+**Owner:** {{OWNER}}
+**Questions:** Contact [team/person]

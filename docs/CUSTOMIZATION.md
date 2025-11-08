@@ -333,7 +333,6 @@ Simplify:
 ### Quick Start
 - Skip extensive planning for small features
 - Use /architect but keep specs minimal
-- Checkpoint less frequently if not needed
 - Archive is optional for tiny features
 
 ### Focus Areas
@@ -358,17 +357,16 @@ Enhance:
 
 ### Handoff Protocol
 When handing off work:
-1. /checkpoint with detailed notes
-2. Update context.md with handoff notes
-3. Commit and push
-4. Notify next person in Slack
-5. Link to .specs/active-task/
+1. Update context.md with handoff notes
+2. Commit and push
+3. Notify next person in Slack
+4. Link to .specs/active-task/
 
 ### Pair Programming
 Both developers share same Claude session:
 - Screen share
 - One drives, one reviews
-- Both contribute to checkpoints
+- Both contribute to context updates
 ```
 
 ## Language-Specific Customizations

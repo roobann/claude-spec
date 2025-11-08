@@ -106,12 +106,12 @@ your-project/
 ├── .claudeignore                # Auto-generated ignore patterns
 ├── .claude/
 │   └── commands/
-│       ├── cspec:init.md       # Setup new project with tech stack
-│       ├── cspec:init.md  # Auto-detect existing project
-│       ├── cspec:plan.md           # Feature planning
-│       ├── cspec:resume.md                 # Resume work
-│       ├── cspec:checkpoint.md             # Save progress
-│       └── cspec:archive.md           # Archive completed work
+│       ├── cspec:create.md             # Create new project with tech stack
+│       ├── cspec:configure.md          # Configure existing project
+│       ├── cspec:architect.md          # Project architecture
+│       ├── cspec:task.md               # Create feature task
+│       ├── cspec:implement.md          # Implement feature
+│       └── cspec:archive.md            # Archive completed work
 └── .specs/
     ├── README.md                # Spec system documentation
     ├── active/                  # Current work
@@ -123,11 +123,11 @@ your-project/
 
 After running `./setup.sh`, you'll have these slash commands:
 
-- `/cspec:init` - Setup new project with specified tech stack
-- `/cspec:init` - Auto-detect and configure existing project
-- `/cspec:plan` - Start new feature with spec
-- `/resume` - Resume current work
-- `/cspec:checkpoint` - Save progress
+- `/cspec:create` - Create new project with specified tech stack
+- `/cspec:configure` - Configure existing project with auto-detection
+- `/cspec:architect` - Design project architecture
+- `/cspec:task` - Create feature task from roadmap
+- `/cspec:implement` - Implement current feature
 - `/cspec:archive` - Archive completed work
 
 ## Initial Configuration
@@ -249,12 +249,7 @@ claude
 
 # Should load the test feature context
 
-# 3. Test checkpoint
-> /cspec:checkpoint
-
-# Should update progress and context files
-
-# 4. Clean up test
+# 3. Clean up test
 > /cspec:archive
 
 # Or manually delete .specs/active-task/
@@ -341,9 +336,9 @@ cat > CLAUDE.md << 'EOF'
 # My Project
 
 ## Workflow
-When starting work: /resume
-When planning feature: /cspec:plan [name]
-Before breaks: /cspec:checkpoint
+When designing architecture: /cspec:architect
+When creating task: /cspec:task [feature-name]
+When implementing: /cspec:implement
 EOF
 
 # 3. Skip full initialization if you want bare minimum

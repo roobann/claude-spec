@@ -5,39 +5,47 @@ Commands for the Claude-Native Spec workflow system.
 ## Commands
 
 ### Initialization
-- **`/cspec:init-new`** - New project setup (interactive config)
-- **`/cspec:init-existing`** - Existing project setup (auto-detect)
+- **`/cspec:create`** - Create new project (interactive config)
+- **`/cspec:configure`** - Configure existing project (auto-detect)
 
 ### Workflow
-- **`/cspec:architect [feature-name]`** - Design architecture with comprehensive planning
-  - Use `--quick` flag for simple features
-  - Creates architecture.md + spec/progress/context files
+- **`/cspec:architect`** - Design project architecture OR add features to existing
+  - First time: Creates full project architecture
+  - Subsequent: Adds features to roadmap
+- **`/cspec:task [feature-name]`** - Create active task from roadmap
 - **`/cspec:implement`** - Execute implementation from specs
-- **`/cspec:checkpoint`** - Save progress before breaks
 - **`/cspec:archive`** - Complete and archive feature
 
 ## Workflow Pattern
 
 ```
-Init → Architect → Implement → Checkpoint → Archive
+Init → Architect → Task → Implement → Archive
 ```
 
 **Example:**
 ```bash
-/cspec:init-existing
-/cspec:architect user-authentication
+/cspec:configure
+/cspec:architect                      # Create project architecture
+/cspec:task user-authentication       # Create feature from roadmap
 /cspec:implement
-/cspec:checkpoint
 /cspec:archive
+/cspec:architect new-feature          # Add new feature to architecture
+/cspec:task new-feature
 ```
 
 ## Files Created
 
-- `.specs/active-task/architecture.md` - Detailed design & ADRs
-- `.specs/active-task/spec.yml` - Requirements
-- `.specs/active-task/progress.yml` - Task tracking
-- `.specs/active-task/context.yml` - Metadata
-- `.specs/active-task/context.md` - Human context
+**Project level (.specs/):**
+- `architecture.md` - Master architecture & ADRs
+- `roadmap.yml` - Feature roadmap
+- `guidelines.md` - Development standards
+
+**Feature level (.specs/active-task/):**
+- `architecture.md` - Feature design
+- `spec.yml` - Requirements
+- `progress.yml` - Task tracking
+- `context.yml` - Metadata
+- `context.md` - Human context
 
 ## Related
 

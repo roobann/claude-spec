@@ -6,9 +6,8 @@ Practical patterns for using Claude-Native Spec in your daily development.
 
 ```bash
 /architect [name]    # Start new feature
-/resume                 # Resume current work
-/checkpoint             # Save progress
-/archive           # Complete and archive
+/implement              # Resume or start current work
+/archive                # Complete and archive
 ```
 
 ## Complete Workflows
@@ -31,15 +30,12 @@ Claude: "Here's the specification I created..."
 You: "Looks good, start implementation"
 
 [Claude begins Phase 1 tasks]
-[Work for 2 hours]
-
-> /checkpoint
-Claude: "Progress saved..."
+[Work for 2 hours - progress automatically tracked]
 
 You: git add . && git commit -m "WIP: user auth - signup form complete"
 ```
 
-**Result:** Spec created, work started, progress checkpointed
+**Result:** Spec created, work started, progress automatically tracked
 
 ### Workflow 2: Resuming After a Break
 
@@ -48,7 +44,7 @@ You: git add . && git commit -m "WIP: user auth - signup form complete"
 ```bash
 # Day 2 - Resume
 $ claude
-> /resume
+> /implement
 
 Claude: "Resuming: User Authentication
 
@@ -79,9 +75,7 @@ You: "Yes, continue"
 
 [Claude opens LoginForm.tsx and continues exactly where left off]
 [Work for 1 hour]
-
-> /checkpoint
-[Progress saved]
+[Progress automatically tracked]
 ```
 
 **Result:** Zero time wasted rediscovering context
@@ -92,11 +86,8 @@ You: "Yes, continue"
 
 ```bash
 # Working on feature
-> /checkpoint
-Claude: "Progress saved for user-authentication"
-
-> /clear
-[Context window cleared]
+[Commit current work]
+$ git commit -m "WIP: user-authentication progress"
 
 > /architect bug-fix-payment-error
 [Work on bug fix]
@@ -106,7 +97,7 @@ Claude: "Progress saved for user-authentication"
 Claude: "Bug fix archived"
 
 # Back to original feature
-> /resume
+> /implement
 Claude: "Resuming user-authentication from [exact point]"
 [Continue feature work]
 ```
@@ -122,16 +113,15 @@ Claude: "Resuming user-authentication from [exact point]"
 $ claude
 > /architect dashboard-redesign
 [Create comprehensive spec]
+> /implement
 [Work 4 hours - complete Phase 1]
-> /checkpoint
 $ git commit -m "Dashboard: Phase 1 complete"
 
 # Tuesday
 $ claude
-> /resume
+> /implement
 [Continue Phase 2]
 [Work 4 hours]
-> /checkpoint
 $ git commit -m "Dashboard: Phase 2 in progress"
 
 # Wednesday
@@ -139,15 +129,15 @@ $ git commit -m "Dashboard: Phase 2 in progress"
 
 # Thursday
 $ claude
-> /resume
+> /implement
 Claude: "Note: Last updated 2 days ago..."
 [Perfect resumption despite 2-day gap]
 [Continue Phase 2]
-> /checkpoint
+$ git commit -m "Dashboard: Phase 2 complete"
 
 # Friday
 $ claude
-> /resume
+> /implement
 [Complete Phase 3]
 [All tests passing]
 > /archive
@@ -162,14 +152,13 @@ $ git commit -m "Dashboard redesign complete"
 
 ```bash
 # Developer A - End of day
-> /checkpoint
 $ git add . && git commit -m "WIP: API integration - endpoints complete"
 $ git push
 
 # Developer B - Next morning
 $ git pull
 $ claude
-> /resume
+> /implement
 
 Claude: "Resuming: API Integration (handed off from Dev A)
 
@@ -187,27 +176,27 @@ Ready to continue with testing?"
 
 ## Common Patterns
 
-### Pattern: Checkpoint Frequently
+### Pattern: Commit Regularly
 
-**Bad:** Work for 4 hours, checkpoint once at end
-**Good:** Checkpoint every 30-60 minutes or after each subtask
+**Bad:** Work for 4 hours, commit once at end
+**Good:** Commit every 30-60 minutes or after each subtask
 
 ```bash
 # Every 30-60 minutes
-> /checkpoint
+$ git add . && git commit -m "progress update"
 
 # Or after logical milestones
 [Complete database setup]
-> /checkpoint
+$ git commit -m "database setup complete"
 
 [Finish API implementation]
-> /checkpoint
+$ git commit -m "API implementation complete"
 
 [Tests passing]
-> /checkpoint
+$ git commit -m "tests passing"
 ```
 
-**Why:** Granular checkpoints mean better resumption, less lost context
+**Why:** Regular commits preserve your work and /implement maintains context automatically
 
 ### Pattern: Use Plan Mode for Complex Work
 
@@ -232,33 +221,13 @@ You: "Looks good, proceed"
 
 **Why:** Plan mode gives you review step before big changes
 
-### Pattern: Update Context During Work
-
-**Scenario:** Making important decision mid-implementation
-
-```bash
-[Working on feature, decide to use approach X over Y]
-
-You: "Update context.md with decision to use Zustand for state
-     management instead of Context API because..."
-
-Claude: [Updates context.md]
-
-You: "Continue implementation"
-
-[Later when resuming]
-> /resume
-Claude: "...using Zustand for state (decided because...)..."
-```
-
-**Why:** Decisions are preserved for future you or teammates
-
 ### Pattern: Iterative Spec Refinement
 
 **Scenario:** Requirements evolve during implementation
 
 ```bash
 > /architect user-settings
+> /implement
 [Start implementing]
 [Discover edge case not in spec]
 
@@ -266,12 +235,11 @@ You: "Update spec.md to add requirement for handling legacy data"
 
 Claude: [Updates spec.md]
 Claude: [Updates progress.md with new task]
-
-> /checkpoint
+Claude: [Continues with updated requirements]
 [Spec now matches reality]
 ```
 
-**Why:** Spec stays synchronized with actual implementation
+**Why:** Spec stays synchronized with actual implementation and context is automatically maintained
 
 ## Time-Based Workflows
 
@@ -284,9 +252,8 @@ $ git pull
 $ claude
 
 # If continuing work
-> /resume
-[Review summary]
-[Confirm and continue]
+> /implement
+[Review summary and continue]
 
 # If starting fresh
 > /architect today's-feature
@@ -296,22 +263,20 @@ $ claude
 
 ```bash
 # Before lunch
-> /checkpoint
+[Commit current work]
+$ git commit -m "WIP: progress before lunch"
 [Leave Claude running or exit]
 
 # After lunch
 [If Claude still running, just continue]
 [If exited]
 $ claude
-> /resume
+> /implement
 ```
 
 ### End of Day
 
 ```bash
-# Wrap up session
-> /checkpoint
-
 # Commit work
 $ git add .
 $ git commit -m "WIP: [feature] - [what's done]"
@@ -346,12 +311,13 @@ You: "I'm blocked on X because Y. Update progress and context."
 Claude: [Updates progress.md with blocker]
 Claude: [Updates context.md with attempted solutions]
 
-> /checkpoint
+# Commit current state
+$ git commit -m "WIP: blocked on X"
 
 # Switch to other work or research blocker
 # When unblocked:
 
-> /resume
+> /implement
 Claude: "...was blocked on X. Ready to try [solution]?"
 ```
 
@@ -361,12 +327,12 @@ Claude: "...was blocked on X. Ready to try [solution]?"
 [Working focused]
 [Urgent meeting called]
 
-> /checkpoint
+$ git commit -m "WIP: progress before meeting"
 [Meeting]
 
 [Return 2 hours later]
 $ claude
-> /resume
+> /implement
 [Right back to where you were]
 ```
 
@@ -398,24 +364,24 @@ You: "Explain the codebase structure"
 
 # Start small
 > /architect small-bug-fix
+> /implement
 [Learn patterns while fixing]
-
-> /checkpoint
 
 # Gradually tackle bigger work
 > /architect medium-feature
+> /implement
 [Use patterns learned]
 ```
 
 ## Best Practices
 
-### 1. Checkpoint Before Uncertainty
+### 1. Commit Before Uncertainty
 
 ```bash
 [About to try experimental approach]
-> /checkpoint
+$ git commit -m "WIP: before trying experimental approach"
 [Try approach]
-[If fails, context explains what was tried]
+[If fails, git log shows what was tried]
 ```
 
 ### 2. Descriptive Commit Messages
@@ -447,16 +413,13 @@ You: "Add to context: chose PostgreSQL over MongoDB because..."
 [Future you/teammates will thank you]
 ```
 
-### 5. Use /clear for Fresh Start
+### 5. Commit Your Work Regularly
 
 ```bash
-[Context window getting cluttered]
-[Unrelated file edits in history]
-
-> /checkpoint
-> /clear
-> /resume
-[Fresh context, but state preserved]
+[After completing significant work]
+$ git add .
+$ git commit -m "feature: completed X, Y, Z"
+[Your work is preserved and /implement maintains context]
 ```
 
 ## Productivity Tips
@@ -465,7 +428,7 @@ You: "Add to context: chose PostgreSQL over MongoDB because..."
 - Do all API endpoints together
 - Do all UI components together
 - Update tests in batches
-- Checkpoint between batches
+- Commit between batches
 
 **Tip 2: Use Claude for Tedious Work**
 - Boilerplate generation
@@ -485,10 +448,10 @@ You: "Add to context: chose PostgreSQL over MongoDB because..."
 - Verify against spec requirements
 - Update progress to 100%
 
-**Tip 5: Maintain Context Quality**
-- Good context = instant resumption
-- Bad context = wasted time
-- Invest in checkpoint quality
+**Tip 5: Maintain Good Commit History**
+- Good commits = easy tracking
+- Clear messages = better understanding
+- Regular commits = preserved work
 - Pay dividends later
 
 ## Troubleshooting Workflows
@@ -496,9 +459,9 @@ You: "Add to context: chose PostgreSQL over MongoDB because..."
 ### Problem: Lost Track of What You Were Doing
 
 ```bash
-> /resume
-[Review summary]
-[Should never happen with good checkpoints]
+> /implement
+[Review summary from context files]
+[/implement automatically loads full context]
 
 # If context is stale
 You: "Analyze current git diff and update context"
@@ -510,15 +473,14 @@ Claude: [Reviews changes, updates context]
 ```bash
 You: "Update spec.md to match what we actually built"
 Claude: [Updates spec]
-> /checkpoint
+$ git commit -m "docs: update spec to match implementation"
 [Spec and code now aligned]
 ```
 
 ### Problem: Too Many Files Changed
 
 ```bash
-> /checkpoint
-> /clear
+$ git commit -m "WIP: batch of changes"
 [Start fresh with smaller focus]
 [Work on one module at a time]
 ```
@@ -539,4 +501,4 @@ $ grep -r "decision about X" .specs/completed-tasks/
 
 ---
 
-The key to effective workflow: **Checkpoint early, checkpoint often, and trust the system to preserve your context.**
+The key to effective workflow: **Commit regularly, and trust /implement to maintain your context automatically.**

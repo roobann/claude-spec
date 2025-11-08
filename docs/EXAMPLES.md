@@ -56,16 +56,14 @@ Phase 3: Testing
 
 You: "Looks good, start implementation"
 
-[Claude implements Phase 1]
-
-> /checkpoint
+[Claude implements Phase 1 and updates context automatically]
 
 $ git commit -m "WIP: products API - data model complete"
 
 [Next day]
 
 $ claude
-> /resume
+> /implement
 
 Claude: "Resuming: Products API
 
@@ -73,9 +71,7 @@ Phase 1 complete (data model)
 Currently on Phase 2: Core Endpoints
 Next: Implement GET /products endpoint
 
-Ready to continue?"
-
-You: "Yes"
+Continuing..."
 
 [Claude continues with GET endpoint]
 [Work continues through phases]
@@ -142,10 +138,7 @@ You: "Actually, let's add row selection too"
 Claude: [Updates spec.md to include row selection]
        [Adds tasks to progress.md]
        [Updates context.md with decision]
-
-> /checkpoint
-
-[Continue work]
+       [Continue work automatically]
 
 [Complete implementation]
 
@@ -183,8 +176,7 @@ Claude: [Creates spec focusing on:]
 - Rollback plan
 
 [Quick implementation - 1 hour]
-
-> /checkpoint
+[Context updated automatically]
 
 [Test in staging]
 
@@ -226,12 +218,9 @@ Phase 4: Update UI
 Phase 5: Backfill existing users
 
 [Careful, methodical implementation]
-
-> /checkpoint
+[Context updated automatically]
 
 [Test migration on staging]
-
-> /checkpoint
 
 [Deploy to production]
 
@@ -309,8 +298,7 @@ You: "I'm blocked on webhook verification. Update progress."
 
 Claude: [Updates progress.md with blocker]
        [Updates context.md with research attempts]
-
-> /checkpoint
+       [Waits for resolution]
 
 [Research Stripe docs]
 
@@ -342,9 +330,7 @@ Spec includes:
 
 [Creates comprehensive spec]
 
-[Implements backend APIs]
-
-> /checkpoint
+[Implements backend APIs with automatic context updates]
 
 $ git commit -m "Social sharing: backend complete"
 $ git push
@@ -358,7 +344,7 @@ $ git push
 $ git pull
 
 $ claude
-> /resume
+> /implement
 
 Claude: "Resuming: Social Sharing (started by Dev A)
 
@@ -376,9 +362,7 @@ Ready to continue with frontend?"
 
 You: "Yes"
 
-[Implements frontend using backend APIs]
-
-> /checkpoint
+[Implements frontend using backend APIs with automatic context updates]
 
 $ git commit -m "Social sharing: add frontend UI"
 $ git push
@@ -390,7 +374,7 @@ $ git push
 $ git pull
 
 $ claude
-> /resume
+> /implement
 
 Claude: "Resuming: Social Sharing
 
@@ -423,18 +407,19 @@ The spec system enables:
 # Monday
 > /architect dashboard-redesign
 [Comprehensive planning session]
-[Implement Phase 1: Data layer]
-> /checkpoint
+> /implement
+[Implement Phase 1: Data layer with automatic context updates]
+$ git commit -m "dashboard: data layer complete"
 
 # Tuesday
-> /resume
-[Implement Phase 2: Charts]
-> /checkpoint
+> /implement
+[Implement Phase 2: Charts with automatic context updates]
+$ git commit -m "dashboard: charts complete"
 
 # Wednesday
-> /resume
-[Implement Phase 3: Filters]
-> /checkpoint
+> /implement
+[Implement Phase 3: Filters with automatic context updates]
+$ git commit -m "dashboard: filters complete"
 
 # Thursday-Friday
 [Sick - no work]
@@ -444,22 +429,22 @@ The spec system enables:
 
 ```bash
 # Monday
-> /resume
+> /implement
 Claude: "Last updated 4 days ago. Resuming..."
 [Perfect resumption despite gap]
 [Phase 4: Responsive design]
-> /checkpoint
+$ git commit -m "dashboard: responsive design complete"
 
 # Tuesday-Wednesday
-> /resume
+> /implement
 [Phase 5: Testing and polish]
-> /checkpoint
+$ git commit -m "dashboard: testing complete"
 
 # Thursday
-> /resume
+> /implement
 [Final integration]
 [Deploy to staging]
-> /checkpoint
+$ git commit -m "dashboard: final integration"
 
 # Friday
 [Stakeholder review]
@@ -470,8 +455,8 @@ Claude: "Last updated 4 days ago. Resuming..."
 ### Key Pattern: Multi-Week Features
 
 Success factors:
-- Checkpoint daily
-- Detailed context updates
+- /implement maintains context automatically
+- Detailed progress tracked in progress.yml
 - Phase-based breakdown
 - Regular commits
 
@@ -482,13 +467,12 @@ Success factors:
 ### Session Transcript
 
 ```bash
-[Currently working on feature X]
-
-> /checkpoint
+[Currently working on feature X - context automatically maintained]
 
 [Urgent: production issue]
 
-> /clear
+[Commit current work]
+$ git commit -m "WIP: feature X progress"
 
 > /architect hotfix-critical-bug
 
@@ -506,7 +490,7 @@ $ git commit -m "hotfix: Fix critical authentication bug"
 
 [Back to original work]
 
-> /resume
+> /implement
 
 Claude: "Resuming: Feature X..."
 [Right back to where you were]
@@ -514,7 +498,7 @@ Claude: "Resuming: Feature X..."
 
 ### Key Pattern: Context Switching
 
-Use /checkpoint + /clear to switch cleanly between tasks.
+Commit your current work and use /implement to resume - context is automatically preserved.
 
 ## Example 10: Learning New Codebase
 
@@ -559,10 +543,10 @@ You: "I'll start with a small bug fix"
 ```bash
 > /architect medium-feature
 
+> /implement
 [More complex work]
 [Contributing meaningfully]
-
-> /checkpoint
+[Context automatically maintained]
 ```
 
 ### Key Pattern: Gradual Onboarding
@@ -578,34 +562,25 @@ New developers can:
 ### 1. Always Start with /architect
 Even for small work, planning helps
 
-### 2. Checkpoint Frequently
-Daily at minimum, more often for complex work
+### 2. Context Maintained Automatically
+/implement automatically updates context as work progresses
 
-### 3. Update Context During Work
-Don't wait until checkpoint - update as you go
+### 3. Commit Regularly
+Regular git commits preserve your work
 
-### 4. Use /clear for Context Switching
-Clean separation between tasks
-
-### 5. Archive When Done
+### 4. Archive When Done
 Keep active workspace clean
 
-### 6. Commit Regularly
-Tie git commits to checkpoints
-
-### 7. Document Decisions
+### 5. Document Decisions
 Future you will thank present you
 
-### 8. Iterate on Specs
+### 6. Iterate on Specs
 Requirements evolve - update specs to match reality
 
 ## Anti-Patterns to Avoid
 
 ### ❌ Don't: Work without a spec
 Even small work benefits from planning
-
-### ❌ Don't: Forget to checkpoint
-Lost context = wasted time later
 
 ### ❌ Don't: Let specs diverge from reality
 Update specs when requirements change
@@ -616,8 +591,8 @@ Historical record is valuable
 ### ❌ Don't: Work on multiple tasks in parallel
 Focus on one, archive, then next
 
-### ❌ Don't: Commit without checkpointing
-Checkpoint documents context, commit saves code
+### ❌ Don't: Skip commits
+Regular commits preserve your work and context
 
 ## Next Steps
 

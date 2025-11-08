@@ -28,7 +28,7 @@ The `setup.sh` script will:
 claude
 
 # Auto-detect your tech stack
-> /cspec:init-existing
+> /cspec:configure
 ```
 
 **For new projects (specify stack):**
@@ -37,7 +37,7 @@ claude
 claude
 
 # Initialize new project interactively
-> /cspec:init-new
+> /cspec:create
 ```
 
 Both commands will:
@@ -49,14 +49,21 @@ Both commands will:
 ### 3. Start Building
 
 ```bash
-# Design feature architecture
-> /cspec:architect user-authentication
+# 1. Design PROJECT architecture (once)
+> /cspec:architect
 
-# Implement or continue work anytime
+# 2. Create a feature task from roadmap
+> /cspec:task user-authentication
+
+# 3. Implement the feature
 > /cspec:implement
 
-# Save progress before breaks
-> /cspec:checkpoint
+# 4. Archive when complete
+> /cspec:archive
+
+# 5. Add new features as project evolves
+> /cspec:architect real-time-notifications  # Adds to existing architecture!
+> /cspec:task real-time-notifications
 ```
 
 That's it! You're ready to go.
@@ -65,7 +72,7 @@ That's it! You're ready to go.
 
 ### Core Features
 
-- **Auto-Detection**: `/cspec:init-existing` configures everything for your stack
+- **Auto-Detection**: `/cspec:configure` configures everything for your stack
 - **Plan Mode Integration**: Uses Claude's built-in plan mode for safety
 - **Context Persistence**: Resume work after any break (days, weeks, months)
 - **Team-Friendly**: Everything in git, easy to share and collaborate
@@ -80,24 +87,28 @@ your-project/
 ├── .claudeignore                # Auto-generated ignore patterns
 ├── .claude/
 │   └── commands/
-│       ├── cspec:init-new.md      # Initialize new project with interactive config
-│       ├── cspec:init-existing.md # Auto-detect existing project stack
-│       ├── cspec:architect.md     # Design feature architecture with comprehensive planning
-│       ├── cspec:implement.md     # Start or continue implementation
-│       ├── cspec:checkpoint.md    # Save progress
-│       └── cspec:archive.md       # Archive completed tasks
+│       ├── cspec:create.md         # Create new project
+│       ├── cspec:configure.md      # Configure existing project
+│       ├── cspec:architect.md     # Design PROJECT architecture (once)
+│       ├── cspec:task.md          # Create feature task from roadmap
+│       ├── cspec:implement.md     # Implement current feature
+│       └── cspec:archive.md       # Archive completed feature
 └── .specs/
-    ├── README.md                  # Spec system documentation
-    ├── active-task/               # Currently active work
-    │   ├── architecture.md        # Detailed design & ADRs
-    │   ├── spec.yml               # Requirements
-    │   ├── progress.yml           # Task tracking
-    │   ├── context.yml            # Metadata
-    │   └── context.md             # Human-readable context
-    ├── completed-tasks/           # Archived completed tasks
-    └── template/                  # Templates for new tasks
+    ├── architecture.md            # PROJECT architecture & ADRs
+    ├── roadmap.yml               # Feature roadmap with priorities
+    ├── guidelines.md             # Development standards
+    ├── active-task/              # Current feature being worked on
+    │   ├── architecture.md       # Feature design
+    │   ├── spec.yml              # Requirements
+    │   ├── progress.yml          # Task tracking
+    │   ├── context.yml           # Metadata
+    │   └── context.md            # Human context
+    ├── completed-tasks/          # Archived features
+    └── template/                 # Templates
         ├── architecture.md.template
         ├── spec.yml.template
+        ├── roadmap.yml.template
+        ├── guidelines.md.template
         ├── progress.yml.template
         ├── context.yml.template
         └── context.md.template
@@ -105,12 +116,12 @@ your-project/
 
 ### Six Essential Commands
 
-1. **`/cspec:init-new`** - Initialize new project with interactive tech stack configuration
-2. **`/cspec:init-existing`** - Auto-detect and configure existing project
-3. **`/cspec:architect [name]`** - Design feature architecture with comprehensive planning (use `--quick` for simple features)
-4. **`/cspec:implement`** - Start or continue implementation of current task
-5. **`/cspec:checkpoint`** - Save progress before breaks or context switches
-6. **`/cspec:archive`** - Move completed task to archive
+1. **`/cspec:create`** - Create new project with interactive configuration
+2. **`/cspec:configure`** - Configure existing project with auto-detection
+3. **`/cspec:architect`** - Design project architecture OR add new features to existing architecture
+4. **`/cspec:task [feature-name]`** - Create active task for a feature from the roadmap
+5. **`/cspec:implement`** - Implement the current active task
+6. **`/cspec:archive`** - Archive completed feature and prepare for next
 
 ## Supported Tech Stacks
 
@@ -161,17 +172,31 @@ Claude Code doesn't persist context between sessions. This template provides **f
 
 ## Real-World Usage
 
-### Scenario: Building User Authentication
+### Scenario: Building a SaaS Application
 
-**Day 1:**
+**Initial Setup (Once):**
 ```bash
-> /cspec:architect user-authentication
-[Claude asks comprehensive questions, analyzes codebase, creates architecture]
-[You review the architecture & ADRs]
+> /cspec:architect
+[Claude asks about the entire project: goals, scale, users, tech stack]
+[Creates project architecture with 12 features in roadmap]
+[You review architecture.md and roadmap.yml]
+
+Created:
+- .specs/architecture.md (master architecture, ADRs)
+- .specs/roadmap.yml (12 features across 4 phases)
+- .specs/guidelines.md (development standards)
+```
+
+**Feature 1: User Authentication**
+```bash
+> /cspec:task user-authentication
+[Claude reads project architecture, creates feature architecture aligned with it]
+[Creates .specs/active-task/ with all files]
+
 > /cspec:implement
-[Implementation begins]
+[Implementation begins following project architecture]
 [2 hours of work]
-> /cspec:checkpoint
+
 > git commit -m "WIP: user auth - signup complete"
 ```
 
@@ -179,8 +204,19 @@ Claude Code doesn't persist context between sessions. This template provides **f
 ```bash
 > /cspec:implement
 Claude: "Building user authentication. Signup done, login 50% complete.
+         Following ADR-003 for JWT implementation.
          Next: finish login form validation. Continuing..."
 [Continues exactly where you left off]
+```
+
+**Feature Complete:**
+```bash
+> /cspec:archive
+[Archives user-authentication to .specs/completed-tasks/]
+[Updates roadmap: user-authentication → completed]
+
+> /cspec:task payment-integration
+[Next feature from roadmap, already knows it depends on user-auth]
 ```
 
 **Week Later:**
@@ -189,16 +225,41 @@ Claude: "Building user authentication. Signup done, login 50% complete.
 [Perfect resumption despite week-long gap]
 ```
 
+**Adding New Features (Months Later):**
+```bash
+# New requirement comes up that wasn't in original roadmap
+> /cspec:architect real-time-notifications
+
+[Claude detects existing architecture]
+"✓ Project architecture exists. What would you like to do?"
+"1. Add a new feature to the roadmap" ← Select this
+
+[Claude asks targeted questions about the new feature]
+[Analyzes how it fits with existing architecture]
+[Creates ADR-015 for WebSocket approach]
+[Adds F13 to roadmap.yml]
+[Updates guidelines.md with WebSocket patterns]
+
+✅ Feature added to architecture!
+
+> /cspec:task real-time-notifications
+[Creates active-task following all existing ADRs]
+
+> /cspec:implement
+[Builds feature using established patterns + new WebSocket pattern]
+```
+
 ## For New vs Existing Projects
 
 ### New Projects
 - Run `./setup.sh` to install commands
-- Run `/cspec:init-new` to interactively configure your tech stack
-- Start with `/cspec:architect` for first feature
+- Run `/cspec:create` to interactively configure your tech stack
+- Run `/cspec:architect` to design the entire project architecture
+- Run `/cspec:task [feature]` to start your first feature
 
 ### Existing Projects
 - Run `./setup.sh` to install commands
-- Run `/cspec:init-existing` to auto-detect your stack
+- Run `/cspec:configure` to auto-detect your stack
 - Non-invasive - doesn't change your code
 - Gradually adopt for new features
 
@@ -228,9 +289,10 @@ MIT - Use freely in any project
 ## Next Steps
 
 1. Run `./setup.sh` to install commands
-2. Run `/cspec:init-existing` (for existing projects) or `/cspec:init-new` (for new projects) in Claude Code
+2. Run `/cspec:configure` (existing) or `/cspec:create` (new) in Claude Code
 3. Review generated `CLAUDE.md`
-4. Run `/cspec:architect` to design your first feature
-5. Read [WORKFLOW.md](docs/WORKFLOW.md) for daily usage patterns
+4. Run `/cspec:architect` to design your project architecture and roadmap
+5. Run `/cspec:task [feature-name]` to start working on a feature
+6. Read [WORKFLOW.md](docs/WORKFLOW.md) for daily usage patterns
 
 Happy coding with Claude!

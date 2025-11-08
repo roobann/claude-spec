@@ -61,7 +61,7 @@ Each task has three essential files:
 
 **When to update:**
 - After completing each task
-- During `/cspec:checkpoint`
+- Automatically during `/cspec:implement`
 - Multiple times per session
 - Whenever status changes
 
@@ -81,9 +81,8 @@ Each task has three essential files:
 - Tricky areas to watch out for
 
 **When to update:**
-- During `/cspec:checkpoint` (critical!)
+- Automatically during `/cspec:implement`
 - Throughout session as context evolves
-- Before any break
 - When making important decisions
 
 **Read by:** `/cspec:implement` to restore full context
@@ -102,10 +101,10 @@ Each task has three essential files:
 ### During Work
 
 ```bash
-# Update progress frequently
-> /cspec:checkpoint
+# Context and progress automatically maintained
+> /cspec:implement
 
-# This updates progress.md and context.md
+# This automatically updates progress.md and context.md as work progresses
 ```
 
 ### Resuming Work
@@ -207,14 +206,14 @@ cp .specs/template/context.md.template .specs/active-task/context.md
 Keep only ONE task in `active-task/` at a time. To switch:
 
 ```bash
-# Save current work
-> /cspec:checkpoint
+# Commit current work
+$ git commit -m "WIP: current progress"
 
 # Archive if done
 > /cspec:archive
 
 # Start or resume other work
-> /cspec:plan new-feature
+> /cspec:architect new-feature
 # or
 > /cspec:implement
 ```
@@ -227,7 +226,6 @@ For features spanning multiple sessions:
 
 1. **End of each session:**
    ```bash
-   > /cspec:checkpoint
    git add . && git commit -m "WIP: feature - what's done"
    ```
 
@@ -237,7 +235,7 @@ For features spanning multiple sessions:
    [Pick up exactly where you left off]
    ```
 
-3. **Checkpoint frequently:**
+3. **Commit frequently:**
    - Every 30-60 minutes
    - After completing subtasks
    - Before meetings/breaks
@@ -260,7 +258,7 @@ If stuck or blocked:
    - Possible solutions: try C or D
    ```
 
-3. Checkpoint and switch to other work
+3. Commit and switch to other work
 4. Resume when blocker is resolved
 
 ## Archive Organization
@@ -318,8 +316,8 @@ This ensures Claude knows to use the spec system automatically.
 - These files ARE your project's memory
 
 **Commit frequency:**
-- After `/cspec:plan` - Commit initial spec
-- After `/cspec:checkpoint` - Optional, commit WIP
+- After `/cspec:architect` - Commit initial spec
+- During work - Commit WIP regularly
 - After `/cspec:archive` - Definitely commit archive
 
 ## FAQ
@@ -340,7 +338,7 @@ A: For full benefits, yes. But minimum viable:
 - Complex task: All three
 
 **Q: Can I customize the templates?**
-A: Absolutely! Edit `template/*.template` to fit your needs. The `/cspec:plan` command will use your customized templates.
+A: Absolutely! Edit `template/*.template` to fit your needs. The `/cspec:architect` command will use your customized templates.
 
 **Q: How do I search old specs?**
 A: Use grep or IDE search across `.specs/completed-tasks/`:
@@ -349,7 +347,7 @@ grep -r "authentication" .specs/completed-tasks/
 ```
 
 **Q: What about non-feature work (bugs, refactoring)?**
-A: Same system works. Use `/cspec:plan bug-fix-auth` or `/cspec:plan refactor-api`. The structure works for any work item.
+A: Same system works. Use `/cspec:architect bug-fix-auth` or `/cspec:architect refactor-api`. The structure works for any work item.
 
 ## Examples
 

@@ -43,7 +43,6 @@ discard_on_compaction:
 **Last Updated:** {{TIMESTAMP}}
 **Session:** #{{SESSION_NUMBER}}
 **Status:** {{STATUS}} (planning | in_progress | testing | complete)
-**Branch:** `{{BRANCH_NAME}}`
 **Uncommitted Changes:** {{YES_NO}}
 
 ## Current Focus (Read This First)
@@ -87,7 +86,6 @@ discard_on_compaction:
 
 ## Git Status
 
-Branch: `{{BRANCH_NAME}}`
 **Changes:**
 - {{X}} files modified
 - {{Y}} files staged

@@ -235,15 +235,16 @@ In spec.md, document like this:
 ## Workflow
 
 ### Starting New Feature
-1. Run `/architect [feature-name]`
-2. Review the generated spec in `.specs/active-task/spec.md`
-3. Run `/implement` when ready to begin
-4. Progress updates automatically after each phase
+1. Run `/cspec:architect` to design project architecture
+2. Run `/cspec:task [feature-name]` to create task from roadmap
+3. Review the generated spec in `.specs/tasks/YYYYMMDD-feature-name/spec.yml`
+4. Run `/cspec:implement` when ready to begin
+5. Progress updates automatically after each phase
 
 ### Continuing Work
-1. Run `/implement`
-2. Claude will load context from `.specs/active-task/`
-3. Continue from "Next Steps" in progress.md
+1. Run `/cspec:implement`
+2. Claude will load context from current task folder in `.specs/tasks/`
+3. Continue from "Next Steps" in progress.yml
 4. Works for both fresh starts and resuming after breaks
 
 ### Before Stopping
@@ -252,8 +253,9 @@ In spec.md, document like this:
 
 ### When Feature Complete
 1. Run tests inside Docker (see Commands section)
-2. Run `/archive` to move to completed
+2. Run `/cspec:complete [task-id]` to mark task as completed
 3. Create pull request if applicable
+4. Task remains in `.specs/tasks/` folder for reference
 
 ## Commands
 
@@ -317,13 +319,15 @@ This project uses spec-driven development with Claude Code. All features should:
 ### Context Files
 
 **Before implementing any feature, READ these files:**
-- `.specs/active-task/spec.md` - What to build
-- `.specs/active-task/progress.md` - Current status
-- `.specs/active-task/context.md` - Full context for resumption
+- `.specs/tasks/[current-task]/spec.yml` - What to build
+- `.specs/tasks/[current-task]/progress.yml` - Current status
+- `.specs/tasks/[current-task]/context.md` - Full context for resumption
+- `.specs/tasks/progress.yml` - Task index showing all tasks
 
 **After completing work or before breaks, UPDATE:**
-- `.specs/active-task/progress.md` - Mark items complete, update next steps
-- `.specs/active-task/context.md` - Add resumption notes
+- `.specs/tasks/[current-task]/progress.yml` - Mark items complete, update next steps
+- `.specs/tasks/[current-task]/context.md` - Add resumption notes
+- `.specs/tasks/progress.yml` - Update task status if needed
 
 ### Validation Checkpoints
 
@@ -566,12 +570,12 @@ Create `.mcp.json` in project root for team sharing:
 
 ### Usage with claude-spec
 
-When planning features:
+When creating tasks:
 ```bash
-/cspec:plan user-authentication
+/cspec:task user-authentication
 
-# Answer "Yes" to "Enable multi-agent mode with domain experts"
-# Answer "Yes" to "Enable MCP integration" (if installed)
+# Multi-agent mode and MCP integration is configured in the spec.yml
+# See roadmap.yml for feature domain assignments
 ```
 
 When implementing:

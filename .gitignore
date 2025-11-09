@@ -26,8 +26,5 @@ Thumbs.db
 .env.local
 .env.*.local
 
-# Specs - Active task (work in progress)
-.specs/active-task/
-
 # Claude Code cache
 .claude/cache/

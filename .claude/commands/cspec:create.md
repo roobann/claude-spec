@@ -141,12 +141,13 @@ Patterns for files Claude should ignore:
 ```
 .specs/
 ├── README.md              # Spec system documentation
-├── active-task/           # Current work area (empty initially)
-├── completed-tasks/       # Completed feature archives (empty initially)
-└── template/              # Templates for new features
-    ├── spec.md.template
-    ├── progress.md.template
-    └── context.md.template
+├── template/              # Templates for new features
+│   ├── spec.yml.template
+│   ├── progress.yml.template
+│   └── context.md.template
+└── tasks/                 # Task management
+    ├── progress.yml       # Task index (all tasks tracked here)
+    └── (task folders created by /cspec:task)
 ```
 
 ## Example Session
@@ -189,15 +190,14 @@ Configuration:
   - Build artifacts
   - Environment files
 
-✅ Initialized .specs/ structure:
-  - active-task/ (for current work)
-  - completed-tasks/ (for archives)
-  - template/ (for spec templates)
+✅ Initialized project structure:
+  - .specs/template/ (for spec templates)
+  - .specs/tasks/ (with progress.yml index)
 
 📝 Next steps:
   1. Review CLAUDE.md and customize if needed
   2. Review .claudeignore and adjust patterns
-  3. Run /cspec:plan [feature-name] to plan your first feature
+  3. Run /cspec:task [feature-name] to create your first task
   4. See .specs/README.md for workflow guide
 
 Ready to build!
@@ -310,10 +310,12 @@ build/
 *.class
 ```
 
-### 4. Initialize .specs/ Structure
+### 4. Initialize Project Structure
 
-- Create `active-task/`, `completed-tasks/`, `template/` directories
+- Create `.specs/template/` directory
+- Create `.specs/tasks/` directory
 - Copy template files from `claude-spec/.specs/template/`
+- Copy .specs/tasks/progress.yml from template
 - Copy README.md from `claude-spec/.specs/README.md`
 
 ### 5. Handle Edge Cases
@@ -339,7 +341,7 @@ After running this command:
 - [x] .claudeignore created with appropriate patterns
 - [x] .specs/ structure initialized
 - [x] User knows how to start first feature
-- [x] System ready for `/cspec:plan`
+- [x] System ready for `/cspec:task`
 
 ## Important Notes
 
@@ -351,4 +353,4 @@ After running this command:
 
 ---
 
-**Next:** After initialization, run `/cspec:plan [feature-name]` to start building your first feature.
+**Next:** After initialization, run `/cspec:architect` to design your project architecture, then `/cspec:task [feature-name]` to start building your first feature.

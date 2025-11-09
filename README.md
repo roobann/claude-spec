@@ -58,10 +58,7 @@ Both commands will:
 # 3. Implement the feature
 > /cspec:implement
 
-# 4. Archive when complete
-> /cspec:archive
-
-# 5. Add new features as project evolves
+# 4. Add new features as project evolves
 > /cspec:architect real-time-notifications  # Adds to existing architecture!
 > /cspec:task real-time-notifications
 ```
@@ -91,17 +88,18 @@ your-project/
 │       ├── cspec:configure.md      # Configure existing project
 │       ├── cspec:architect.md     # Design PROJECT architecture (once)
 │       ├── cspec:task.md          # Create feature task from roadmap
-│       ├── cspec:implement.md     # Implement current feature
-│       └── cspec:archive.md       # Archive completed feature
+│       └── cspec:implement.md     # Implement current feature
 └── .specs/
     ├── architecture.md            # PROJECT architecture & ADRs
     ├── roadmap.yml               # Feature roadmap with priorities
     ├── guidelines.md             # Development standards
-    ├── active-task/              # Current feature being worked on
-    │   ├── spec.yml              # Requirements & technical design
-    │   ├── progress.yml          # Task tracking
-    │   └── context.md            # Resumption context
-    ├── completed-tasks/          # Archived features
+    ├── tasks/                    # All tasks (in-progress and completed)
+    │   ├── progress.yml          # Task index
+    │   └── 20250109-feature/     # Date-prefixed task folders
+    │       ├── spec.yml          # Requirements & technical design
+    │       ├── progress.yml      # Task tracking
+    │       └── context.md        # Resumption context
+    ├── .mcp-servers/             # MCP server implementations (optional)
     └── template/                 # Templates
         ├── CLAUDE.md.template
         ├── .claudeignore.template
@@ -109,18 +107,18 @@ your-project/
         ├── spec.yml.template
         ├── progress.yml.template
         ├── context.md.template
+        ├── tasks-progress.yml.template
         ├── roadmap.yml.template
         └── guidelines.md.template
 ```
 
-### Six Essential Commands
+### Five Essential Commands
 
 1. **`/cspec:create`** - Create new project with interactive configuration
 2. **`/cspec:configure`** - Configure existing project with auto-detection
 3. **`/cspec:architect`** - Design project architecture OR add new features to existing architecture
-4. **`/cspec:task [feature-name]`** - Create active task for a feature from the roadmap
-5. **`/cspec:implement`** - Implement the current active task
-6. **`/cspec:archive`** - Archive completed feature and prepare for next
+4. **`/cspec:task [feature-name]`** - Create task for a feature from the roadmap
+5. **`/cspec:implement`** - Implement the current task (supports multiple in-progress tasks)
 
 ## Supported Tech Stacks
 
@@ -163,11 +161,7 @@ Claude Code doesn't persist context between sessions. This template provides **f
 
 ## Documentation
 
-- **[SETUP.md](docs/SETUP.md)** - Detailed installation for new/existing projects
-- **[WORKFLOW.md](docs/WORKFLOW.md)** - Daily usage patterns and examples
-- **[CUSTOMIZATION.md](docs/CUSTOMIZATION.md)** - Adapt to your specific needs
-- **[EXAMPLES.md](docs/EXAMPLES.md)** - Real-world scenarios (API, UI, full-stack)
-- **[TESTING.md](docs/TESTING.md)** - Test the system with a sample project
+See `.specs/README.md` and `.claude/commands/README.md` for detailed documentation on the workflow and file structure.
 
 ## Real-World Usage
 
@@ -190,7 +184,8 @@ Created:
 ```bash
 > /cspec:task user-authentication
 [Claude reads project architecture, creates feature architecture aligned with it]
-[Creates .specs/active-task/ with all files]
+[Creates .specs/tasks/20250109-user-authentication/ with all files]
+[Updates .specs/tasks/progress.yml with status: in_progress]
 
 > /cspec:implement
 [Implementation begins following project architecture]
@@ -210,12 +205,12 @@ Claude: "Building user authentication. Signup done, login 50% complete.
 
 **Feature Complete:**
 ```bash
-> /cspec:archive
-[Archives user-authentication to .specs/completed-tasks/]
-[Updates roadmap: user-authentication → completed]
+# Task automatically marked as completed in .specs/tasks/progress.yml
+# Task folder stays in .specs/tasks/20250109-user-authentication/ for reference
 
 > /cspec:task payment-integration
 [Next feature from roadmap, already knows it depends on user-auth]
+[Creates .specs/tasks/20250120-payment-integration/]
 ```
 
 **Week Later:**
@@ -242,7 +237,7 @@ Claude: "Building user authentication. Signup done, login 50% complete.
 ✅ Feature added to architecture!
 
 > /cspec:task real-time-notifications
-[Creates active-task following all existing ADRs]
+[Creates .specs/tasks/20250315-real-time-notifications/ following all existing ADRs]
 
 > /cspec:implement
 [Builds feature using established patterns + new WebSocket pattern]
@@ -282,8 +277,8 @@ MIT - Use freely in any project
 ## Support
 
 - Issues: File an issue in the source repository
-- Questions: See documentation in `docs/` folder
-- Customization: See [CUSTOMIZATION.md](docs/CUSTOMIZATION.md)
+- Questions: See `.specs/README.md` for detailed documentation
+- Customization: Edit templates in `.specs/template/` to fit your needs
 
 ## Next Steps
 
@@ -292,6 +287,6 @@ MIT - Use freely in any project
 3. Review generated `CLAUDE.md`
 4. Run `/cspec:architect` to design your project architecture and roadmap
 5. Run `/cspec:task [feature-name]` to start working on a feature
-6. Read [WORKFLOW.md](docs/WORKFLOW.md) for daily usage patterns
+6. Read `.specs/README.md` for detailed workflow documentation
 
 Happy coding with Claude!

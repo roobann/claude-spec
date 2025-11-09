@@ -149,7 +149,7 @@ Claude: [Uses @devops-expert deploy_service tool]
 
 This MCP server integrates with the claude-spec multi-agent system:
 
-1. **During Planning** (`/cspec:plan`):
+1. **During Planning** (`/cspec:task`):
    - Spec identifies feature needs DevOps work
    - Sets `domains: [devops]` or `domains: [backend, devops]`
 

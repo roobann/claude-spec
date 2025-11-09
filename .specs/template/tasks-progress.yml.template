@@ -1,0 +1,94 @@
+---
+# Task Index - Lightweight tracking for all tasks
+# Reference: Anthropic context engineering - "smallest set of high-signal tokens"
+# This file provides a quick overview; detailed tracking is in each task's progress.yml
+
+# === METADATA (Context Efficiency) ===
+# High-signal summary updated automatically by commands
+metadata:
+  format_version: "1.0"
+  last_updated: null      # Auto-updated by /cspec:task and /cspec:complete
+  total_tasks: 0          # Count of all tasks
+  active_tasks: 0         # Count of in_progress tasks
+  completed_tasks: 0      # Count of completed tasks
+  blocked_tasks: 0        # Count of blocked tasks
+
+# === STATUS DEFINITIONS ===
+# Reference: Claude 4 best practices - "explicit instructions with contextual motivation"
+# WHY: Clear definitions prevent invalid state changes and help Claude make better decisions
+status_definitions:
+  pending: "Task defined but not started - awaiting dependencies or prioritization"
+  in_progress: "Actively being worked on - check task's progress.yml for current state"
+  blocked: "Cannot proceed - blocked_reason field explains why; resolve blocker to continue"
+  completed: "All acceptance criteria met - completed timestamp set; folder kept for reference"
+
+# === VALID STATUS TRANSITIONS ===
+# WHY: Enforces correct workflow and prevents data corruption
+valid_transitions:
+  pending: ["in_progress", "blocked"]       # Can start work or hit blocker before starting
+  in_progress: ["blocked", "completed"]     # Can finish or hit blocker during work
+  blocked: ["pending", "in_progress"]       # Resolved blocker returns to previous state
+  completed: []                              # Terminal state - no transitions allowed
+
+# === TASKS ===
+# Reference: Anthropic context engineering - "track dependencies across complex tasks"
+# Sorted by: priority (high → medium → low), then creation date (newest first)
+tasks:
+  # === EXAMPLE TASK (Remove when creating your first real task) ===
+  # Full example showing all fields including dependencies
+
+  # - id: "20250109-user-authentication"
+  #   name: "user-authentication"
+  #
+  #   # Status tracking
+  #   status: "in_progress"    # pending | in_progress | completed | blocked
+  #   priority: "high"         # high | medium | low
+  #   created: "2025-01-09"    # YYYY-MM-DD format
+  #   completed: null          # Set to YYYY-MM-DD when status becomes "completed"
+  #   blocked_reason: null     # Required when status is "blocked" - explain blocker
+  #
+  #   # Dependency tracking - Reference: "maintain critical dependencies"
+  #   depends_on: []           # List of task IDs this depends on (e.g., ["20250101-database-setup"])
+  #   blocks: ["20250115-user-profile"]  # List of task IDs blocked by this
+  #
+  #   # Progressive disclosure - links to detailed context
+  #   # WHY: Keep this file lightweight; full details are in task folder
+  #   spec_file: ".specs/tasks/20250109-user-authentication/spec.yml"
+  #   progress_file: ".specs/tasks/20250109-user-authentication/progress.yml"
+  #   context_file: ".specs/tasks/20250109-user-authentication/context.md"
+
+  # === EXAMPLE: BLOCKED TASK ===
+  # Shows how to document a blocker
+
+  # - id: "20250120-payment-integration"
+  #   name: "payment-integration"
+  #   status: "blocked"
+  #   priority: "high"
+  #   created: "2025-01-20"
+  #   completed: null
+  #   blocked_reason: "Waiting for Stripe API keys from DevOps team"
+  #   depends_on: ["20250109-user-authentication"]  # Can't process payments without users
+  #   blocks: ["20250125-subscription-management"]  # This blocks subscription feature
+  #   spec_file: ".specs/tasks/20250120-payment-integration/spec.yml"
+  #   progress_file: ".specs/tasks/20250120-payment-integration/progress.yml"
+  #   context_file: ".specs/tasks/20250120-payment-integration/context.md"
+
+  # === EXAMPLE: COMPLETED TASK ===
+  # Shows completed state with timestamp
+
+  # - id: "20250101-database-setup"
+  #   name: "database-setup"
+  #   status: "completed"
+  #   priority: "critical"
+  #   created: "2025-01-01"
+  #   completed: "2025-01-05"  # Completion timestamp
+  #   blocked_reason: null
+  #   depends_on: []           # No dependencies - foundation task
+  #   blocks: ["20250109-user-authentication", "20250120-payment-integration"]
+  #   spec_file: ".specs/tasks/20250101-database-setup/spec.yml"
+  #   progress_file: ".specs/tasks/20250101-database-setup/progress.yml"
+  #   context_file: ".specs/tasks/20250101-database-setup/context.md"
+
+  # === YOUR TASKS ===
+  # Real tasks will be added here automatically by /cspec:task command
+  # Format: YYYYMMDD-feature-name (date prefix ensures chronological sorting)

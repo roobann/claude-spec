@@ -163,14 +163,13 @@ Is this correct?
   - Build artifacts
   - Environment files
 
-✅ Initialized .specs/ structure:
-  - active-task/ (for current work)
-  - completed-tasks/ (for archives)
-  - template/ (for spec templates)
+✅ Initialized project structure:
+  - .specs/template/ (for spec templates)
+  - .specs/tasks/ (with progress.yml index)
 
 📝 Next steps:
   1. Review CLAUDE.md and customize if needed
-  2. Run /cspec:plan [feature-name] to start your first task
+  2. Run /cspec:architect to design architecture, then /cspec:task [feature-name] to start your first task
   3. See .specs/README.md for workflow guide
 
 Ready to use!
@@ -416,4 +415,4 @@ After running this command:
 
 ---
 
-**Next:** After initialization, run `/cspec:plan [feature-name]` to start your first task with the spec system.
+**Next:** After initialization, run `/cspec:architect` to design your project architecture, then `/cspec:task [feature-name]` to start your first task with the spec system.

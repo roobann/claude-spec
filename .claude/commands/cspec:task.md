@@ -1,9 +1,9 @@
 ---
 name: cspec:task
-description: Create active-task from roadmap for a specific feature
+description: Create task from roadmap for a specific feature
 ---
 
-Create an active task from the project roadmap and set up all necessary files for implementation.
+Create a task from the project roadmap and set up all necessary files for implementation.
 
 **Usage:** `/cspec:task [feature-name]`
 
@@ -16,8 +16,8 @@ Create an active task from the project roadmap and set up all necessary files fo
 1. Reads the project architecture and roadmap
 2. Finds the specified feature in the roadmap
 3. Checks if dependencies are met
-4. Creates `.specs/active-task/` with all necessary files
-5. Updates roadmap status to `in_progress`
+4. Creates `.specs/tasks/YYYYMMDD-feature-name/` with all necessary files
+5. Updates `.specs/tasks/progress.yml` index and roadmap status to `in_progress`
 
 ## Process
 
@@ -38,27 +38,7 @@ Stop and inform user.
 
 **If `.specs/architecture.md` exists:** Proceed to Step 2.
 
-### 2. Check for Active Task
-
-**If `.specs/active-task/` exists and has files:**
-```
-⚠️ An active task already exists.
-
-Current task: [feature-name from active-task]
-Status: [status from progress.yml]
-
-Options:
-1. Archive current task first (recommended)
-   Run: /cspec:archive
-2. Overwrite current task (destructive - will lose progress)
-3. Cancel
-```
-
-Wait for user choice.
-
-**If `.specs/active-task/` is empty or doesn't exist:** Proceed to Step 3.
-
-### 3. Read Project Context
+### 2. Read Project Context
 
 Read these files in order:
 
@@ -120,9 +100,9 @@ Or update .specs/roadmap.yml to add your feature.
 
 Stop and inform user.
 
-**If feature found:** Proceed to Step 5.
+**If feature found:** Proceed to Step 4.
 
-### 5. Check Dependencies
+### 4. Check Dependencies
 
 **If feature has dependencies:**
 
@@ -150,9 +130,9 @@ Options:
 
 Wait for user choice.
 
-**If all dependencies met:** Proceed to Step 6.
+**If all dependencies met:** Proceed to Step 5.
 
-### 6. Comprehensive Feature Planning
+### 5. Comprehensive Feature Planning
 
 Use the Plan agent to design this specific feature based on project architecture.
 
@@ -209,15 +189,17 @@ Provide comprehensive plan following the project's established architecture.
 
 **Thoroughness Level:** very thorough
 
-### 7. Create Active Task Directory
+### 6. Create Task Directory
 
-**Create directory:** `.specs/active-task/`
+**Create directory:** `.specs/tasks/YYYYMMDD-feature-name/`
 
-This will hold all files for the current feature.
+Format: `YYYYMMDD` is today's date (e.g., `20250109-user-authentication`)
 
-### 8. Create Spec File
+This will hold all files for this feature.
 
-**Create: `.specs/active-task/spec.yml`**
+### 7. Create Spec File
+
+**Create: `.specs/tasks/YYYYMMDD-feature-name/spec.yml`**
 
 Use the template at `.specs/template/spec.yml.template`.
 
@@ -257,9 +239,9 @@ metadata:
 - **Security:** Feature-specific security considerations
 - **Implementation Phases:** 3-phase breakdown (Foundation, Core, Polish)
 
-### 9. Create Progress Tracker
+### 8. Create Progress Tracker
 
-**Create: `.specs/active-task/progress.yml`**
+**Create: `.specs/tasks/YYYYMMDD-feature-name/progress.yml`**
 
 Use the template at `.specs/template/progress.yml.template`.
 
@@ -268,11 +250,11 @@ Use the template at `.specs/template/progress.yml.template`.
 - Testing approach from project
 - Domain assignments (if multi-agent)
 
-**Tasks should come from feature architecture Step 8.**
+**Tasks should come from feature architecture Step 7.**
 
-### 10. Create Context File
+### 9. Create Context File
 
-**Create `.specs/active-task/context.md`**
+**Create `.specs/tasks/YYYYMMDD-feature-name/context.md`**
 
 Use template at `.specs/template/context.md.template`.
 
@@ -299,6 +281,22 @@ Planning complete for [feature-name]
 Ready to begin implementation with `/cspec:implement`
 ```
 
+### 10. Update Task Index
+
+**Update `.specs/tasks/progress.yml`:**
+
+Add entry for this task:
+
+```yaml
+tasks:
+  - id: "YYYYMMDD-feature-name"
+    name: "feature-name"
+    status: "in_progress"
+    priority: "[priority from roadmap]"
+    created: "YYYY-MM-DD"
+    completed: null
+```
+
 ### 11. Update Roadmap Status
 
 **Update `.specs/roadmap.yml`:**
@@ -313,7 +311,7 @@ features:
     started: "2025-01-08T14:30:00"  # Add timestamp
 ```
 
-### 13. Present Task Summary
+### 12. Present Task Summary
 
 Show the user what was created:
 
@@ -322,6 +320,7 @@ Show the user what was created:
 
 📋 Feature Details:
 - ID: [F3]
+- Task: YYYYMMDD-feature-name
 - Priority: [priority]
 - Estimated: [X days]
 - Dependencies: [list or "None"]
@@ -346,17 +345,18 @@ Phase 3: [Phase name] ([Z tasks])
 Total: [N tasks] across [M phases]
 
 📂 Files Created:
-- .specs/active-task/spec.yml (requirements & technical design)
-- .specs/active-task/progress.yml (task tracking)
-- .specs/active-task/context.md (resumption context)
+- .specs/tasks/YYYYMMDD-feature-name/spec.yml (requirements & technical design)
+- .specs/tasks/YYYYMMDD-feature-name/progress.yml (task tracking)
+- .specs/tasks/YYYYMMDD-feature-name/context.md (resumption context)
 
-📝 Roadmap Updated:
-- Feature status: not_started → in_progress
+📝 Updated:
+- .specs/tasks/progress.yml (task index updated)
+- .specs/roadmap.yml (feature status: not_started → in_progress)
 
 ---
 
 📖 Next Steps:
-1. Review architecture.md for detailed feature design
+1. Review feature architecture
 2. Run `/cspec:implement` to begin implementation
 
 ✅ Task ready for implementation!
@@ -364,12 +364,11 @@ Total: [N tasks] across [M phases]
 
 **DO NOT start implementation.** Present the task and stop.
 
-### 14. Complete Task Creation
+### 13. Complete Task Creation
 
 Task is now ready. User can:
 1. Review feature architecture
 2. Run `/cspec:implement` to start work
-3. Use `/cspec:archive` when complete
 
 ## Special Cases
 
@@ -382,11 +381,11 @@ Task is now ready. User can:
 ⚠️ Feature "[feature-name]" is already marked as in_progress.
 
 This might mean:
-1. You're resuming work (active-task exists)
+1. You're resuming work (task folder exists in .specs/tasks/)
 2. Status wasn't updated after completion
 3. Multiple people working on same feature
 
-Check .specs/active-task/ to see current state.
+Check .specs/tasks/ directory and .specs/tasks/progress.yml to see current state.
 ```
 
 **Case: Feature already completed**
@@ -419,14 +418,15 @@ Or run `/cspec:architect` to redesign the project architecture and roadmap.
 - **Follow project patterns:** Reference project architecture.md throughout
 - **Stay aligned:** Feature architecture should fit project architecture
 - **Use roadmap:** Roadmap is the source of truth for feature scope
-- **One at a time:** Complete one feature before starting another
+- **Multiple tasks:** You can have multiple in-progress tasks tracked in .specs/tasks/progress.yml
 
 ## Success Criteria
 
 - Feature found in roadmap
 - Dependencies checked (all completed or user accepted risk)
-- Active-task directory created with all files
+- Task directory created with all files (.specs/tasks/YYYYMMDD-feature-name/)
 - Feature architecture aligns with project architecture
 - All files reference project context
+- .specs/tasks/progress.yml index updated
 - Roadmap status updated to in_progress
 - Ready for implementation with `/cspec:implement`

@@ -157,7 +157,7 @@ Claude: [Uses @infrastructure-expert generate_terraform tool]
 
 This MCP server integrates with the claude-spec multi-agent system:
 
-1. **During Planning** (`/cspec:plan`):
+1. **During Planning** (`/cspec:task`):
    - Spec identifies infrastructure work needed
    - Sets `domains: [infrastructure]` or `domains: [backend, infrastructure]`
    - Enables MCP integration: `mcp_integration.enabled: true`

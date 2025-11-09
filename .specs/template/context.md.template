@@ -1,173 +1,313 @@
-# Context: [Feature Name]
+---
+# Context metadata - enables efficient context loading
+# Reference: Anthropic Skills best practices - YAML frontmatter for structured data
 
-> **Note:** This file provides human-readable context. Structured metadata is in `context.yml`.
-> Both files work together for optimal resumption.
->
-> **Architecture:** See `architecture.md` for detailed design and Architecture Decision Records (ADRs).
+name: "context-{{FEATURE_NAME}}"
+description: "Session resumption context for {{FEATURE_NAME}} feature implementation"
+last_updated: "{{TIMESTAMP}}"
+session_count: 1
+context_type: "feature-implementation"
 
-**Created:** [YYYY-MM-DD]
-**Last Updated:** [YYYY-MM-DD HH:MM]
-**Status:** Planning / In Progress / Testing / Complete
+# Token efficiency - mark sections by priority (Reference: Progressive disclosure)
+# CRITICAL sections must be read first, DETAILED for planning, REFERENCE as needed
+sections_critical: ["status_snapshot", "current_focus", "for_next_session"]
+sections_detailed: ["files_modified", "whats_working", "what_needs_work"]
+sections_reference: ["architecture_context", "technical_context", "decisions_log", "tricky_areas"]
+
+# Context compaction guidance - what to preserve (Reference: Context Engineering)
+# WHY: When context window fills, preserve architectural decisions and current state
+preserve_on_compaction:
+  - "Architectural decisions and rationale"
+  - "Unresolved bugs and blockers"
+  - "Current implementation state and next actions"
+  - "Key integration points and dependencies"
+
+discard_on_compaction:
+  - "Historical discussion and completed work details"
+  - "Redundant tool outputs"
+  - "Completed checklist items"
+---
+
+# Context: {{FEATURE_NAME}}
+
+> **Architecture:** See `.specs/architecture.md` for complete technical design and ADRs.
+> **Progress:** See `progress.yml` for detailed task tracking and phase completion.
+
+---
+
+<!-- === CRITICAL CONTEXT - Always Read First === -->
+<!-- Reference: Anthropic context engineering - high-signal tokens first -->
+<critical_context>
+
+## Status Snapshot
+**Last Updated:** {{TIMESTAMP}}
+**Session:** #{{SESSION_NUMBER}}
+**Status:** {{STATUS}} (planning | in_progress | testing | complete)
+**Branch:** `{{BRANCH_NAME}}`
+**Uncommitted Changes:** {{YES_NO}}
+
+## Current Focus (Read This First)
+
+{{ONE_PARAGRAPH_CURRENT_STATE}}
+
+**Immediate next action:** {{SPECIFIC_NEXT_STEP}}
+**Current file:** `{{FILE_PATH}}` (line {{LINE_NUMBER}})
+**Blocker/Issue:** {{CURRENT_ISSUE_IF_ANY}} (or "None")
+
+</critical_context>
+
+---
+
+<!-- === DETAILED CONTEXT - Read When Planning Work === -->
+<!-- Reference: Progressive disclosure - details loaded when triggered -->
+<detailed_context>
 
 ## What We're Building
 
-[One clear paragraph summary of the feature and its purpose]
+{{FEATURE_DESCRIPTION}}
 
-**Architecture Reference:** See `architecture.md` for complete technical design, ADRs, and implementation plan.
+**See:** `.specs/architecture.md` for complete technical design, ADRs, and system integration.
 
-## Current Focus
+## Files Modified This Session
 
-[One paragraph describing exactly what you're working on right now]
+<!-- Organized by status for quick scanning -->
 
-Currently [action] in [specific file/location]. The approach is [brief description]. Next need to [specific next step].
+**Active (editing now):**
+- `path/to/file.tsx` - {{WHAT_BEING_DONE}} ({{PERCENTAGE}}% complete)
+  - ✓ {{COMPLETED_WORK}}
+  - ⧗ {{IN_PROGRESS_WORK}}
+  - ☐ {{TODO_WORK}}
 
-## Files Modified
+**Modified (completed this session):**
+- `path/to/file1.ts` - {{CHANGE_DESCRIPTION}}
+- `path/to/file2.tsx` - {{CHANGE_DESCRIPTION}}
 
-**Active (currently editing):**
-- `path/to/file.tsx` - [What's being done] ([percentage]% complete)
-  - [Detail about what's done]
-  - [Detail about what remains]
-
-**Modified this session:**
-- `path/to/file1.ts` - [What was changed]
-- `path/to/file2.tsx` - [What was changed]
-
-**To be modified next:**
-- `path/to/file3.ts` - [What needs to be done]
+**Planned (next):**
+- `path/to/file3.ts` - {{PLANNED_CHANGE}}
 
 ## Git Status
 
-Branch: `[branch-name]`
-- [X] files modified
-- [Y] files staged
-- [Z] files unstaged
-- Status: [Not committed / Partially committed / All committed]
+Branch: `{{BRANCH_NAME}}`
+**Changes:**
+- {{X}} files modified
+- {{Y}} files staged
+- {{Z}} files unstaged
+**Status:** Not committed | Partially committed | All committed
 
-## Architecture Context
-
-**See `architecture.md` for complete architecture design including:**
-- Architecture Decision Records (ADRs) with rationale
-- System design and component architecture
-- Security architecture (OWASP mitigations)
-- Testing strategy and test pyramid
-- Implementation phases and task dependencies
-
-**Key Decisions (from architecture.md):**
-- ADR-001: [Decision summary]
-- ADR-002: [Decision summary]
-
-**Integration Points:**
-- [System A] - [How we integrate]
-- [System B] - [How we integrate]
-
-**Patterns in use:**
-- Pattern 1 - Description
-- Pattern 2 - Description
-
-**Related code to reference:**
-- `path/to/similar-component.tsx` - Example of similar pattern
-- `path/to/utility.ts` - Utility function being used
+**Last commit:** `{{COMMIT_MESSAGE}}` ({{COMMIT_HASH_SHORT}})
 
 ## What's Working
 
-[List what's currently functional]
+[List what's currently functional and tested]
 
-- Item 1 working correctly
-- Item 2 implemented and tested
-- Item 3 integrated successfully
+- ✓ Item 1 working correctly
+- ✓ Item 2 implemented and tested
+- ✓ Item 3 integrated successfully
 
 ## What Needs Work
 
-[List what's incomplete or broken]
+[List what's incomplete, broken, or needs attention]
 
-- Item 1 incomplete ([specific issue])
-- Item 2 has bug ([describe bug])
-- Item 3 needs refactoring ([why])
+- ☐ Item 1 incomplete ({{SPECIFIC_ISSUE}})
+- ⚠ Item 2 has bug ({{DESCRIBE_BUG}})
+- ♻ Item 3 needs refactoring ({{WHY_REFACTOR}})
+
+</detailed_context>
+
+---
+
+<!-- === FOR NEXT SESSION === -->
+<!-- Reference: Claude Code Best Practices - Explore-Plan-Code-Commit Pattern -->
+<for_next_session>
 
 ## For Next Session
 
-When resuming, you should:
+### Immediate Actions (Do These First)
 
-1. **First:** [Immediate action with specific file/location]
-2. **Then:** [Following action]
-3. **Finally:** [Subsequent action]
+**1. Explore - Read Context Before Acting**
+   <!-- WHY: Prevents wasted work and misaligned implementations -->
+   - Read this file completely (current state and decisions)
+   - Read `.specs/architecture.md` (design decisions and ADRs)
+   - Review `progress.yml` (task status and phase completion)
+   - Check `git status` and `git diff` (uncommitted changes)
 
-**Specific details:**
-- Open `[file-path]` (around line [X])
-- Review the `[function/component]`
-- [Specific instruction about what to do]
-- Reference `[other-file]` for [pattern/example]
+**2. Plan - Think Before Coding**
+   <!-- Reference: "Use extended thinking for complex problems" -->
+   - **Use extended thinking:** "think hard" about {{SPECIFIC_CHALLENGE}}
+   - Review the architectural approach in `architecture.md` ADR-{{NUMBER}}
+   - Validate approach against {{SPECIFIC_REQUIREMENT}}
+   - Consider edge cases: {{EDGE_CASE_1}}, {{EDGE_CASE_2}}
+
+**3. Resume - Continue From Exact Stopping Point**
+   - Open `{{FILE_PATH}}` at line {{LINE_NUMBER}}
+   - {{SPECIFIC_INSTRUCTION_ABOUT_WHAT_TO_DO}}
+   - Reference `{{EXAMPLE_FILE}}` for {{PATTERN_EXAMPLE}}
+   - Follow pattern from `{{SIMILAR_IMPLEMENTATION}}`
+
+**4. Verify - Before Committing**
+   - Run tests: `{{TEST_COMMAND}}`
+   - Check lint: `{{LINT_COMMAND}}`
+   - Verify {{SPECIFIC_ACCEPTANCE_CRITERIA}}
+   - Confirm no regressions: {{REGRESSION_TEST}}
+
+### Context Notes
+<!-- WHY you stopped - helps Claude understand state -->
+**Stopped because:** {{REASON_FOR_STOPPING}}
+**Blocker:** {{BLOCKER_IF_ANY}} (or "None")
+**Decision needed:** {{DECISION_NEEDED_IF_ANY}} (or "None")
+
+</for_next_session>
+
+---
+
+<!-- === REFERENCE CONTEXT - Read As Needed === -->
+<!-- Reference: Progressive disclosure - reference information loaded on demand -->
+<reference_context>
+
+## Architecture Context
+
+**See `.specs/architecture.md` for complete details**
+
+### Key Decisions (ADR Summary)
+
+**ADR-{{NUMBER}}: {{DECISION_TITLE}}**
+- **Decision:** Chose {{OPTION_SELECTED}} over {{ALTERNATIVES}}
+- **Rationale:** {{PRIMARY_REASON}}
+- **Impact:** {{POSITIVE_OUTCOME}} (tradeoff: {{NEGATIVE_OUTCOME}})
+
+### Integration Points
+
+- {{SYSTEM_A}} via {{INTEGRATION_METHOD}} - {{PURPOSE}}
+- {{SYSTEM_B}} via {{INTEGRATION_METHOD}} - {{PURPOSE}}
+
+### Patterns In Use
+
+- **{{PATTERN_NAME}}** - Used in `{{FILE_WHERE_USED}}` - {{DESCRIPTION}}
+- Reference: `{{EXAMPLE_FILE}}` for similar implementation
 
 ## Technical Context
 
-**Tech stack in use:**
-- [Framework/library] - Version
-- [Tool/package] - Purpose
+**Tech Stack:**
+- {{FRAMEWORK}} {{VERSION}} - {{PURPOSE}}
+- {{LIBRARY}} {{VERSION}} - {{PURPOSE}}
 
-**Key dependencies:**
-- [Package name] - What it's used for
-- [Package name] - What it's used for
+**Key Dependencies:**
+- `{{PACKAGE_NAME}}` - {{WHAT_ITS_USED_FOR}}
+- `{{PACKAGE_NAME}}` - {{WHAT_ITS_USED_FOR}}
 
 **Conventions:**
-- [Convention 1]
-- [Convention 2]
-
-## Tricky Areas
-
-[Note anything confusing or non-obvious]
-
-- [Thing that might be confusing] - [Explanation or note]
-- [Gotcha or edge case] - [How to handle it]
-
-## Resources
-
-[Links to documentation, examples, or references]
-
-- [Resource name]: [URL]
-- [Resource name]: [URL]
+- {{CONVENTION_1}}
+- {{CONVENTION_2}}
 
 ## Decisions Log
 
-[Record why certain approaches were chosen]
+<!-- Reference: Claude 4 best practices - "explicit instructions with contextual motivation" -->
+<!-- WHY: Enables Claude to understand reasoning when resuming or extending feature -->
 
-- **[Decision]:** Chose X over Y because Z
-- **[Decision]:** Using A pattern instead of B because C
+### {{DATE}} - {{DECISION_TITLE}}
+
+**Context:** {{SITUATION_THAT_REQUIRED_DECISION}}
+
+**Decision:** Chose {{OPTION_SELECTED}} over {{ALTERNATIVES}}
+
+**Rationale:**
+- {{REASON_1_WITH_TRADEOFF}}
+- {{REASON_2_WITH_TRADEOFF}}
+- {{REASON_3_WITH_TRADEOFF}}
+
+**Consequences:**
+- ✓ Benefit: {{POSITIVE_OUTCOME}}
+- ⚠ Tradeoff: {{NEGATIVE_OUTCOME_OR_LIMITATION}}
+
+**References:**
+- `{{FILE_WHERE_IMPLEMENTED}}`
+- {{LINK_TO_DOCS_IF_APPLICABLE}}
+
+---
+
+### Example (remove when adding real decisions)
+
+### 2025-01-09 - Use React Query for Data Fetching
+
+**Context:** Need to fetch and cache user data across multiple components with real-time updates.
+
+**Decision:** Chose React Query over Redux + custom hooks
+
+**Rationale:**
+- Built-in caching reduces boilerplate (vs. Redux requires manual cache invalidation)
+- Automatic refetching on window focus improves UX (vs. manual implementation needed)
+- Smaller bundle size for this use case (12kb vs 45kb for Redux toolkit)
+
+**Consequences:**
+- ✓ Benefit: Reduced code by ~200 lines, improved loading states
+- ⚠ Tradeoff: Team needs to learn new library, different mental model from Redux
+
+**References:**
+- `src/hooks/useUserData.ts` - Implementation
+- React Query docs: https://tanstack.com/query
+
+## Tricky Areas
+
+<!-- Note anything confusing or non-obvious -->
+<!-- WHY: Prevents future confusion and duplicate work -->
+
+- **{{THING_CONFUSING}}** - {{EXPLANATION_OR_NOTE}}
+- **{{GOTCHA_OR_EDGE_CASE}}** - {{HOW_TO_HANDLE_IT}}
+
+## Testing Notes
+
+<!-- Reference: TDD workflow from Claude Code best practices -->
+
+**Tests Written:**
+- ✓ {{TEST_CASE_1}} - Passing
+- ⧗ {{TEST_CASE_2}} - In progress
+- ☐ {{TEST_CASE_3}} - Planned
+
+**Edge Cases to Test:**
+- {{EDGE_CASE_1}}
+- {{EDGE_CASE_2}}
+
+**Integration Points to Test:**
+- {{INTEGRATION_POINT_1}}
+- {{INTEGRATION_POINT_2}}
+
+## Security Notes
+
+<!-- Reference OWASP Top 10 applicable to this feature -->
+
+- **{{SECURITY_CONCERN_1}}**
+- **Validation needed for:** {{INPUT_REQUIRING_VALIDATION}}
+- **Authorization required for:** {{OPERATION_REQUIRING_AUTH}}
+
+## Performance Notes
+
+<!-- If performance is a concern, track observations -->
+
+- {{OBSERVATION_ABOUT_PERFORMANCE}}
+- {{OPTIMIZATION_NEEDED}}
+- Benchmark target: {{BENCHMARK_TARGET}}
 
 ## Questions/Uncertainties
 
 [Open questions or things to investigate]
 
-- [ ] Question 1 - [Context about why this matters]
-- [ ] Question 2 - [Where to find answer]
+- [ ] {{QUESTION_1}} - {{CONTEXT_WHY_IT_MATTERS}}
+- [ ] {{QUESTION_2}} - {{WHERE_TO_FIND_ANSWER}}
 
-## Team Communication
+## Resources
 
-[If working with others, note any relevant context]
+[Links to documentation, examples, or references]
 
-- Discussed with [person] on [date] - [Summary]
-- Waiting for [person] to [action]
-- Need review from [person] on [topic]
+- {{RESOURCE_NAME}}: {{URL}}
+- {{RESOURCE_NAME}}: {{URL}}
 
-## Testing Notes
+</reference_context>
 
-[Notes about testing approach or specific tests needed]
+---
 
-- Test case 1 to verify
-- Edge case 2 to handle
-- Integration point 3 to test
+## Metadata (Auto-Generated)
 
-## Performance Notes
-
-[If performance is a concern, track observations]
-
-- Observation about performance
-- Optimization needed
-- Benchmark target
-
-## Security Notes
-
-[Security considerations for this feature]
-
-- Security concern 1
-- Validation needed for X
-- Authorization required for Y
+**Created:** {{CREATED_DATE}}
+**Total Sessions:** {{SESSION_COUNT}}
+**Last Modified By:** Claude Code
+**Template Version:** 2.0 (Anthropic-optimized)

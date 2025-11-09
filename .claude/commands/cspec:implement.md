@@ -39,19 +39,97 @@ Check if `mode` parameter is provided:
 
 Store this for use during Phase 2 completion check.
 
-### 2. Check for Active Task
+### 2. Check for Active Tasks
 
-Look for `.specs/active-task/` directory.
+Read `.specs/tasks/progress.yml` to find in_progress tasks.
 
-**If NOT found:**
+**If no in_progress tasks found:**
 ```
 ❌ No active task found.
 
-To start a new feature, run: /architect [feature-name]
-To see archived tasks, check: .specs/completed-tasks/
+To start a new feature, run: /cspec:task [feature-name]
+To see all tasks, check: .specs/tasks/progress.yml
 ```
 
-**If found:** Proceed to next step.
+**If exactly one in_progress task found:**
+Automatically select and proceed with that task. No user interaction needed.
+
+**If multiple in_progress tasks found:**
+
+Show formatted task selection with details:
+
+```
+📋 Multiple Active Tasks Found
+
+Select a task to work on:
+
+1. 20250109-user-authentication
+   Name: user-authentication
+   Priority: high
+   Created: 2025-01-09
+   Last worked: 2 days ago
+
+2. 20250120-export-metrics
+   Name: export-metrics
+   Priority: medium
+   Created: 2025-01-20
+   Last worked: 5 hours ago ⭐ (most recent)
+
+3. 20250125-dashboard
+   Name: dashboard
+   Priority: low
+   Created: 2025-01-25
+   Last worked: never
+
+💡 Tip: Task #2 was most recently worked on
+
+Enter task number (1-3):
+```
+
+**Selection Logic:**
+
+1. **Display format:**
+   - Numbered list for easy selection
+   - Show: ID, name, priority, created date
+   - Include "last worked" timestamp from context.md last_updated
+   - Mark most recently worked task with ⭐
+
+2. **Last worked detection:**
+   - Check each task's `context.md` frontmatter `last_updated` field
+   - If present, calculate time since update ("2 days ago", "5 hours ago")
+   - If absent, show "never"
+   - Identify most recent and mark with ⭐
+   - Suggest continuing with most recent task
+
+3. **User selection:**
+   - Wait for user to enter number (1-N)
+   - Validate input (must be valid number in range)
+   - If invalid, show error and ask again
+
+4. **Smart suggestions:**
+   - If one task worked on recently (< 24 hours ago) and others never/old:
+     ```
+     💡 Suggestion: Task #2 was worked on 5 hours ago. Continue with this task? (y/n)
+
+     If no, I'll show the full task list.
+     ```
+   - If user answers 'y', auto-select that task
+   - If user answers 'n', show full numbered list for selection
+
+**Auto-selection criteria (skip user prompt):**
+- Only ONE task has `in_progress` status → Auto-select
+- Multiple tasks but one has `last_updated` < 6 hours ago, others never worked → Auto-select recent
+  - Still show brief message: "Continuing with 20250120-export-metrics (worked on 2 hours ago)"
+
+**Error handling:**
+```
+Invalid selection. Please enter a number between 1 and 3.
+
+Enter task number (1-3):
+```
+
+**After selection:**
+Store the selected task ID for use in subsequent steps. Proceed to step 2 (Review Project Configuration).
 
 ### 2. Review Project Configuration
 
@@ -309,9 +387,9 @@ You will implement tasks assigned to the [DOMAIN] domain. Other domain experts h
 ## Context
 
 Read these files in order:
-1. .specs/active-task/context.md - General context and domain-specific notes
-2. .specs/active-task/progress.yml - Focus on tasks where domain=[DOMAIN]
-3. .specs/active-task/spec.yml - Focus on technical_design.domain_design.[DOMAIN]
+1. .specs/tasks/YYYYMMDD-feature-name/context.md - General context and domain-specific notes
+2. .specs/tasks/YYYYMMDD-feature-name/progress.yml - Focus on tasks where domain=[DOMAIN]
+3. .specs/tasks/YYYYMMDD-feature-name/spec.yml - Focus on technical_design.domain_design.[DOMAIN]
 4. CLAUDE.md - Project configuration
 
 ## Your Tasks

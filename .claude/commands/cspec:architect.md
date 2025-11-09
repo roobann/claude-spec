@@ -27,7 +27,7 @@ Design project-wide architecture OR add new features to an existing architecture
 - Adds feature to `.specs/roadmap.yml`
 - Updates `.specs/architecture.md` with new ADRs if needed
 - Updates `.specs/guidelines.md` if new patterns introduced
-- Optionally creates `.specs/active-task/` to start immediately
+- Optionally creates task in `tasks/` to start immediately (via /cspec:task)
 
 ## Process
 

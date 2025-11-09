@@ -1,71 +1,72 @@
 # Specs Directory
 
-This directory contains specifications and context for features in this project. It's designed to solve Claude Code's context persistence problem and enable seamless resumption across sessions.
+This directory contains project architecture, specifications, and task tracking for features. It's designed to solve Claude Code's context persistence problem and enable seamless resumption across sessions.
 
 ## Directory Structure
 
 ```
 .specs/
-├── README.md (this file)
-├── active/
-│   └── active-task/          # Currently active work
-│       ├── spec.md            # What to build
-│       ├── progress.md        # Status tracker
-│       └── context.md         # Resumption lifeline
-├── completed/                  # Archived completed tasks
-│   └── [feature-name]/
-│       ├── spec.md
-│       ├── progress.md
-│       ├── context.md
-│       └── SUMMARY.md         # Completion summary
-└── template/                 # Templates for new specs
-    ├── spec.md.template
-    ├── progress.md.template
-    └── context.md.template
+├── README.md                   # This file
+├── architecture.md             # Project-wide architecture and ADRs
+├── roadmap.yml                 # Feature roadmap with priorities
+├── template/                   # Templates for new tasks
+│   ├── spec.yml.template
+│   ├── progress.yml.template
+│   ├── context.md.template
+│   ├── tasks-progress.yml.template
+│   ├── CLAUDE.md.template
+│   └── .claudeignore.template
+├── tasks/                      # All tasks (in-progress and completed)
+│   ├── progress.yml            # Task index (status tracking)
+│   ├── 20250109-feature-1/     # Date-prefixed task folders
+│   │   ├── spec.yml
+│   │   ├── progress.yml
+│   │   └── context.md
+│   └── 20250120-feature-2/
+│       └── ...
+└── .mcp-servers/               # MCP server implementations (optional)
+    ├── backend-expert/
+    ├── frontend-expert/
+    └── ...
 ```
 
 ## The Three Files System
 
 Each task has three essential files:
 
-### 1. spec.md - The "What and Why"
+### 1. spec.yml - The "What and Why"
 
 **Purpose:** Define what you're building and why
 
 **Contains:**
-- Feature overview and user problem
-- Functional and non-functional requirements
+- Feature metadata (name, priority, status)
+- Requirements (functional and non-functional)
 - Technical design and architecture
-- Success criteria
+- Components, API endpoints, data models
 - Testing strategy
+- Security considerations (OWASP)
 
 **When to update:**
-- Created during planning (via `/cspec:plan`)
+- Created during task creation (via `/cspec:task`)
 - Rarely updated after work begins
 - Requirements should be stable
 
-**Read by:** Planning phase, reference during implementation
+### 2. progress.yml - The "Status Tracker"
 
-### 2. progress.md - The "Status Tracker"
-
-**Purpose:** Track what's done and what's next
+**Purpose:** Track implementation progress through phases
 
 **Contains:**
-- Task breakdown by phase
-- Completed items
-- In-progress items (with %)
-- Blocked items
-- Next steps
-- Decisions made
-- Issues encountered
+- Current phase and status
+- 3-phase task breakdown (Foundation, Core, Polish)
+- Task status (pending/in_progress/complete/blocked)
+- Decisions made during implementation
+- Issues encountered and resolutions
+- Time tracking
 
 **When to update:**
-- After completing each task
 - Automatically during `/cspec:implement`
-- Multiple times per session
+- After completing each task
 - Whenever status changes
-
-**Read by:** `/cspec:implement` to show current status, frequent reference
 
 ### 3. context.md - The "Resumption Lifeline"
 
@@ -74,120 +75,147 @@ Each task has three essential files:
 **Contains:**
 - Current focus (what you're working on RIGHT NOW)
 - Files being modified
-- Git status
 - What's working vs what needs work
 - Explicit instructions for next session
-- Technical context and patterns
-- Tricky areas to watch out for
+- Architecture context and patterns
+- Technical notes and gotchas
 
 **When to update:**
 - Automatically during `/cspec:implement`
 - Throughout session as context evolves
-- When making important decisions
-
-**Read by:** `/cspec:implement` to restore full context
 
 ## Workflow
 
-### Starting a New Feature
+### 1. Initialize Project
 
 ```bash
-> /cspec:plan user-authentication
+# New project
+/cspec:create
 
-[Claude creates spec.md, progress.md, context.md in active-task/]
-[Begin implementation]
+# Existing project
+/cspec:configure
 ```
 
-### During Work
+### 2. Design Project Architecture
 
 ```bash
-# Context and progress automatically maintained
-> /cspec:implement
+/cspec:architect
 
-# This automatically updates progress.md and context.md as work progresses
+# Creates:
+# - .specs/architecture.md (ADRs, system design)
+# - .specs/roadmap.yml (feature list with priorities)
 ```
 
-### Resuming Work
+### 3. Start a New Task
 
 ```bash
-> /cspec:implement
+/cspec:task user-authentication
 
-[Claude reads all three files and summarizes current state]
-[Continue from exactly where you left off]
+# Creates:
+# - .specs/tasks/20250109-user-authentication/spec.yml
+# - .specs/tasks/20250109-user-authentication/progress.yml
+# - .specs/tasks/20250109-user-authentication/context.md
+# - Updates .specs/tasks/progress.yml index
 ```
 
-### Finishing a Feature
+### 4. Implement the Task
 
 ```bash
-> /cspec:archive
+/cspec:implement
 
-[Moves active-task/ to completed/[feature-name]/]
-[Creates SUMMARY.md]
-[Cleans active workspace for next task]
+# Autonomous mode (default) - runs to completion
+# Or: /cspec:implement mode=interactive
+```
+
+### 5. Track Progress
+
+All tasks tracked in `.specs/tasks/progress.yml`:
+
+```yaml
+tasks:
+  - id: "20250109-user-authentication"
+    name: "user-authentication"
+    status: "completed"
+    priority: "high"
+    created: "2025-01-09"
+    completed: "2025-01-15"
+
+  - id: "20250120-export-metrics"
+    name: "export-metrics"
+    status: "in_progress"
+    priority: "medium"
+    created: "2025-01-20"
+```
+
+## Task Lifecycle
+
+```
+┌─────────────────┐
+│  /cspec:task    │  Creates date-prefixed folder
+│  feature-name   │  Updates index to "in_progress"
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ /cspec:implement│  Work on task
+│                 │  Update progress
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ Task complete   │  Update index to "completed"
+│                 │  Task folder remains in .specs/tasks/
+└─────────────────┘
 ```
 
 ## Why This System Works
 
-### Solves Context Loss
+### Date-Prefixed Organization
+- Chronological tracking: `20250109-feature-name`
+- Easy to see task timeline
+- Natural sorting by date
 
-Claude Code doesn't remember context between sessions. These files provide **external memory** that persists across:
-- Different days/weeks/months
-- Different machines
-- Different developers
-- Long breaks or interruptions
+### Centralized Task Index
+- Single source of truth (`.specs/tasks/progress.yml`)
+- Quick overview of all tasks
+- Status tracking at a glance
 
-### Enables Team Collaboration
+### Self-Contained Tasks
+- Each task folder has all its files
+- Easy to share or reference
+- No active/completed separation needed
 
-All context lives in markdown files committed to git:
-- Share specs with team
-- Hand off work seamlessly
-- Review plans before implementation
-- Track decisions and progress
+### Multiple In-Progress Tasks
+- Track multiple concurrent tasks
+- No "one active task" limitation
+- Flexibility for team collaboration
 
-### Promotes Better Planning
+## Project Architecture
 
-Creating spec.md forces you to think through:
-- Requirements before coding
-- Technical approach
-- Edge cases and risks
-- Success criteria
+### architecture.md
+Master architecture document containing:
+- ADRs (Architecture Decision Records)
+- System design
+- Security requirements
+- Development standards
 
-### Reduces Cognitive Load
-
-You don't have to remember:
-- What you were doing
-- What decisions were made
-- What files are involved
-- What to do next
-
-All of it is documented in context.md.
-
-## Templates
-
-The `template/` directory contains starting templates. The `/cspec:plan` command uses these automatically, but you can also copy them manually:
-
-```bash
-# Manual creation (if not using commands)
-cp .specs/template/spec.md.template .specs/active-task/spec.md
-cp .specs/template/progress.md.template .specs/active-task/progress.md
-cp .specs/template/context.md.template .specs/active-task/context.md
-
-# Then fill in the placeholders
-```
+### roadmap.yml
+Feature roadmap with:
+- Phases and priorities
+- Dependencies between features
+- Estimated timelines
 
 ## Tips for Effective Specs
 
-### For spec.md:
+### For spec.yml:
+- Reference project architecture ADRs
 - Be specific with requirements
-- Include examples and edge cases
-- Reference existing patterns to follow
-- Don't over-specify implementation details
-- Focus on "what" not "how"
+- Include OWASP security considerations
+- Define clear success criteria
 
-### For progress.md:
-- Break down into small, actionable tasks
-- Update frequently (after each subtask)
-- Use percentages for partial progress
+### For progress.yml:
+- Break down into 3 phases (Foundation, Core, Polish)
+- Update frequently during implementation
 - Document decisions as you make them
 - Note issues and solutions
 
@@ -195,95 +223,7 @@ cp .specs/template/context.md.template .specs/active-task/context.md
 - Be VERY specific about current state
 - Include file paths and line numbers
 - Explain "why" not just "what"
-- Note any tricky or confusing areas
 - Write explicit instructions for next session
-- Imagine explaining to yourself after a week
-
-## Common Patterns
-
-### Working on Multiple Features
-
-Keep only ONE task in `active-task/` at a time. To switch:
-
-```bash
-# Commit current work
-$ git commit -m "WIP: current progress"
-
-# Archive if done
-> /cspec:archive
-
-# Start or resume other work
-> /cspec:architect new-feature
-# or
-> /cspec:implement
-```
-
-For true parallel work, use git worktrees with separate Claude sessions.
-
-### Long-Running Features
-
-For features spanning multiple sessions:
-
-1. **End of each session:**
-   ```bash
-   git add . && git commit -m "WIP: feature - what's done"
-   ```
-
-2. **Start of each session:**
-   ```bash
-   > /cspec:implement
-   [Pick up exactly where you left off]
-   ```
-
-3. **Commit frequently:**
-   - Every 30-60 minutes
-   - After completing subtasks
-   - Before meetings/breaks
-
-### Handling Blockers
-
-If stuck or blocked:
-
-1. Document in progress.md:
-   ```markdown
-   ## Blocked
-   - [ ] Task X - Blocked because Y, need Z to proceed
-   ```
-
-2. Update context.md:
-   ```markdown
-   ## What Needs Work
-   - Can't proceed with X because of blocker Y
-   - Tried approach A (didn't work because B)
-   - Possible solutions: try C or D
-   ```
-
-3. Commit and switch to other work
-4. Resume when blocker is resolved
-
-## Archive Organization
-
-Completed features go in `completed/[feature-name]/`:
-
-```
-completed/
-├── 20251101-user-authentication/
-│   ├── spec.md           # Original spec
-│   ├── progress.md       # Final progress
-│   ├── context.md        # Implementation context
-│   └── SUMMARY.md        # What was accomplished
-├── 20251105-payment-integration/
-│   └── ...
-└── 20251110-dashboard-redesign/
-    └── ...
-```
-
-### Benefits of Archiving:
-- Historical record of features built
-- Reference for similar future features
-- Knowledge base for team
-- Track project evolution
-- Learning from past decisions
 
 ## Integration with CLAUDE.md
 
@@ -293,71 +233,57 @@ The root `CLAUDE.md` references this spec system:
 ## Workflow
 
 ### Starting New Feature
-1. Run `/cspec:plan [feature-name]`
-2. Review `.specs/active-task/spec.md`
-3. Begin implementation
+1. Design architecture: `/cspec:architect`
+2. Create task: `/cspec:task [feature-name]`
+3. Implement: `/cspec:implement`
 
 ### Resuming Work
 1. Run `/cspec:implement`
-2. Continue from `.specs/active-task/context.md`
+2. Choose task if multiple in-progress
 ```
-
-This ensures Claude knows to use the spec system automatically.
 
 ## Git Best Practices
 
 **Do commit:**
-- All spec files (spec.md, progress.md, context.md)
-- SUMMARY.md from archives
+- All spec files (architecture.md, roadmap.yml, task files)
 - The .specs/ directory structure
+- .specs/tasks/progress.yml index
 
 **Don't ignore:**
 - Never add `.specs/` to .gitignore
 - These files ARE your project's memory
 
 **Commit frequency:**
-- After `/cspec:architect` - Commit initial spec
+- After `/cspec:architect` - Commit architecture
+- After `/cspec:task` - Commit new task
 - During work - Commit WIP regularly
-- After `/cspec:archive` - Definitely commit archive
+- After completion - Commit final state
 
 ## FAQ
 
 **Q: Can I have multiple active tasks?**
-A: The system is designed for one active task. For multiple, use git worktrees or manually manage separate directories. Simpler to focus on one at a time.
+A: Yes! The new system supports multiple in-progress tasks tracked in `.specs/tasks/progress.yml`.
 
-**Q: What if my spec changes during implementation?**
-A: Update spec.md to reflect reality. Note changes in progress.md under "Decisions Made". The spec should match what's actually built.
+**Q: What happened to /cspec:archive?**
+A: No longer needed. Tasks stay in `.specs/tasks/` with status updated in progress.yml (in_progress → completed).
 
-**Q: Can I delete archived tasks?**
-A: Yes, but they're valuable reference. Consider keeping them. They're small markdown files and git tracks them efficiently.
+**Q: How do I find completed tasks?**
+A: Check `.specs/tasks/progress.yml` for tasks with `status: completed`.
 
-**Q: Do I need all three files?**
-A: For full benefits, yes. But minimum viable:
-- Small task: Just progress.md
-- Medium task: progress.md + context.md
-- Complex task: All three
-
-**Q: Can I customize the templates?**
-A: Absolutely! Edit `template/*.template` to fit your needs. The `/cspec:architect` command will use your customized templates.
-
-**Q: How do I search old specs?**
-A: Use grep or IDE search across `.specs/completed-tasks/`:
+**Q: How do I search old tasks?**
+A: Use grep across `.specs/tasks/`:
 ```bash
-grep -r "authentication" .specs/completed-tasks/
+grep -r "authentication" .specs/tasks/
 ```
 
-**Q: What about non-feature work (bugs, refactoring)?**
-A: Same system works. Use `/cspec:architect bug-fix-auth` or `/cspec:architect refactor-api`. The structure works for any work item.
+**Q: What's the date format for task folders?**
+A: `YYYYMMDD-feature-name` (e.g., `20250109-user-auth`)
 
-## Examples
+**Q: Can I customize the templates?**
+A: Yes! Edit `.specs/template/*.template` to fit your needs.
 
-See `docs/EXAMPLES.md` for real-world usage examples showing how to use this system for various scenarios.
-
-## Support
-
-- Setup help: See `docs/SETUP.md`
-- Daily workflow: See `docs/WORKFLOW.md`
-- Customization: See `docs/CUSTOMIZATION.md`
+**Q: What about MCP integration?**
+A: MCP servers in `.specs/.mcp-servers/` provide domain experts with specialized tools (database queries, API testing, etc.). Optional but powerful for complex projects.
 
 ---
 

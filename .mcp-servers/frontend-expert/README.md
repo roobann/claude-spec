@@ -150,7 +150,7 @@ Claude: [Uses @frontend-expert run_e2e_tests tool]
 
 This MCP server integrates with the claude-spec multi-agent system:
 
-1. **During Planning** (`/cspec:plan`):
+1. **During Planning** (`/cspec:task`):
    - Spec identifies feature needs frontend work
    - Sets `domains: [frontend]` or `domains: [backend, frontend]`
 

@@ -19,6 +19,9 @@ COMMANDS_TARGET_DIR="$(pwd)/.claude/commands"
 SPECS_TEMPLATE_DIR="${SCRIPT_DIR}/.specs/template"
 SPECS_TARGET_DIR="$(pwd)/.specs/template"
 TEMPLATES_SOURCE_DIR="${SCRIPT_DIR}"
+MCP_SERVERS_SOURCE="${SCRIPT_DIR}/.mcp-servers"
+MCP_SERVERS_TARGET="$(pwd)/.specs/.mcp-servers"
+TASKS_DIR="$(pwd)/.specs/tasks"
 
 echo -e "${BLUE}╔══════════════════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║   Claude-Native Spec System - Setup Script              ║${NC}"
@@ -141,6 +144,53 @@ if [ -f "${TEMPLATES_SOURCE_DIR}/.claudeignore.template" ]; then
 fi
 
 echo ""
+
+# ═══════════════════════════════════════════════════════════
+# 4. Copy MCP Servers Folder (.mcp-servers/)
+# ═══════════════════════════════════════════════════════════
+echo -e "${BLUE}Copying MCP servers folder...${NC}"
+
+if [ -d "$MCP_SERVERS_SOURCE" ]; then
+    if [ -d "$MCP_SERVERS_TARGET" ]; then
+        rm -rf "$MCP_SERVERS_TARGET"
+        echo -e "${YELLOW}⚠ Removed existing .specs/.mcp-servers/${NC}"
+    fi
+    cp -r "$MCP_SERVERS_SOURCE" "$MCP_SERVERS_TARGET"
+    echo -e "${GREEN}✓ Copied:${NC}   .specs/.mcp-servers/ (MCP server implementations)"
+    total_replaced=$((total_replaced + 1))
+else
+    echo -e "${YELLOW}⚠ .mcp-servers folder not found in template${NC}"
+fi
+
+echo ""
+
+# ═══════════════════════════════════════════════════════════
+# 5. Initialize Tasks Directory Structure
+# ═══════════════════════════════════════════════════════════
+echo -e "${BLUE}Initializing tasks directory...${NC}"
+
+if [ ! -d "$TASKS_DIR" ]; then
+    mkdir -p "$TASKS_DIR"
+    echo -e "${GREEN}✓ Created:${NC}  .specs/tasks/"
+fi
+
+# Copy progress.yml template
+if [ -f "${SPECS_TEMPLATE_DIR}/tasks-progress.yml.template" ]; then
+    target_file="${TASKS_DIR}/progress.yml"
+    if [ -f "$target_file" ]; then
+        cp "${SPECS_TEMPLATE_DIR}/tasks-progress.yml.template" "$target_file"
+        echo -e "${GREEN}✓ Replaced:${NC} .specs/tasks/progress.yml"
+        total_replaced=$((total_replaced + 1))
+    else
+        cp "${SPECS_TEMPLATE_DIR}/tasks-progress.yml.template" "$target_file"
+        echo -e "${GREEN}✓ Copied:${NC}   .specs/tasks/progress.yml"
+        total_copied=$((total_copied + 1))
+    fi
+else
+    echo -e "${YELLOW}⚠ tasks-progress.yml.template not found${NC}"
+fi
+
+echo ""
 echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
 echo -e "${GREEN}✓ Setup complete!${NC}"
 echo ""
@@ -168,8 +218,10 @@ if [ "$total_copied" -gt 0 ] || [ "$total_replaced" -gt 0 ]; then
 fi
 
 echo -e "${BLUE}Files copied to:${NC}"
-echo -e "  ${GREEN}.claude/commands/${NC}  - Command files"
-echo -e "  ${GREEN}.specs/template/${NC}   - All templates (spec files + init templates)"
+echo -e "  ${GREEN}.claude/commands/${NC}      - Command files"
+echo -e "  ${GREEN}.specs/template/${NC}       - All templates (spec files + init templates)"
+echo -e "  ${GREEN}.specs/tasks/${NC}          - Task management (progress.yml index)"
+echo -e "  ${GREEN}.specs/.mcp-servers/${NC}   - MCP server implementations"
 echo ""
 
 echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"

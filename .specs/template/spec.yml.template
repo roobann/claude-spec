@@ -1,13 +1,34 @@
 ---
 # Feature Specification (YAML Format)
-# More structured and token-efficient than markdown
+# Reference: Anthropic context engineering - "smallest set of high-signal tokens"
+# Optimized for Claude Code context efficiency and resumability
+
+# === STRUCTURE (Progressive Disclosure) ===
+# Reference: Skills best practices - three-level context loading
+# 1. CRITICAL (always read): metadata, overview, current requirements
+# 2. DETAILED (read when implementing): technical_design, testing, components
+# 3. REFERENCE (read on-demand): architecture.md, roadmap.yml, guidelines.md
+#
+# WHY: Claude 4.5 features context awareness - this structure helps manage token budget
+# efficiently while ensuring critical information is always available
+
+# === CRITICAL CONTEXT (Read First) ===
 
 metadata:
   feature_name: "{{FEATURE_NAME}}"
   created: "{{CREATED_DATE}}"
+  last_updated: null  # Track iterations for context awareness
   status: "planning"  # planning | in_progress | testing | complete
   priority: "medium"  # high | medium | low
-  architecture_doc: "architecture.md"  # Reference to detailed architecture document
+
+  # Context Management - Reference: Claude 4.5 context awareness
+  # WHY: Help Claude manage token budget and choose appropriate thinking modes
+  token_budget_tier: "standard"  # standard | extended | minimal
+  complexity: "medium"           # simple | medium | complex (affects extended thinking usage)
+
+  # Architecture Reference - Progressive disclosure
+  architecture_doc: "architecture.md"  # Detailed design and ADRs
+  context_doc: "context.md"           # Session resumption context
 
   # Multi-Agent Mode (optional)
   agent_coordination: false  # Set to true to enable domain-expert agents
@@ -180,17 +201,35 @@ technical_design:
       configurations: []
 
   logging:
+    # Reference: Claude 4 best practices - "explicit instructions with contextual motivation"
+    # WHY logging: Critical for debugging and context persistence across sessions
+    # WHY these specific points: Enables Claude to understand execution flow when resuming
+
     debug_enabled: true  # Enable during development (see CLAUDE.md)
+
     key_log_points:
-      - "Entry points (API handlers, functions)"
-      - "Error cases and exceptions"
-      - "State changes and decisions"
-      - "External API calls"
-    production_log_level: "INFO"  # Adjust before deployment
+      # Entry/exit points - WHY: Understand control flow and function boundaries
+      - "Entry points (API handlers, function entry with parameters)"
+      - "Exit points (return values, function completion)"
+
+      # Error tracking - WHY: Critical for debugging and reproducing issues
+      - "Error cases and exceptions (with stack traces)"
+      - "Validation failures (with input that failed validation)"
+
+      # State tracking - WHY: Understand application behavior and state transitions
+      - "State changes and decisions (before/after values)"
+      - "External API calls (request/response/timing)"
+      - "Database operations (queries, mutations, affected rows)"
+
+    # WHY INFO level: Balances observability with performance in production
+    production_log_level: "INFO"  # ERROR < WARN < INFO < DEBUG
+
     log_context:
-      - "Request IDs"
-      - "User IDs"
-      - "Key parameters"
+      # Correlation - WHY: Trace requests across distributed services
+      - "Request IDs (for distributed tracing)"
+      - "User IDs (for user-specific debugging)"
+      - "Session IDs (for session flow analysis)"
+      - "Key parameters (for input validation and replay)"
 
 ui_ux:
   design_notes: |
@@ -199,8 +238,24 @@ ui_ux:
   mockups_url: "https://figma.com/..."  # If applicable
 
 testing:
+  # Reference: Claude Code Best Practices - Test-Driven Development approach
+  # WHY: TDD ensures code meets specifications and prevents overfitting to examples
+
   strategy:
     approach: "tdd"  # tdd | minimal | balanced
+
+    # TDD Workflow (Reference: Anthropic Claude Code Best Practices)
+    # 1. Write tests from expected input/output pairs
+    # 2. Confirm tests fail initially (red phase)
+    # 3. Commit test suite
+    # 4. Develop code to pass tests through iteration (green phase)
+    # 5. Use independent subagent to verify against overfitting (refactor phase)
+
+    workflow_checkpoints:
+      - "Tests written and committed (red phase - tests should fail)"
+      - "Implementation makes tests pass (green phase)"
+      - "Code refactored for quality (refactor phase)"
+      - "Independent verification completed (no overfitting to test cases)"
 
     unit_tests:
       - "Component/function to test"

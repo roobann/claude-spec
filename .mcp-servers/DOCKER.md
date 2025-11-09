@@ -8,7 +8,7 @@ Complete guide for deploying claude-spec MCP servers using Docker and Docker Com
 
 ```bash
 cd .mcp-servers
-docker-compose build
+docker compose build
 ```
 
 ### Start All Servers
@@ -19,26 +19,26 @@ cp .env.example .env
 # Edit .env with your credentials
 
 # Start all services
-docker-compose up -d
+docker compose up -d
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # Stop all services
-docker-compose down
+docker compose down
 ```
 
 ### Start Individual Server
 
 ```bash
 # Backend expert only
-docker-compose up -d backend-expert
+docker compose up -d backend-expert
 
 # Frontend expert only
-docker-compose up -d frontend-expert
+docker compose up -d frontend-expert
 
 # DevOps expert only
-docker-compose up -d devops-expert
+docker compose up -d devops-expert
 ```
 
 ## Environment Configuration
@@ -63,7 +63,7 @@ AWS_SECRET_ACCESS_KEY=your_secret_key
 # Docker Configuration (for devops-expert)
 DOCKER_HOST=unix:///var/run/docker.sock
 DEPLOY_COMMAND=docker compose up -d
-COMPOSE_FILE=docker-compose.yml
+COMPOSE_FILE=docker compose.yml
 SECRETS_PATH=/run/secrets
 
 # Frontend Configuration (for frontend-expert)
@@ -165,7 +165,7 @@ docker run -d \
 
 ```bash
 cd .mcp-servers
-docker-compose build
+docker compose build
 ```
 
 ### Build Individual Images
@@ -204,8 +204,8 @@ docker build -t claude-spec/backend-expert:$VERSION -t claude-spec/backend-exper
 All servers include health checks. Check status:
 
 ```bash
-# Via docker-compose
-docker-compose ps
+# Via docker compose
+docker compose ps
 
 # Via docker
 docker ps --filter health=healthy
@@ -258,7 +258,7 @@ services:
     volumes:
       # Mount Docker socket (read-only recommended)
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      # Mount workspace for docker-compose files
+      # Mount workspace for docker compose files
       - ${PWD}:/workspace:ro
 
   infrastructure-expert:
@@ -283,7 +283,7 @@ services:
 # Create secrets
 echo "postgresql://user:password@host:5432/db" | docker secret create db_url -
 
-# Use in docker-compose.yml
+# Use in docker compose.yml
 services:
   backend-expert:
     secrets:
@@ -315,7 +315,7 @@ trivy image claude-spec/backend-expert:latest
 docker swarm init
 
 # Deploy stack
-docker stack deploy -c docker-compose.yml mcp-stack
+docker stack deploy -c docker compose.yml mcp-stack
 
 # List services
 docker service ls
@@ -329,11 +329,11 @@ docker stack rm mcp-stack
 
 ### Kubernetes
 
-Convert docker-compose to Kubernetes manifests:
+Convert docker compose to Kubernetes manifests:
 
 ```bash
 # Using kompose
-kompose convert -f docker-compose.yml
+kompose convert -f docker compose.yml
 
 # Apply to cluster
 kubectl apply -f .
@@ -341,7 +341,7 @@ kubectl apply -f .
 
 ### Resource Limits
 
-Add resource constraints in docker-compose.yml:
+Add resource constraints in docker compose.yml:
 
 ```yaml
 services:
@@ -362,21 +362,21 @@ services:
 
 ```bash
 # All services
-docker-compose logs -f
+docker compose logs -f
 
 # Specific service
-docker-compose logs -f backend-expert
+docker compose logs -f backend-expert
 
 # Last 100 lines
-docker-compose logs --tail=100 backend-expert
+docker compose logs --tail=100 backend-expert
 
 # Since timestamp
-docker-compose logs --since="2025-01-07T10:00:00" backend-expert
+docker compose logs --since="2025-01-07T10:00:00" backend-expert
 ```
 
 ### Log Drivers
 
-Configure logging in docker-compose.yml:
+Configure logging in docker compose.yml:
 
 ```yaml
 services:
@@ -438,10 +438,10 @@ services:
 
 ```bash
 # Check logs
-docker-compose logs backend-expert
+docker compose logs backend-expert
 
 # Check container status
-docker-compose ps
+docker compose ps
 
 # Inspect container
 docker inspect mcp-backend-expert
@@ -466,7 +466,7 @@ newgrp docker
 ```bash
 # Recreate network
 docker network rm mcp-network
-docker-compose up -d
+docker compose up -d
 
 # Check network connectivity
 docker exec mcp-backend-expert ping database-expert
@@ -494,24 +494,24 @@ pool.query('SELECT NOW()').then(() => console.log('Connected!')).catch(console.e
 git pull origin main
 
 # Rebuild images
-docker-compose build
+docker compose build
 
 # Restart services
-docker-compose down
-docker-compose up -d
+docker compose down
+docker compose up -d
 ```
 
 ### Zero-Downtime Update
 
 ```bash
 # Scale up new version
-docker-compose up -d --scale backend-expert=2
+docker compose up -d --scale backend-expert=2
 
 # Wait for health check
 sleep 30
 
 # Remove old container
-docker-compose up -d --scale backend-expert=1
+docker compose up -d --scale backend-expert=1
 ```
 
 ## CI/CD Integration
@@ -583,7 +583,7 @@ docker image prune -a
 ```bash
 # Use BuildKit for better caching
 export DOCKER_BUILDKIT=1
-docker-compose build
+docker compose build
 ```
 
 ## Registry Publishing
@@ -645,16 +645,16 @@ docker run --rm \
 
 ```bash
 # Start services in development mode
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+docker compose -f docker compose.yml -f docker compose.dev.yml up
 
 # Watch mode (rebuild on code change)
-docker-compose watch
+docker compose watch
 ```
 
 ### Hot Reload
 
 ```yaml
-# docker-compose.dev.yml
+# docker compose.dev.yml
 services:
   backend-expert:
     volumes:

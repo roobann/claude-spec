@@ -175,7 +175,7 @@ Claude: [Uses @database-expert optimize_table tool]
 
 This MCP server integrates with the claude-spec multi-agent system:
 
-1. **During Planning** (`/cspec:plan`):
+1. **During Planning** (`/cspec:task`):
    - Spec identifies database work needed
    - Sets `domains: [database]` or `domains: [backend, database]`
    - Enables MCP integration: `mcp_integration.enabled: true`

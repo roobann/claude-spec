@@ -12,14 +12,13 @@ Commands for the Claude-Native Spec workflow system.
 - **`/cspec:architect`** - Design project architecture OR add features to existing
   - First time: Creates full project architecture
   - Subsequent: Adds features to roadmap
-- **`/cspec:task [feature-name]`** - Create active task from roadmap
+- **`/cspec:task [feature-name]`** - Create task from roadmap
 - **`/cspec:implement`** - Execute implementation from specs
-- **`/cspec:archive`** - Complete and archive feature
 
 ## Workflow Pattern
 
 ```
-Init → Architect → Task → Implement → Archive
+Init → Architect → Task → Implement
 ```
 
 **Example:**
@@ -28,9 +27,9 @@ Init → Architect → Task → Implement → Archive
 /cspec:architect                      # Create project architecture
 /cspec:task user-authentication       # Create feature from roadmap
 /cspec:implement
-/cspec:archive
 /cspec:architect new-feature          # Add new feature to architecture
 /cspec:task new-feature
+/cspec:implement
 ```
 
 ## Files Created
@@ -39,11 +38,24 @@ Init → Architect → Task → Implement → Archive
 - `architecture.md` - Master architecture & ADRs
 - `roadmap.yml` - Feature roadmap
 - `guidelines.md` - Development standards
+- `tasks/progress.yml` - Task index
 
-**Feature level (.specs/active-task/):**
+**Task level (.specs/tasks/YYYYMMDD-feature-name/):**
 - `spec.yml` - Requirements & technical design
 - `progress.yml` - Task tracking
 - `context.md` - Resumption context
+
+## Task Management
+
+**Task Status:**
+- Tracked in `.specs/tasks/progress.yml`
+- Multiple in-progress tasks supported
+- Status: pending | in_progress | completed | blocked
+
+**Task Folders:**
+- Date-prefixed: `20250109-feature-name`
+- Self-contained with all files
+- No archive needed - stays in `.specs/tasks/`
 
 ## Related
 

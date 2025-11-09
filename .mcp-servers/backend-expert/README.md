@@ -135,7 +135,7 @@ Claude: [Reads @backend-expert database://schema resource]
 
 This MCP server integrates seamlessly with the claude-spec multi-agent system:
 
-1. **During Planning** (`/cspec:plan`):
+1. **During Planning** (`/cspec:task`):
    - Spec identifies this feature needs backend work
    - Sets `agent_coordination: true` and `domains: [backend]`
 

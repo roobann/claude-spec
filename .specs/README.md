@@ -18,11 +18,11 @@ This directory contains project architecture, specifications, and task tracking 
 │   └── .claudeignore.template
 ├── tasks/                      # All tasks (in-progress and completed)
 │   ├── progress.yml            # Task index (status tracking)
-│   ├── 20250109-feature-1/     # Date-prefixed task folders
+│   ├── 001-feature-1/          # Sequential numbered task folders
 │   │   ├── spec.yml
 │   │   ├── progress.yml
 │   │   └── context.md
-│   └── 20250120-feature-2/
+│   └── 002-feature-2/
 │       └── ...
 └── .mcp-servers/               # MCP server implementations (optional)
     ├── backend-expert/
@@ -112,9 +112,9 @@ Each task has three essential files:
 /cspec:task user-authentication
 
 # Creates:
-# - .specs/tasks/20250109-user-authentication/spec.yml
-# - .specs/tasks/20250109-user-authentication/progress.yml
-# - .specs/tasks/20250109-user-authentication/context.md
+# - .specs/tasks/001-user-authentication/spec.yml
+# - .specs/tasks/001-user-authentication/progress.yml
+# - .specs/tasks/001-user-authentication/context.md
 # - Updates .specs/tasks/progress.yml index
 ```
 
@@ -133,14 +133,14 @@ All tasks tracked in `.specs/tasks/progress.yml`:
 
 ```yaml
 tasks:
-  - id: "20250109-user-authentication"
+  - id: "001-user-authentication"
     name: "user-authentication"
     status: "completed"
     priority: "high"
     created: "2025-01-09"
     completed: "2025-01-15"
 
-  - id: "20250120-export-metrics"
+  - id: "002-export-metrics"
     name: "export-metrics"
     status: "in_progress"
     priority: "medium"
@@ -170,10 +170,11 @@ tasks:
 
 ## Why This System Works
 
-### Date-Prefixed Organization
-- Chronological tracking: `20250109-feature-name`
-- Easy to see task timeline
-- Natural sorting by date
+### Sequential Numbered Organization
+- Creation order tracking: `001-feature-name`, `002-feature-name`, etc.
+- Easy to see task creation order
+- Natural numeric sorting
+- Reuses deleted task numbers (fills gaps)
 
 ### Centralized Task Index
 - Single source of truth (`.specs/tasks/progress.yml`)
@@ -276,8 +277,8 @@ A: Use grep across `.specs/tasks/`:
 grep -r "authentication" .specs/tasks/
 ```
 
-**Q: What's the date format for task folders?**
-A: `YYYYMMDD-feature-name` (e.g., `20250109-user-auth`)
+**Q: What's the numbering format for task folders?**
+A: `NNN-feature-name` with 3-digit sequential numbers (e.g., `001-user-auth`, `002-export-metrics`). Gaps from deleted tasks are reused.
 
 **Q: Can I customize the templates?**
 A: Yes! Edit `.specs/template/*.template` to fit your needs.

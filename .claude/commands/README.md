@@ -40,7 +40,7 @@ Init → Architect → Task → Implement
 - `guidelines.md` - Development standards
 - `tasks/progress.yml` - Task index
 
-**Task level (.specs/tasks/YYYYMMDD-feature-name/):**
+**Task level (.specs/tasks/NNN-feature-name/):**
 - `spec.yml` - Requirements & technical design
 - `progress.yml` - Task tracking
 - `context.md` - Resumption context
@@ -53,7 +53,7 @@ Init → Architect → Task → Implement
 - Status: pending | in_progress | completed | blocked
 
 **Task Folders:**
-- Date-prefixed: `20250109-feature-name`
+- Sequential numbered: `001-feature-name`, `002-feature-name`, etc.
 - Self-contained with all files
 - No archive needed - stays in `.specs/tasks/`
 

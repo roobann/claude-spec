@@ -63,19 +63,19 @@ Show formatted task selection with details:
 
 Select a task to work on:
 
-1. 20250109-user-authentication
+1. 001-user-authentication
    Name: user-authentication
    Priority: high
    Created: 2025-01-09
    Last worked: 2 days ago
 
-2. 20250120-export-metrics
+2. 002-export-metrics
    Name: export-metrics
    Priority: medium
    Created: 2025-01-20
    Last worked: 5 hours ago ⭐ (most recent)
 
-3. 20250125-dashboard
+3. 003-dashboard
    Name: dashboard
    Priority: low
    Created: 2025-01-25
@@ -119,7 +119,7 @@ Enter task number (1-3):
 **Auto-selection criteria (skip user prompt):**
 - Only ONE task has `in_progress` status → Auto-select
 - Multiple tasks but one has `last_updated` < 6 hours ago, others never worked → Auto-select recent
-  - Still show brief message: "Continuing with 20250120-export-metrics (worked on 2 hours ago)"
+  - Still show brief message: "Continuing with 002-export-metrics (worked on 2 hours ago)"
 
 **Error handling:**
 ```
@@ -387,9 +387,9 @@ You will implement tasks assigned to the [DOMAIN] domain. Other domain experts h
 ## Context
 
 Read these files in order:
-1. .specs/tasks/YYYYMMDD-feature-name/context.md - General context and domain-specific notes
-2. .specs/tasks/YYYYMMDD-feature-name/progress.yml - Focus on tasks where domain=[DOMAIN]
-3. .specs/tasks/YYYYMMDD-feature-name/spec.yml - Focus on technical_design.domain_design.[DOMAIN]
+1. .specs/tasks/NNN-feature-name/context.md - General context and domain-specific notes
+2. .specs/tasks/NNN-feature-name/progress.yml - Focus on tasks where domain=[DOMAIN]
+3. .specs/tasks/NNN-feature-name/spec.yml - Focus on technical_design.domain_design.[DOMAIN]
 4. CLAUDE.md - Project configuration
 
 ## Your Tasks

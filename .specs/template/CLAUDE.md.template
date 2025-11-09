@@ -237,7 +237,7 @@ In spec.md, document like this:
 ### Starting New Feature
 1. Run `/cspec:architect` to design project architecture
 2. Run `/cspec:task [feature-name]` to create task from roadmap
-3. Review the generated spec in `.specs/tasks/YYYYMMDD-feature-name/spec.yml`
+3. Review the generated spec in `.specs/tasks/NNN-feature-name/spec.yml`
 4. Run `/cspec:implement` when ready to begin
 5. Progress updates automatically after each phase
 

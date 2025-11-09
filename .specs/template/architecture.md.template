@@ -703,7 +703,7 @@ If MCP servers unavailable, fall back to prompt-based domain experts using gener
 │   ├── models/
 │   │   └── [feature].model.ts (T2)
 │   ├── migrations/
-│   │   └── YYYYMMDD_create_[table].sql (T2)
+│   │   └── YYYYMMDD_create_[table].sql (T2)  # Note: SQL migrations use date format, tasks use NNN-format
 │   ├── middleware/
 │   │   └── [feature].middleware.ts (if needed)
 │   └── validators/

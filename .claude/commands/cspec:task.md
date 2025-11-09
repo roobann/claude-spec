@@ -5,21 +5,51 @@ description: Create task from roadmap for a specific feature
 
 Create a task from the project roadmap and set up all necessary files for implementation.
 
-**Usage:** `/cspec:task [feature-name]`
+**Usage:**
+- `/cspec:task [feature-name]` - Create task for specific feature
+- `/cspec:task` - Auto-select next ready feature from roadmap
 
 **Examples:**
-- `/cspec:task user-authentication`
-- `/cspec:task payment-integration`
+- `/cspec:task user-authentication` - Create task for specific feature
+- `/cspec:task payment-integration` - Create task for another feature
+- `/cspec:task` - Auto-select and create task for next ready feature
 
 ## What This Does
 
-1. Reads the project architecture and roadmap
-2. Finds the specified feature in the roadmap
-3. Checks if dependencies are met
-4. Creates `.specs/tasks/YYYYMMDD-feature-name/` with all necessary files
-5. Updates `.specs/tasks/progress.yml` index and roadmap status to `in_progress`
+1. [Optional] Auto-selects next ready feature if no feature name provided
+2. Reads the project architecture and roadmap
+3. Finds the specified (or auto-selected) feature in the roadmap
+4. Checks if dependencies are met
+5. Generates next sequential task ID (e.g., 001, 002, 003...)
+6. Creates `.specs/tasks/NNN-feature-name/` with all necessary files
+7. Updates `.specs/tasks/progress.yml` index and roadmap status to `in_progress`
 
 ## Process
+
+### 0. Parse Feature Name Parameter
+
+Check if feature name was provided as parameter:
+
+**If feature name provided:**
+```
+/cspec:task user-authentication
+            ^^^^^^^^^^^^^^^^^^^
+            Feature name
+```
+- Store feature name for Step 4
+- Use **Manual Selection Mode**
+- Proceed to Step 1
+
+**If NO feature name provided:**
+```
+/cspec:task
+(no parameter)
+```
+- Enable **Auto-Selection Mode**
+- Will auto-select next ready feature in Step 4
+- Proceed to Step 1
+
+Store the mode (manual/auto) for use in Step 4.
 
 ### 1. Check for Project Architecture
 
@@ -66,7 +96,13 @@ Read these files in order:
 - Project structure
 - Existing conventions
 
-### 4. Find Feature in Roadmap
+### 3. Find Feature in Roadmap
+
+Check mode from Step 0: **Manual Selection** or **Auto-Selection**.
+
+---
+
+#### Mode A: Manual Selection (feature name provided)
 
 **Look for feature by name in `roadmap.yml`:**
 
@@ -101,6 +137,125 @@ Or update .specs/roadmap.yml to add your feature.
 Stop and inform user.
 
 **If feature found:** Proceed to Step 4.
+
+---
+
+#### Mode B: Auto-Selection (no feature name provided)
+
+**Auto-select next ready feature from roadmap:**
+
+**1. Read `.specs/roadmap.yml`**
+
+Parse all phases and features.
+
+**2. Build candidate list:**
+
+For each feature in the roadmap:
+- Filter where `status: "not_started"`
+- Check if ALL dependencies have `status: "completed"`
+- Add to candidates list if dependencies met
+
+**3. Sort candidates by priority:**
+
+Sort remaining features by:
+1. `phase.id` (ascending) - earlier phases first
+2. `priority` (descending): critical > high > medium > low
+3. `feature.id` (ascending) - maintains roadmap order
+
+**4. Select first feature from sorted list**
+
+---
+
+**If candidates found (at least one ready feature):**
+
+```
+🎯 Auto-selected next feature: user-authentication
+
+Feature Details:
+- ID: F3
+- Phase: Phase 1 - Foundation
+- Priority: high
+- Status: not_started
+- Dependencies: F1 ✓, F2 ✓ (All completed)
+- Estimated: 5 days
+
+Selection Criteria:
+✓ Highest priority in earliest phase with unmet dependencies
+✓ All dependencies completed
+✓ Ready to start immediately
+
+Proceeding with task creation...
+```
+
+Store the selected feature and proceed to Step 4.
+
+---
+
+**If NO candidates (all not_started features blocked by dependencies):**
+
+```
+⚠️ No features are ready to start.
+
+All not_started features have unmet dependencies:
+
+Phase 1 - Foundation:
+  F3: user-authentication (high)
+    Blocked by: F1 (in_progress), F2 (not_started)
+
+Phase 2 - Core Features:
+  F5: payment-integration (critical)
+    Blocked by: F3 (not_started), F4 (in_progress)
+
+Recommendation: Complete in-progress features first.
+
+Options:
+1. Check current work: /cspec:status
+2. Complete a task: /cspec:complete [task-id]
+3. Manually override (skip dependency check): /cspec:task [feature-name]
+
+💡 Tip: Auto-selection only picks features with all dependencies met.
+```
+
+Stop and inform user.
+
+---
+
+**If NO candidates (all features are started or completed):**
+
+```
+✅ All features are either in progress or completed!
+
+Progress Summary:
+  - Completed: 3 features
+  - In Progress: 2 features
+  - Not Started: 0 features
+
+Great progress! All planned features are underway or done.
+
+Options:
+1. Check in-progress tasks: /cspec:status
+2. Complete a task: /cspec:complete [task-id]
+3. Add new features to roadmap: .specs/roadmap.yml
+4. Review architecture: /cspec:architect
+```
+
+Stop and inform user.
+
+---
+
+**If NO candidates (roadmap is empty):**
+
+```
+❌ No features found in roadmap.
+
+The roadmap appears empty. Add features to .specs/roadmap.yml.
+
+Or run `/cspec:architect` to design project architecture and create roadmap.
+```
+
+Stop and inform user.
+
+---
 
 ### 4. Check Dependencies
 
@@ -189,17 +344,50 @@ Provide comprehensive plan following the project's established architecture.
 
 **Thoroughness Level:** very thorough
 
-### 6. Create Task Directory
+### 6. Determine Next Task Number
 
-**Create directory:** `.specs/tasks/YYYYMMDD-feature-name/`
+**Generate sequential task ID:**
 
-Format: `YYYYMMDD` is today's date (e.g., `20250109-user-authentication`)
+1. **Read `.specs/tasks/progress.yml`** to get all existing task IDs
+   - Extract the numeric prefix from each task ID (001, 002, 003, etc.)
+   - Build a list of existing numbers
+
+2. **Find lowest available number:**
+   - Start with 001
+   - Check if 001 exists, if not → use 001
+   - If 001 exists, check 002, then 003, etc.
+   - Use first number not in the list (fills gaps from deleted tasks)
+
+3. **Format as 3-digit ID:**
+   - Pad with leading zeros: 1 → 001, 15 → 015, 100 → 100
+   - Maximum: 999
+
+**Example logic:**
+```
+Existing tasks: 001, 003, 004
+Gap at: 002
+Next task ID: 002
+```
+
+```
+Existing tasks: 001, 002, 003
+No gaps
+Next task ID: 004
+```
+
+**Store the task ID** as: `NNN-feature-name` (e.g., `001-user-authentication`)
+
+### 7. Create Task Directory
+
+**Create directory:** `.specs/tasks/NNN-feature-name/`
+
+Format: `NNN` is the 3-digit sequential task number from Step 6 (e.g., `001-user-authentication`, `002-export-metrics`)
 
 This will hold all files for this feature.
 
-### 7. Create Spec File
+### 8. Create Spec File
 
-**Create: `.specs/tasks/YYYYMMDD-feature-name/spec.yml`**
+**Create: `.specs/tasks/NNN-feature-name/spec.yml`**
 
 Use the template at `.specs/template/spec.yml.template`.
 
@@ -239,9 +427,9 @@ metadata:
 - **Security:** Feature-specific security considerations
 - **Implementation Phases:** 3-phase breakdown (Foundation, Core, Polish)
 
-### 8. Create Progress Tracker
+### 9. Create Progress Tracker
 
-**Create: `.specs/tasks/YYYYMMDD-feature-name/progress.yml`**
+**Create: `.specs/tasks/NNN-feature-name/progress.yml`**
 
 Use the template at `.specs/template/progress.yml.template`.
 
@@ -252,9 +440,9 @@ Use the template at `.specs/template/progress.yml.template`.
 
 **Tasks should come from feature architecture Step 7.**
 
-### 9. Create Context File
+### 10. Create Context File
 
-**Create `.specs/tasks/YYYYMMDD-feature-name/context.md`**
+**Create `.specs/tasks/NNN-feature-name/context.md`**
 
 Use template at `.specs/template/context.md.template`.
 
@@ -281,7 +469,7 @@ Planning complete for [feature-name]
 Ready to begin implementation with `/cspec:implement`
 ```
 
-### 10. Update Task Index
+### 11. Update Task Index
 
 **Update `.specs/tasks/progress.yml`:**
 
@@ -289,15 +477,15 @@ Add entry for this task:
 
 ```yaml
 tasks:
-  - id: "YYYYMMDD-feature-name"
+  - id: "NNN-feature-name"  # Sequential task ID from Step 6
     name: "feature-name"
     status: "in_progress"
     priority: "[priority from roadmap]"
-    created: "YYYY-MM-DD"
+    created: "YYYY-MM-DD"  # Today's date
     completed: null
 ```
 
-### 11. Update Roadmap Status
+### 12. Update Roadmap Status
 
 **Update `.specs/roadmap.yml`:**
 
@@ -311,7 +499,7 @@ features:
     started: "2025-01-08T14:30:00"  # Add timestamp
 ```
 
-### 12. Present Task Summary
+### 13. Present Task Summary
 
 Show the user what was created:
 
@@ -320,7 +508,7 @@ Show the user what was created:
 
 📋 Feature Details:
 - ID: [F3]
-- Task: YYYYMMDD-feature-name
+- Task: NNN-feature-name  # Sequential task ID (e.g., 001-user-authentication)
 - Priority: [priority]
 - Estimated: [X days]
 - Dependencies: [list or "None"]
@@ -345,9 +533,9 @@ Phase 3: [Phase name] ([Z tasks])
 Total: [N tasks] across [M phases]
 
 📂 Files Created:
-- .specs/tasks/YYYYMMDD-feature-name/spec.yml (requirements & technical design)
-- .specs/tasks/YYYYMMDD-feature-name/progress.yml (task tracking)
-- .specs/tasks/YYYYMMDD-feature-name/context.md (resumption context)
+- .specs/tasks/NNN-feature-name/spec.yml (requirements & technical design)
+- .specs/tasks/NNN-feature-name/progress.yml (task tracking)
+- .specs/tasks/NNN-feature-name/context.md (resumption context)
 
 📝 Updated:
 - .specs/tasks/progress.yml (task index updated)
@@ -364,7 +552,7 @@ Total: [N tasks] across [M phases]
 
 **DO NOT start implementation.** Present the task and stop.
 
-### 13. Complete Task Creation
+### 14. Complete Task Creation
 
 Task is now ready. User can:
 1. Review feature architecture
@@ -414,7 +602,10 @@ Or run `/cspec:architect` to redesign the project architecture and roadmap.
 
 ## Tips
 
-- **Check dependencies:** Always check if dependency features are complete
+- **Auto-selection:** Run `/cspec:task` without parameters to automatically work on the next priority feature
+- **Smart selection:** Auto-selection only picks features with all dependencies met
+- **Manual override:** Use `/cspec:task [feature-name]` to work on a specific feature (bypasses dependency checks if needed)
+- **Check dependencies:** Always verify if dependency features are complete before starting
 - **Follow project patterns:** Reference project architecture.md throughout
 - **Stay aligned:** Feature architecture should fit project architecture
 - **Use roadmap:** Roadmap is the source of truth for feature scope
@@ -424,7 +615,8 @@ Or run `/cspec:architect` to redesign the project architecture and roadmap.
 
 - Feature found in roadmap
 - Dependencies checked (all completed or user accepted risk)
-- Task directory created with all files (.specs/tasks/YYYYMMDD-feature-name/)
+- Sequential task ID generated (filling gaps if any exist)
+- Task directory created with all files (.specs/tasks/NNN-feature-name/)
 - Feature architecture aligns with project architecture
 - All files reference project context
 - .specs/tasks/progress.yml index updated

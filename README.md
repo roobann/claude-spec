@@ -95,7 +95,7 @@ your-project/
     ├── guidelines.md             # Development standards
     ├── tasks/                    # All tasks (in-progress and completed)
     │   ├── progress.yml          # Task index
-    │   └── 20250109-feature/     # Date-prefixed task folders
+    │   └── 001-feature/          # Sequential numbered task folders
     │       ├── spec.yml          # Requirements & technical design
     │       ├── progress.yml      # Task tracking
     │       └── context.md        # Resumption context
@@ -184,7 +184,7 @@ Created:
 ```bash
 > /cspec:task user-authentication
 [Claude reads project architecture, creates feature architecture aligned with it]
-[Creates .specs/tasks/20250109-user-authentication/ with all files]
+[Creates .specs/tasks/001-user-authentication/ with all files]
 [Updates .specs/tasks/progress.yml with status: in_progress]
 
 > /cspec:implement
@@ -206,11 +206,11 @@ Claude: "Building user authentication. Signup done, login 50% complete.
 **Feature Complete:**
 ```bash
 # Task automatically marked as completed in .specs/tasks/progress.yml
-# Task folder stays in .specs/tasks/20250109-user-authentication/ for reference
+# Task folder stays in .specs/tasks/001-user-authentication/ for reference
 
 > /cspec:task payment-integration
 [Next feature from roadmap, already knows it depends on user-auth]
-[Creates .specs/tasks/20250120-payment-integration/]
+[Creates .specs/tasks/002-payment-integration/]
 ```
 
 **Week Later:**

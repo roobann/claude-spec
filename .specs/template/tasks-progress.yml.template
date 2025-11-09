@@ -37,7 +37,7 @@ tasks:
   # === EXAMPLE TASK (Remove when creating your first real task) ===
   # Full example showing all fields including dependencies
 
-  # - id: "20250109-user-authentication"
+  # - id: "001-user-authentication"
   #   name: "user-authentication"
   #
   #   # Status tracking
@@ -48,35 +48,35 @@ tasks:
   #   blocked_reason: null     # Required when status is "blocked" - explain blocker
   #
   #   # Dependency tracking - Reference: "maintain critical dependencies"
-  #   depends_on: []           # List of task IDs this depends on (e.g., ["20250101-database-setup"])
-  #   blocks: ["20250115-user-profile"]  # List of task IDs blocked by this
+  #   depends_on: []           # List of task IDs this depends on (e.g., ["002-database-setup"])
+  #   blocks: ["003-user-profile"]  # List of task IDs blocked by this
   #
   #   # Progressive disclosure - links to detailed context
   #   # WHY: Keep this file lightweight; full details are in task folder
-  #   spec_file: ".specs/tasks/20250109-user-authentication/spec.yml"
-  #   progress_file: ".specs/tasks/20250109-user-authentication/progress.yml"
-  #   context_file: ".specs/tasks/20250109-user-authentication/context.md"
+  #   spec_file: ".specs/tasks/001-user-authentication/spec.yml"
+  #   progress_file: ".specs/tasks/001-user-authentication/progress.yml"
+  #   context_file: ".specs/tasks/001-user-authentication/context.md"
 
   # === EXAMPLE: BLOCKED TASK ===
   # Shows how to document a blocker
 
-  # - id: "20250120-payment-integration"
+  # - id: "004-payment-integration"
   #   name: "payment-integration"
   #   status: "blocked"
   #   priority: "high"
   #   created: "2025-01-20"
   #   completed: null
   #   blocked_reason: "Waiting for Stripe API keys from DevOps team"
-  #   depends_on: ["20250109-user-authentication"]  # Can't process payments without users
-  #   blocks: ["20250125-subscription-management"]  # This blocks subscription feature
-  #   spec_file: ".specs/tasks/20250120-payment-integration/spec.yml"
-  #   progress_file: ".specs/tasks/20250120-payment-integration/progress.yml"
-  #   context_file: ".specs/tasks/20250120-payment-integration/context.md"
+  #   depends_on: ["001-user-authentication"]  # Can't process payments without users
+  #   blocks: ["005-subscription-management"]  # This blocks subscription feature
+  #   spec_file: ".specs/tasks/004-payment-integration/spec.yml"
+  #   progress_file: ".specs/tasks/004-payment-integration/progress.yml"
+  #   context_file: ".specs/tasks/004-payment-integration/context.md"
 
   # === EXAMPLE: COMPLETED TASK ===
   # Shows completed state with timestamp
 
-  # - id: "20250101-database-setup"
+  # - id: "002-database-setup"
   #   name: "database-setup"
   #   status: "completed"
   #   priority: "critical"
@@ -84,11 +84,11 @@ tasks:
   #   completed: "2025-01-05"  # Completion timestamp
   #   blocked_reason: null
   #   depends_on: []           # No dependencies - foundation task
-  #   blocks: ["20250109-user-authentication", "20250120-payment-integration"]
-  #   spec_file: ".specs/tasks/20250101-database-setup/spec.yml"
-  #   progress_file: ".specs/tasks/20250101-database-setup/progress.yml"
-  #   context_file: ".specs/tasks/20250101-database-setup/context.md"
+  #   blocks: ["001-user-authentication", "004-payment-integration"]
+  #   spec_file: ".specs/tasks/002-database-setup/spec.yml"
+  #   progress_file: ".specs/tasks/002-database-setup/progress.yml"
+  #   context_file: ".specs/tasks/002-database-setup/context.md"
 
   # === YOUR TASKS ===
   # Real tasks will be added here automatically by /cspec:task command
-  # Format: YYYYMMDD-feature-name (date prefix ensures chronological sorting)
+  # Format: NNN-feature-name (sequential numbered for creation order tracking)

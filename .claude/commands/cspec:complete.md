@@ -12,8 +12,8 @@ Mark a task as completed in `.specs/tasks/progress.yml` and update the roadmap.
 
 **Examples:**
 ```
-/cspec:complete 20250109-user-authentication
-/cspec:complete 20250120-export-metrics
+/cspec:complete 001-user-authentication
+/cspec:complete 002-export-metrics
 ```
 
 ## What This Does
@@ -30,8 +30,8 @@ Mark a task as completed in `.specs/tasks/progress.yml` and update the roadmap.
 
 Extract task ID from command:
 ```
-/cspec:complete 20250109-user-authentication
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/cspec:complete 001-user-authentication
+                ^^^^^^^^^^^^^^^^^^^^^^^
                 Task ID
 ```
 
@@ -41,7 +41,7 @@ Extract task ID from command:
 
 Usage: /cspec:complete [task-id]
 
-Example: /cspec:complete 20250109-user-authentication
+Example: /cspec:complete 001-user-authentication
 
 💡 Run /cspec:status to see all tasks
 ```
@@ -58,11 +58,11 @@ Read the file and search for task with matching ID.
 
 **If task not found in index:**
 ```
-❌ Task "20250109-user-authentication" not found in task index.
+❌ Task "001-user-authentication" not found in task index.
 
 Available tasks:
-  - 20250110-feature-a (in_progress)
-  - 20250115-feature-b (pending)
+  - 002-feature-a (in_progress)
+  - 003-feature-b (pending)
 
 Run /cspec:status to see all tasks.
 ```
@@ -75,7 +75,7 @@ Verify `.specs/tasks/[task-id]/` directory exists.
 
 **If folder not found:**
 ```
-❌ Task folder not found: .specs/tasks/20250109-user-authentication/
+❌ Task folder not found: .specs/tasks/001-user-authentication/
 
 The task is in the index but the folder is missing. This shouldn't happen.
 
@@ -94,7 +94,7 @@ Stop and inform user.
 
 If task is already "completed":
 ```
-✅ Task "20250109-user-authentication" is already marked as completed.
+✅ Task "001-user-authentication" is already marked as completed.
 
 Completed: 2025-01-15
 
@@ -123,7 +123,7 @@ phases:
 
 **If any tasks are not complete:**
 ```
-⚠️ Task "20250109-user-authentication" has incomplete work:
+⚠️ Task "001-user-authentication" has incomplete work:
 
 Phase: Setup & Foundation
   - T2: Create database schema (in_progress)
@@ -157,7 +157,7 @@ Find the task entry and update:
 
 ```yaml
 tasks:
-  - id: "20250109-user-authentication"
+  - id: "001-user-authentication"
     name: "user-authentication"
     status: "completed"  # Changed from "in_progress"
     priority: "high"
@@ -179,7 +179,7 @@ Write the updated YAML back to `.specs/tasks/progress.yml`.
 
 Map task name to feature in roadmap. Usually the feature name matches the task name:
 
-Task: `20250109-user-authentication`
+Task: `001-user-authentication`
 Feature name: `user-authentication`
 
 Search roadmap for feature with matching name:
@@ -280,7 +280,7 @@ Create or update `.specs/tasks/[task-id]/RETROSPECTIVE.md`:
 Display what was done:
 
 ```
-✅ Task Completed: 20250109-user-authentication
+✅ Task Completed: 001-user-authentication
 
 📝 Updates:
   - Task status: in_progress → completed
@@ -296,7 +296,7 @@ Display what was done:
   - Run /cspec:task [next-feature] to start next task
   - Check .specs/roadmap.yml for dependencies
 
-Task folder remains in .specs/tasks/20250109-user-authentication/ for reference.
+Task folder remains in .specs/tasks/001-user-authentication/ for reference.
 ```
 
 ### 8. Suggest Next Task
@@ -306,8 +306,8 @@ If there are pending tasks with met dependencies, suggest them:
 ```
 💡 Ready to start next task:
 
-  - 20250120-export-metrics (high priority, dependencies met)
-  - 20250125-dashboard (medium priority, no dependencies)
+  - 002-export-metrics (high priority, dependencies met)
+  - 003-dashboard (medium priority, no dependencies)
 
 Run: /cspec:task [feature-name]
 ```
@@ -318,7 +318,7 @@ Run: /cspec:task [feature-name]
 
 If task status is "blocked":
 ```
-⚠️ Task "20250120-export-metrics" is marked as blocked.
+⚠️ Task "002-export-metrics" is marked as blocked.
 
 Blocked reason: Waiting for API specification
 
@@ -364,15 +364,15 @@ Wait for user selection and update the chosen one.
 Check git status for task folder:
 
 ```bash
-git status .specs/tasks/20250109-user-authentication/
+git status .specs/tasks/001-user-authentication/
 ```
 
 If there are uncommitted changes:
 ```
 ⚠️ Task folder has uncommitted changes:
 
-  modified: .specs/tasks/20250109-user-authentication/progress.yml
-  modified: .specs/tasks/20250109-user-authentication/context.md
+  modified: .specs/tasks/001-user-authentication/progress.yml
+  modified: .specs/tasks/001-user-authentication/context.md
 
 Commit these changes before marking task complete? (yes/no)
 ```

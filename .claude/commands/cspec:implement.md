@@ -363,124 +363,116 @@ Task T1: "Set up JWT authentication service"
 4. If more domains pending → Repeat from Step A
 5. If all domains complete → Continue to Step 6
 
-#### B-Prompt. Spawn Domain Expert via Prompt (FALLBACK)
+#### B-Prompt. Spawn Domain Expert via Subagents
 
 When MCP servers are NOT available or `mcp_integration.enabled: false`:
 
-Use the **Task tool** to spawn a specialized domain expert agent with detailed prompts:
+Use the **Task tool** to invoke specialized domain expert **subagents** from `.claude/agents/`:
 
-**Agent types:**
-- `backend-expert`: For backend/API tasks
-- `frontend-expert`: For frontend/UI tasks
-- `devops-expert`: For infrastructure/deployment tasks
-- `database-expert`: For database/schema tasks
-- `infrastructure-expert`: For cloud/networking tasks
+**Subagent mapping by domain:**
+- **backend** → @backend-architect, @database-admin
+- **frontend** → @frontend-developer, @ui-ux-designer, @nextjs-app-router-developer
+- **devops** → @devops-troubleshooter, @deployment-engineer
+- **database** → @database-admin, @database-optimizer
+- **infrastructure** → @cloud-architect, @terraform-specialist, @network-engineer
 
-**Agent prompt structure:**
+**Subagent invocation structure:**
 ```
-You are a [DOMAIN] expert working on the feature: [FEATURE_NAME]
+Invoke the @[subagent-name] subagent to work on [DOMAIN] tasks for feature: [FEATURE_NAME]
 
-## Your Domain: [DOMAIN]
+## Task Context
 
-You will implement tasks assigned to the [DOMAIN] domain. Other domain experts handle their respective tasks.
+**Feature:** [FEATURE_NAME]
+**Task ID:** [NNN-feature-name]
+**Domain:** [DOMAIN]
+**Status:** Multi-domain implementation (coordinated via progress.yml)
 
-## Context
+## Files to Read
 
-Read these files in order:
-1. .specs/tasks/NNN-feature-name/context.md - General context and domain-specific notes
-2. .specs/tasks/NNN-feature-name/progress.yml - Focus on tasks where domain=[DOMAIN]
-3. .specs/tasks/NNN-feature-name/spec.yml - Focus on technical_design.domain_design.[DOMAIN]
-4. CLAUDE.md - Project configuration
+Read these files in order for full context:
+1. `.specs/tasks/NNN-feature-name/context.md` - Current focus and domain notes
+2. `.specs/tasks/NNN-feature-name/progress.yml` - Tasks for domain=[DOMAIN]
+3. `.specs/tasks/NNN-feature-name/spec.yml` - Design in technical_design.domain_design.[DOMAIN]
+4. `CLAUDE.md` - Project configuration and standards
 
-## Your Tasks
+## Your Domain Tasks
 
-From progress.yml, work on tasks where:
-- domain: "[DOMAIN]"
-- assigned_agent: "[DOMAIN]-expert"
-- status: "pending" or "in_progress"
-- dependencies: [] OR all dependency tasks are complete
+From progress.yml, implement tasks where:
+- `domain: "[DOMAIN]"`
+- `status: "pending"` OR `"in_progress"`
+- All `dependencies` are satisfied (dependency tasks completed)
 
-**Your tasks:**
-[List of pending tasks for this domain from progress.yml]
+**Pending tasks for [DOMAIN]:**
+[List specific task IDs and descriptions from progress.yml]
 
-## Implementation Guidelines
+## Coordination Rules
 
-1. **Focus only on your domain** - Don't work on tasks assigned to other domains
-2. **Check dependencies** - Verify dependent tasks are complete before starting
-3. **Update progress.yml** - Mark your tasks complete with timestamps
-4. **Update context.md** - Log your progress in domain-specific section:
-   - Active files you're working on
-   - Completed tasks
+1. **Domain scope** - Only work on [DOMAIN] tasks; other domains handled by other subagents
+2. **Dependencies** - Verify dependencies complete before starting each task
+3. **Progress tracking** - Update progress.yml after completing each task:
+   - Mark task status: `completed`
+   - Add timestamp: `completed_at`
+   - Update `by_domain.[DOMAIN].completed_tasks` count
+4. **Context updates** - Update context.md domain section with:
+   - Files created/modified
+   - Decisions made
    - Blockers encountered
-   - Handoff notes for other domains
-5. **Follow domain-specific design** from spec.yml technical_design.domain_design.[DOMAIN]
-7. **Respect app folder structure** from CLAUDE.md
-
-## When Complete
-
-After finishing your assigned tasks:
-1. Update progress.yml (mark tasks complete, update by_domain progress)
-2. Update context.md with domain-specific progress notes
-3. Report back:
-   - What you completed
-   - Any handoff notes for other domains
-   - Any blockers discovered
+   - Handoff notes for dependent domains
 
 ## Quality Standards
 
-Follow all guidelines from CLAUDE.md:
-- Security (OWASP Top 10)
-- Test credentials (random generation, env vars)
-- Docker rebuild rules (rebuild before testing)
-- Debug logging configuration
+Follow all standards from CLAUDE.md:
+- **Security:** OWASP Top 10 compliance
+- **Testing:** Test data via env vars, random generation
+- **Docker:** Rebuild after code changes
+- **Logging:** Debug mode enabled
+
+## Deliverables
+
+When done, provide:
+1. Updated `progress.yml` (all [DOMAIN] tasks marked complete)
+2. Updated `context.md` (domain-specific progress section)
+3. Summary of completed work
+4. Handoff notes for dependent domains (if any)
 ```
 
-**Example Task tool invocation:**
+**Example Task tool invocation for backend domain:**
 ```
 Task tool with:
 - subagent_type: "general-purpose"
-- description: "Implement backend tasks"
-- prompt: [Full prompt above with domain=backend]
+- description: "Implement backend tasks via subagents"
+- prompt: "Invoke the @backend-architect subagent to work on backend tasks for feature: user-authentication
+
+## Task Context
+**Feature:** user-authentication
+**Task ID:** 001-user-authentication
+**Domain:** backend
+**Status:** Multi-domain implementation
+
+## Files to Read
+1. `.specs/tasks/001-user-authentication/context.md`
+2. `.specs/tasks/001-user-authentication/progress.yml` (focus on domain=backend tasks)
+3. `.specs/tasks/001-user-authentication/spec.yml` (focus on technical_design.domain_design.backend)
+4. `CLAUDE.md`
+
+## Your Domain Tasks
+- T1: Create user authentication API endpoints (POST /auth/login, POST /auth/register)
+- T2: Implement JWT token generation and validation middleware
+- T3: Create database models for User and Session tables
+
+## Coordination Rules
+[Include full coordination rules from above]
+
+## Quality Standards
+[Include full quality standards from above]
+
+## Deliverables
+[Include full deliverables from above]"
 ```
 
-**Show MCP Installation Instructions (when falling back):**
+**Note on MCP Integration:**
 
-If falling back from MCP to prompt-based agents, display:
-
-```
-ℹ️ MCP Enhancement Available
-
-Multi-agent mode is using prompt-based agents. For enhanced capabilities with specialized tools, install MCP servers:
-
-📦 Install MCP Servers:
-npm install -g @claude-spec/backend-mcp-server
-npm install -g @claude-spec/frontend-mcp-server
-npm install -g @claude-spec/devops-mcp-server
-
-⚙️ Configure in Claude Code:
-claude mcp add backend-expert \
-  --env DATABASE_URL="${DATABASE_URL}" \
-  -- npx @claude-spec/backend-mcp-server
-
-claude mcp add frontend-expert \
-  --env BASE_URL="http://localhost:3000" \
-  -- npx @claude-spec/frontend-mcp-server
-
-claude mcp add devops-expert \
-  --env DOCKER_HOST="unix:///var/run/docker.sock" \
-  -- npx @claude-spec/devops-mcp-server
-
-✨ Benefits:
-- Direct database queries during implementation
-- API endpoint testing with real HTTP calls
-- Test suite execution and verification
-- Schema inspection and migrations
-- Isolated execution environments
-
-📚 See docs/MCP_INTEGRATION.md for complete setup guide
-
-Continuing with prompt-based agents...
-```
+MCP server support has been removed in favor of using community-maintained subagents from `.claude/agents/`. These subagents provide battle-tested expertise and are automatically available after running `setup.sh`.
 
 #### C. After Agent Completes
 
@@ -812,6 +804,15 @@ If no updates needed, skip this step.
 
 ⚠️ **CRITICAL**: Before marking work as complete, verify that progress.yml is accurate and up-to-date.
 
+**Optional: Use @code-reviewer subagent** for automated validation:
+```
+Invoke @code-reviewer to review the implementation for:
+- Code quality and best practices
+- Consistency with project patterns
+- Progress tracking accuracy in progress.yml
+- Documentation completeness
+```
+
 **Progress Validation Checklist:**
 
 Read progress.yml and verify:
@@ -852,6 +853,17 @@ Progress tracking is accurate and complete.
 ⚠️ **CRITICAL**: Before marking work as complete, verify that OWASP Top 10 security mitigations are implemented.
 
 **IMPORTANT:** See CLAUDE.md "Security - OWASP Top 10 (CRITICAL)" section for full security requirements.
+
+**Recommended: Use @security-auditor subagent** for comprehensive security review:
+```
+Invoke @security-auditor to audit the implementation for:
+- OWASP Top 10 compliance
+- Security vulnerabilities and weaknesses
+- Proper authentication and authorization
+- Data protection and encryption
+- Input validation and sanitization
+- Secure configuration and secrets management
+```
 
 **Quick Security Checklist:**
 

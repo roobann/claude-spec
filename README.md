@@ -72,6 +72,7 @@ That's it! You're ready to go.
 - **Auto-Detection**: `/cspec:configure` configures everything for your stack
 - **Plan Mode Integration**: Uses Claude's built-in plan mode for safety
 - **Context Persistence**: Resume work after any break (days, weeks, months)
+- **Domain Expert Subagents**: 20 specialized AI subagents for backend, frontend, devops, and more
 - **Team-Friendly**: Everything in git, easy to share and collaborate
 - **Universal**: Works with any language, framework, or project size
 - **Non-Invasive**: Adds structure without changing your existing code
@@ -83,12 +84,17 @@ your-project/
 ├── CLAUDE.md                    # Auto-generated project context
 ├── .claudeignore                # Auto-generated ignore patterns
 ├── .claude/
-│   └── commands/
-│       ├── cspec:create.md         # Create new project
-│       ├── cspec:configure.md      # Configure existing project
-│       ├── cspec:architect.md     # Design PROJECT architecture (once)
-│       ├── cspec:task.md          # Create feature task from roadmap
-│       └── cspec:implement.md     # Implement current feature
+│   ├── commands/
+│   │   ├── cspec:create.md         # Create new project
+│   │   ├── cspec:configure.md      # Configure existing project
+│   │   ├── cspec:architect.md     # Design PROJECT architecture (once)
+│   │   ├── cspec:task.md          # Create feature task from roadmap
+│   │   └── cspec:implement.md     # Implement current feature
+│   └── agents/                   # 20 domain expert subagents
+│       ├── backend-architect.md
+│       ├── frontend-developer.md
+│       ├── devops-troubleshooter.md
+│       └── ... (17 more)
 └── .specs/
     ├── architecture.md            # PROJECT architecture & ADRs
     ├── roadmap.yml               # Feature roadmap with priorities
@@ -99,7 +105,6 @@ your-project/
     │       ├── spec.yml          # Requirements & technical design
     │       ├── progress.yml      # Task tracking
     │       └── context.md        # Resumption context
-    ├── .mcp-servers/             # MCP server implementations (optional)
     └── template/                 # Templates
         ├── CLAUDE.md.template
         ├── .claudeignore.template
@@ -130,6 +135,27 @@ The auto-detection works with:
 - **Rust**: Cargo-based projects
 - **Java**: Maven and Gradle projects
 - **Generic**: Falls back to minimal template for any other stack
+
+## Domain Expert Subagents
+
+Claude-spec includes 20 specialized AI subagents for multi-domain development:
+
+**Backend & Database:**
+- backend-architect, database-admin, database-optimizer
+
+**Frontend & UI:**
+- frontend-developer, ui-ux-designer, nextjs-app-router-developer
+
+**DevOps & Infrastructure:**
+- devops-troubleshooter, deployment-engineer, cloud-architect, terraform-specialist, network-engineer
+
+**Quality & Testing:**
+- code-reviewer, security-auditor, test-automator, debugger
+
+**Language Specialists:**
+- python-expert, golang-expert, rust-expert, java-developer, php-developer
+
+These subagents are automatically installed during setup and invoked by `/cspec:implement` for multi-domain features. Source: [claude-code-subagents-collection](https://github.com/davepoon/claude-code-subagents-collection)
 
 ## Why This Approach?
 

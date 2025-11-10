@@ -8,10 +8,21 @@ Design project-wide architecture OR add new features to an existing architecture
 **Usage:**
 - `/cspec:architect` - Create project architecture OR add feature to existing
 - `/cspec:architect [feature-name]` - Add specific feature to existing architecture
+- Include `@file` references to provide context (PRDs, design docs, specs, examples)
 
 **Purpose:**
 - **First time:** Create the master architecture, feature roadmap, and development guidelines
 - **Subsequent times:** Add new features to the existing architecture
+
+**With File References:**
+You can reference documents using `@` before running this command to provide additional context:
+- Requirements documents (PRDs, specs)
+- Design documents
+- Example implementations
+- Architecture diagrams
+- Any relevant documentation
+
+The command will analyze these files and extract requirements, constraints, and design decisions to inform the architecture planning.
 
 ## What This Creates
 
@@ -30,6 +41,54 @@ Design project-wide architecture OR add new features to an existing architecture
 - Optionally creates task in `tasks/` to start immediately (via /cspec:task)
 
 ## Process
+
+### 0. Analyze Referenced Files (If Provided)
+
+**IMPORTANT:** Before starting any questions or planning, check if the user has referenced any files using `@` in the conversation context.
+
+**If @ file references are present:**
+
+1. **Read all referenced files** to gather context
+2. **Extract key information:**
+   - **Requirements:** Functional and non-functional requirements
+   - **Constraints:** Technical, business, or regulatory constraints
+   - **Design Decisions:** Existing decisions or preferences
+   - **Tech Stack:** Technologies mentioned or required
+   - **User Stories:** User needs and use cases
+   - **Architecture Patterns:** Suggested or required patterns
+   - **Dependencies:** External systems or services
+   - **Security Requirements:** Compliance, authentication needs
+   - **Performance Requirements:** SLAs, response time targets
+   - **Scale Requirements:** Expected users, data volume
+
+3. **Store extracted context** to use throughout the architecture planning process
+
+4. **Inform the user:**
+   ```
+   📄 Analyzed Referenced Documents:
+   - [filename 1]: [Brief summary of what was found]
+   - [filename 2]: [Brief summary of what was found]
+
+   Extracted:
+   - [X requirements]
+   - [Y constraints]
+   - [Z design decisions]
+
+   This context will inform all architecture decisions.
+   ```
+
+5. **Adjust questions in later steps:**
+   - Skip questions that are already answered by the referenced files
+   - Pre-fill answers where the referenced files provide clear direction
+   - Only ask clarifying questions for missing or ambiguous information
+   - Reference the source document when using extracted information
+
+**If NO @ file references:**
+- Skip this step
+- Proceed to Step 1 normally
+- Rely on interactive questions to gather all context
+
+---
 
 ### 1. Check for Existing Architecture
 
@@ -109,7 +168,12 @@ Read these files to understand the project:
 
 #### 1A.3. Feature Planning Questions
 
-Ask targeted questions about the NEW feature using **AskUserQuestion**:
+Ask targeted questions about the NEW feature using **AskUserQuestion**.
+
+**IMPORTANT:** If @ file references were analyzed in Step 0, use that context to:
+- Pre-fill or skip questions that are already answered
+- Only ask for missing or ambiguous information
+- Reference the source document when presenting pre-filled answers
 
 **Batch 1: Feature Context**
 ```
@@ -354,6 +418,11 @@ This informs the architecture creation.
 
 Ask the user questions about the **entire project** using **AskUserQuestion with batched questions**.
 
+**IMPORTANT:** If @ file references were analyzed in Step 0, use that context to:
+- Pre-fill or skip questions that are already answered by the referenced files
+- Only ask for missing or ambiguous information
+- Reference the source document when presenting pre-filled answers (e.g., "Based on requirements.md, the project type is...")
+
 **Batch 1: Project Context**
 
 ```
@@ -425,13 +494,6 @@ Question 8: Will features span multiple domains?
 Options:
 - Yes - Enable multi-agent mode (backend + frontend + devops)
 - No - Standard single-agent implementation
-
-[If Yes to Question 8]
-Question 9: Use MCP servers for enhanced domain expert tools?
-Options:
-- Yes - Use MCP servers (requires installation)
-- Fallback - Try MCP, fallback to prompt-based (recommended)
-- No - Prompt-based only
 ```
 
 ### 4. Codebase Analysis (If Existing Project)

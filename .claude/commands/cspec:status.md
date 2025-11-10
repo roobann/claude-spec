@@ -162,7 +162,7 @@ Based on task status, suggest next actions:
 ```
 📝 Next Steps:
   1. Continue work: /cspec:implement
-  2. Mark task complete: /cspec:complete [task-id]
+  2. Start next task: /cspec:task [feature-name]
 ```
 
 **If pending tasks exist:**

@@ -19,8 +19,6 @@ COMMANDS_TARGET_DIR="$(pwd)/.claude/commands"
 SPECS_TEMPLATE_DIR="${SCRIPT_DIR}/.specs/template"
 SPECS_TARGET_DIR="$(pwd)/.specs/template"
 TEMPLATES_SOURCE_DIR="${SCRIPT_DIR}"
-MCP_SERVERS_SOURCE="${SCRIPT_DIR}/.mcp-servers"
-MCP_SERVERS_TARGET="$(pwd)/.specs/.mcp-servers"
 TASKS_DIR="$(pwd)/.specs/tasks"
 
 echo -e "${BLUE}╔══════════════════════════════════════════════════════════╗${NC}"
@@ -146,26 +144,7 @@ fi
 echo ""
 
 # ═══════════════════════════════════════════════════════════
-# 4. Copy MCP Servers Folder (.mcp-servers/)
-# ═══════════════════════════════════════════════════════════
-echo -e "${BLUE}Copying MCP servers folder...${NC}"
-
-if [ -d "$MCP_SERVERS_SOURCE" ]; then
-    if [ -d "$MCP_SERVERS_TARGET" ]; then
-        rm -rf "$MCP_SERVERS_TARGET"
-        echo -e "${YELLOW}⚠ Removed existing .specs/.mcp-servers/${NC}"
-    fi
-    cp -r "$MCP_SERVERS_SOURCE" "$MCP_SERVERS_TARGET"
-    echo -e "${GREEN}✓ Copied:${NC}   .specs/.mcp-servers/ (MCP server implementations)"
-    total_replaced=$((total_replaced + 1))
-else
-    echo -e "${YELLOW}⚠ .mcp-servers folder not found in template${NC}"
-fi
-
-echo ""
-
-# ═══════════════════════════════════════════════════════════
-# 5. Initialize Tasks Directory Structure
+# 4. Initialize Tasks Directory Structure
 # ═══════════════════════════════════════════════════════════
 echo -e "${BLUE}Initializing tasks directory...${NC}"
 
@@ -188,6 +167,33 @@ if [ -f "${SPECS_TEMPLATE_DIR}/tasks-progress.yml.template" ]; then
     fi
 else
     echo -e "${YELLOW}⚠ tasks-progress.yml.template not found${NC}"
+fi
+
+# ═══════════════════════════════════════════════════════════
+# 5. Copy Subagents to .claude/agents/
+# ═══════════════════════════════════════════════════════════
+echo -e "${BLUE}Copying subagents...${NC}"
+
+AGENTS_SOURCE_DIR="${SCRIPT_DIR}/.specs/agents"
+AGENTS_TARGET_DIR="$(pwd)/.claude/agents"
+
+if [ -d "$AGENTS_SOURCE_DIR" ]; then
+    if [ ! -d "$AGENTS_TARGET_DIR" ]; then
+        mkdir -p "$AGENTS_TARGET_DIR"
+        echo -e "${GREEN}✓ Created:${NC}  .claude/agents/"
+    fi
+
+    agent_count=0
+    while IFS= read -r -d '' file; do
+        filename=$(basename "$file")
+        cp "$file" "${AGENTS_TARGET_DIR}/${filename}"
+        agent_count=$((agent_count + 1))
+    done < <(find "$AGENTS_SOURCE_DIR" -maxdepth 1 -name "*.md" -print0)
+
+    echo -e "${GREEN}✓ Copied:${NC}   ${agent_count} subagents to .claude/agents/"
+    total_copied=$((total_copied + agent_count))
+else
+    echo -e "${YELLOW}⚠ .specs/agents folder not found in template${NC}"
 fi
 
 echo ""
@@ -219,9 +225,9 @@ fi
 
 echo -e "${BLUE}Files copied to:${NC}"
 echo -e "  ${GREEN}.claude/commands/${NC}      - Command files"
+echo -e "  ${GREEN}.claude/agents/${NC}        - Subagents (domain experts)"
 echo -e "  ${GREEN}.specs/template/${NC}       - All templates (spec files + init templates)"
 echo -e "  ${GREEN}.specs/tasks/${NC}          - Task management (progress.yml index)"
-echo -e "  ${GREEN}.specs/.mcp-servers/${NC}   - MCP server implementations"
 echo ""
 
 echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"

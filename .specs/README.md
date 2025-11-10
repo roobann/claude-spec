@@ -24,10 +24,6 @@ This directory contains project architecture, specifications, and task tracking 
 │   │   └── context.md
 │   └── 002-feature-2/
 │       └── ...
-└── .mcp-servers/               # MCP server implementations (optional)
-    ├── backend-expert/
-    ├── frontend-expert/
-    └── ...
 ```
 
 ## The Three Files System
@@ -283,8 +279,16 @@ A: `NNN-feature-name` with 3-digit sequential numbers (e.g., `001-user-auth`, `0
 **Q: Can I customize the templates?**
 A: Yes! Edit `.specs/template/*.template` to fit your needs.
 
-**Q: What about MCP integration?**
-A: MCP servers in `.specs/.mcp-servers/` provide domain experts with specialized tools (database queries, API testing, etc.). Optional but powerful for complex projects.
+**Q: What are the subagents in .claude/agents/?**
+A: 20 domain expert AI subagents automatically installed during setup. `/cspec:implement` uses them for multi-domain features:
+- **Backend:** backend-architect, database-admin, database-optimizer
+- **Frontend:** frontend-developer, ui-ux-designer, nextjs-app-router-developer
+- **DevOps:** devops-troubleshooter, deployment-engineer, cloud-architect, terraform-specialist
+- **Quality:** code-reviewer, security-auditor, test-automator, debugger
+- **Languages:** python-expert, golang-expert, rust-expert, java-developer, php-developer
+
+**Q: How do multi-domain features work?**
+A: Set `metadata.agent_coordination: true` in spec.yml and assign tasks to domains (backend, frontend, devops, etc.). `/cspec:implement` orchestrates domain experts via subagents to work in parallel with dependency management.
 
 ---
 

@@ -210,7 +210,7 @@ Recommendation: Complete in-progress features first.
 
 Options:
 1. Check current work: /cspec:status
-2. Complete a task: /cspec:complete [task-id]
+2. Continue working on a task: /cspec:implement
 3. Manually override (skip dependency check): /cspec:task [feature-name]
 
 💡 Tip: Auto-selection only picks features with all dependencies met.
@@ -234,7 +234,7 @@ Great progress! All planned features are underway or done.
 
 Options:
 1. Check in-progress tasks: /cspec:status
-2. Complete a task: /cspec:complete [task-id]
+2. Continue working on a task: /cspec:implement
 3. Add new features to roadmap: .specs/roadmap.yml
 4. Review architecture: /cspec:architect
 ```

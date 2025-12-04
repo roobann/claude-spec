@@ -26,7 +26,33 @@ Create a task from the project roadmap and set up all necessary files for implem
 
 ## Process
 
-### 0. Parse Feature Name Parameter
+### 0. Check Version Context
+
+**Read `.specs/project.yml` to get current version:**
+
+1. Read `versioning.current_version` (e.g., "v1", "v2")
+2. Set file paths for this session:
+   ```
+   VERSION_PATH = .specs/versions/{current_version}
+   ARCHITECTURE_PATH = {VERSION_PATH}/architecture.md
+   ROADMAP_PATH = {VERSION_PATH}/roadmap.yml
+   GUIDELINES_PATH = {VERSION_PATH}/guidelines.md
+   TASKS_PATH = {VERSION_PATH}/tasks
+   TASKS_PROGRESS_PATH = {VERSION_PATH}/tasks/progress.yml
+   ```
+
+3. Store the version context for use throughout this command.
+
+**If `.specs/project.yml` does NOT exist:**
+```
+❌ No project manifest found.
+
+Run /cspec:architect first to initialize the project.
+```
+
+---
+
+### 0.5. Parse Feature Name Parameter
 
 Check if feature name was provided as parameter:
 
@@ -53,7 +79,9 @@ Store the mode (manual/auto) for use in Step 4.
 
 ### 1. Check for Project Architecture
 
-**If `.specs/architecture.md` does NOT exist:**
+**Check for `{ARCHITECTURE_PATH}` (version-aware from Step 0):**
+
+**If architecture does NOT exist:**
 ```
 ❌ No project architecture found.
 
@@ -66,25 +94,25 @@ This will create the master architecture and feature roadmap.
 
 Stop and inform user.
 
-**If `.specs/architecture.md` exists:** Proceed to Step 2.
+**If architecture exists:** Proceed to Step 2.
 
 ### 2. Read Project Context
 
-Read these files in order:
+Read these files in order (using version-aware paths from Step 0):
 
-**A) Read `.specs/architecture.md`**
+**A) Read `{ARCHITECTURE_PATH}`**
 - Understand project architecture
 - Note technical decisions (ADRs)
 - Identify patterns to follow
 - Extract security requirements
 - Note development standards
 
-**B) Read `.specs/roadmap.yml`**
+**B) Read `{ROADMAP_PATH}`**
 - Find all features
 - Check feature statuses
 - Identify dependencies
 
-**C) Read `.specs/guidelines.md`** (if exists)
+**C) Read `{GUIDELINES_PATH}`** (if exists)
 - Code organization rules
 - Testing requirements
 - Security checklist
@@ -348,7 +376,7 @@ Provide comprehensive plan following the project's established architecture.
 
 **Generate sequential task ID:**
 
-1. **Read `.specs/tasks/progress.yml`** to get all existing task IDs
+1. **Read `{TASKS_PROGRESS_PATH}`** (version-aware) to get all existing task IDs
    - Extract the numeric prefix from each task ID (001, 002, 003, etc.)
    - Build a list of existing numbers
 
@@ -379,7 +407,9 @@ Next task ID: 004
 
 ### 7. Create Task Directory
 
-**Create directory:** `.specs/tasks/NNN-feature-name/`
+**Create directory:** `{TASKS_PATH}/NNN-feature-name/`
+
+Example: `.specs/versions/v1/tasks/001-user-authentication/`
 
 Format: `NNN` is the 3-digit sequential task number from Step 6 (e.g., `001-user-authentication`, `002-export-metrics`)
 
@@ -387,14 +417,14 @@ This will hold all files for this feature.
 
 ### 8. Create Spec File
 
-**Create: `.specs/tasks/NNN-feature-name/spec.yml`**
+**Create: `{TASKS_PATH}/NNN-feature-name/spec.yml`**
 
 Use the template at `.specs/template/spec.yml.template`.
 
 **Fill in based on:**
 - Feature details from roadmap
-- Planning from Step 6
-- Project architecture alignment (read `.specs/architecture.md`)
+- Planning from Step 5
+- Project architecture alignment (read `{ARCHITECTURE_PATH}`)
 - Testing approach from project guidelines
 
 **Key metadata:**
@@ -429,7 +459,7 @@ metadata:
 
 ### 9. Create Progress Tracker
 
-**Create: `.specs/tasks/NNN-feature-name/progress.yml`**
+**Create: `{TASKS_PATH}/NNN-feature-name/progress.yml`**
 
 Use the template at `.specs/template/progress.yml.template`.
 
@@ -442,7 +472,7 @@ Use the template at `.specs/template/progress.yml.template`.
 
 ### 10. Create Context File
 
-**Create `.specs/tasks/NNN-feature-name/context.md`**
+**Create `{TASKS_PATH}/NNN-feature-name/context.md`**
 
 Use template at `.specs/template/context.md.template`.
 
@@ -471,7 +501,7 @@ Ready to begin implementation with `/cspec:implement`
 
 ### 11. Update Task Index
 
-**Update `.specs/tasks/progress.yml`:**
+**Update `{TASKS_PROGRESS_PATH}`:**
 
 Add entry for this task:
 
@@ -487,7 +517,7 @@ tasks:
 
 ### 12. Update Roadmap Status
 
-**Update `.specs/roadmap.yml`:**
+**Update `{ROADMAP_PATH}`:**
 
 Find the feature and update its status:
 
@@ -533,13 +563,13 @@ Phase 3: [Phase name] ([Z tasks])
 Total: [N tasks] across [M phases]
 
 📂 Files Created:
-- .specs/tasks/NNN-feature-name/spec.yml (requirements & technical design)
-- .specs/tasks/NNN-feature-name/progress.yml (task tracking)
-- .specs/tasks/NNN-feature-name/context.md (resumption context)
+- {TASKS_PATH}/NNN-feature-name/spec.yml (requirements & technical design)
+- {TASKS_PATH}/NNN-feature-name/progress.yml (task tracking)
+- {TASKS_PATH}/NNN-feature-name/context.md (resumption context)
 
 📝 Updated:
-- .specs/tasks/progress.yml (task index updated)
-- .specs/roadmap.yml (feature status: not_started → in_progress)
+- {TASKS_PROGRESS_PATH} (task index updated)
+- {ROADMAP_PATH} (feature status: not_started → in_progress)
 
 ---
 

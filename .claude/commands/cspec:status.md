@@ -3,27 +3,46 @@ name: cspec:status
 description: View all tasks with filtering and status overview
 ---
 
-Display task overview from `.specs/tasks/progress.yml` with filtering options.
+Display task overview for the current version with filtering options.
 
 **Usage:**
 ```
-/cspec:status                    # Show all tasks
+/cspec:status                    # Show current version tasks
 /cspec:status status=in_progress # Filter by status
 /cspec:status priority=high      # Filter by priority
 ```
 
 ## What This Does
 
-1. Reads `.specs/tasks/progress.yml`
+1. Reads current version's task index
 2. Displays tasks in formatted table
-3. Shows project completion statistics
+3. Shows project/version completion statistics
 4. Supports filtering by status, priority, or date
 
 ## Process
 
+### 0. Check Version Context
+
+**Read `.specs/project.yml` to get current version:**
+
+1. Read `versioning.current_version` (e.g., "v1", "v2")
+2. Get version info (name, status, started date)
+3. Set file paths:
+   ```
+   VERSION_PATH = .specs/versions/{current_version}
+   TASKS_PROGRESS_PATH = {VERSION_PATH}/tasks/progress.yml
+   ```
+
+**If `.specs/project.yml` does NOT exist:**
+```
+❌ No project manifest found.
+
+Run /cspec:architect first to initialize the project.
+```
+
 ### 1. Check for Task Index
 
-Look for `.specs/tasks/progress.yml`.
+Look for `{TASKS_PROGRESS_PATH}`.
 
 **If NOT found:**
 ```
@@ -48,7 +67,7 @@ Store filter for use in Step 4.
 
 ### 3. Read Task Index
 
-Read `.specs/tasks/progress.yml` and parse the YAML.
+Read `{TASKS_PROGRESS_PATH}` and parse the YAML.
 
 Extract:
 - All task entries
@@ -98,9 +117,13 @@ Blocked: [B]
 
 ### 6. Display Task Table
 
-Format and display tasks in a table:
+**Show version header and tasks in a table:**
 
 ```
+📦 Version: v1 - MVP Release
+Status: active
+Started: 2025-01-01
+
 ┌───────────────────┬──────────────────────┬────────────┬──────────┬────────────┬─────────────┐
 │ Task ID           │ Name                 │ Status     │ Priority │ Created    │ Completed   │
 ├───────────────────┼──────────────────────┼────────────┼──────────┼────────────┼─────────────┤
@@ -110,7 +133,7 @@ Format and display tasks in a table:
 │ 004-api-v2        │ api-v2               │ blocked    │ high     │ 2025-01-26 │ -           │
 └───────────────────┴──────────────────────┴────────────┴──────────┴────────────┴─────────────┘
 
-📊 Project Status:
+📊 Version Status:
   Total: 4 tasks
   ✅ Completed: 1 (25%)
   🔄 In Progress: 1 (25%)

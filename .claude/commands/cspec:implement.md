@@ -31,6 +31,25 @@ This command handles both:
 
 ## Process
 
+### 0. Check Version Context
+
+**Read `.specs/project.yml` to get current version:**
+
+1. Read `versioning.current_version` (e.g., "v1", "v2")
+2. Set file paths for this session:
+   ```
+   VERSION_PATH = .specs/versions/{current_version}
+   TASKS_PATH = {VERSION_PATH}/tasks
+   TASKS_PROGRESS_PATH = {VERSION_PATH}/tasks/progress.yml
+   ```
+
+**If `.specs/project.yml` does NOT exist:**
+```
+❌ No project manifest found.
+
+Run /cspec:architect first to initialize the project.
+```
+
 ### 1. Parse Command Parameters
 
 Check if `mode` parameter is provided:
@@ -41,14 +60,14 @@ Store this for use during Phase 2 completion check.
 
 ### 2. Check for Active Tasks
 
-Read `.specs/tasks/progress.yml` to find in_progress tasks.
+Read `{TASKS_PROGRESS_PATH}` to find in_progress tasks.
 
 **If no in_progress tasks found:**
 ```
 ❌ No active task found.
 
 To start a new feature, run: /cspec:task [feature-name]
-To see all tasks, check: .specs/tasks/progress.yml
+To see all tasks, run: /cspec:status
 ```
 
 **If exactly one in_progress task found:**

@@ -5,10 +5,11 @@
 
 # === METADATA (Context Efficiency) ===
 # High-signal summary updated automatically by commands
+# Location: .specs/versions/{version}/tasks/progress.yml
 metadata:
-  format_version: "1.0"
+  format_version: "1.1"   # Version 1.1 with per-version tasks
   last_updated: null      # Auto-updated by /cspec:task and /cspec:complete
-  total_tasks: 0          # Count of all tasks
+  total_tasks: 0          # Count of all tasks in this version
   active_tasks: 0         # Count of in_progress tasks
   completed_tasks: 0      # Count of completed tasks
   blocked_tasks: 0        # Count of blocked tasks

@@ -27,18 +27,32 @@ The command will analyze these files and extract requirements, constraints, and 
 ## What This Creates
 
 **First time (no architecture exists):**
+
+With versioning (recommended):
 ```
 .specs/
-├── architecture.md       # Master project architecture
-├── roadmap.yml          # Feature roadmap with priorities
-└── guidelines.md        # Development standards and patterns
+├── project.yml              # Project version manifest
+├── versions/
+│   └── v1/
+│       ├── architecture.md  # Master project architecture
+│       ├── roadmap.yml      # Feature roadmap with priorities
+│       ├── guidelines.md    # Development standards and patterns
+│       └── tasks/           # Tasks for this version
+│           └── progress.yml # Task index for v1
+├── current -> versions/v1   # Symlink to active version
+└── template/                # Templates (unchanged)
 ```
 
 **Subsequent times (architecture exists):**
-- Adds feature to `.specs/roadmap.yml`
-- Updates `.specs/architecture.md` with new ADRs if needed
-- Updates `.specs/guidelines.md` if new patterns introduced
+- Adds feature to current version's `roadmap.yml`
+- Updates current version's `architecture.md` with new ADRs if needed
+- Updates current version's `guidelines.md` if new patterns introduced
 - Optionally creates task in `tasks/` to start immediately (via /cspec:task)
+
+**New version (after /cspec:release):**
+- Reads previous version's architecture as baseline
+- Creates new architecture referencing inherited ADRs
+- New roadmap for the version's features
 
 ## Process
 
@@ -85,17 +99,78 @@ The command will analyze these files and extract requirements, constraints, and 
 
 **If NO @ file references:**
 - Skip this step
-- Proceed to Step 1 normally
+- Proceed to Step 0.5 normally
 - Rely on interactive questions to gather all context
+
+---
+
+### 0.5. Check Version Context (IMPORTANT)
+
+Determine if the project uses versioned mode and identify the current version.
+
+**Check for `.specs/project.yml`:**
+
+**If `.specs/project.yml` EXISTS (versioned mode):**
+
+1. Read the file to get:
+   - `versioning.current_version` (e.g., "v1", "v2")
+   - Current version's status and details
+   - Previous version info (if this is v2+)
+
+2. Set file paths for this session:
+   ```
+   VERSION_PATH = .specs/versions/{current_version}
+   ARCHITECTURE_PATH = {VERSION_PATH}/architecture.md
+   ROADMAP_PATH = {VERSION_PATH}/roadmap.yml
+   GUIDELINES_PATH = {VERSION_PATH}/guidelines.md
+   TASKS_PATH = {VERSION_PATH}/tasks
+   TASKS_PROGRESS_PATH = {VERSION_PATH}/tasks/progress.yml
+   ```
+
+3. Check if current version directory exists:
+   - If `.specs/versions/{current_version}/` does NOT exist, create it
+   - This happens when `/cspec:release` creates a new version but architecture not yet created
+
+4. **If this is v2+ and no architecture exists for current version:**
+   - Read previous version's architecture as baseline
+   - Store context for Step 5 (architecture creation with inheritance)
+   - Note which ADRs to inherit
+
+**If `.specs/project.yml` does NOT exist (new project):**
+   - Set `current_version = "v1"`
+   - Will create versioned structure in Step 5
+   - Set file paths:
+     ```
+     VERSION_PATH = .specs/versions/v1
+     ARCHITECTURE_PATH = {VERSION_PATH}/architecture.md
+     ROADMAP_PATH = {VERSION_PATH}/roadmap.yml
+     GUIDELINES_PATH = {VERSION_PATH}/guidelines.md
+     TASKS_PATH = {VERSION_PATH}/tasks
+     TASKS_PROGRESS_PATH = {VERSION_PATH}/tasks/progress.yml
+     ```
+
+**Store version context** for use throughout this command:
+```yaml
+version_context:
+  current_version: "v1"  # or "v2", etc.
+  is_versioned: true     # Using versioned structure
+  version_path: ".specs/versions/v1"
+  tasks_path: ".specs/versions/v1/tasks"
+  previous_version: null  # or "v1" if this is v2
+  inherited_adrs: []      # ADRs inherited from previous version
+```
 
 ---
 
 ### 1. Check for Existing Architecture
 
-**If `.specs/architecture.md` does NOT exist:**
+**Use version-aware path from Step 0.5:**
+- Check `{ARCHITECTURE_PATH}` (e.g., `.specs/versions/v1/architecture.md`)
+
+**If architecture does NOT exist for current version:**
 - Skip to Step 2 (Create Full Project Architecture)
 
-**If `.specs/architecture.md` EXISTS:**
+**If architecture EXISTS for current version:**
 
 ```
 ✓ Project architecture exists.
@@ -141,22 +216,22 @@ Wait for user input. Convert to kebab-case if needed.
 
 #### 1A.2. Read Existing Project Context
 
-Read these files to understand the project:
+Read these files to understand the project (using version-aware paths from Step 0.5):
 
-**A) Read `.specs/architecture.md`**
+**A) Read `{ARCHITECTURE_PATH}`** (e.g., `.specs/versions/v1/architecture.md`)
 - Understand current architecture pattern
 - Note all existing ADRs
 - Identify current tech stack
 - Note security approach
 - Understand domain model
 
-**B) Read `.specs/roadmap.yml`**
+**B) Read `{ROADMAP_PATH}`** (e.g., `.specs/versions/v1/roadmap.yml`)
 - Count existing features
 - Find next feature ID (e.g., if F12 exists, next is F13)
 - Identify existing phases
 - Check for similar features
 
-**C) Read `.specs/guidelines.md`**
+**C) Read `{GUIDELINES_PATH}`** (e.g., `.specs/versions/v1/guidelines.md`)
 - Understand coding standards
 - Note testing requirements
 - Review security checklist
@@ -270,7 +345,7 @@ Provide comprehensive analysis for adding this feature to the existing architect
 
 **If new architectural patterns are introduced:**
 
-Add new ADR to `.specs/architecture.md`:
+Add new ADR to `{ARCHITECTURE_PATH}` (e.g., `.specs/versions/v1/architecture.md`):
 
 ```markdown
 ### ADR-0XX: [New Decision Title]
@@ -300,7 +375,7 @@ We will use [approach] for [reason].
 
 #### 1A.6. Add Feature to Roadmap
 
-**Update `.specs/roadmap.yml`:**
+**Update `{ROADMAP_PATH}`** (e.g., `.specs/versions/v1/roadmap.yml`):
 
 1. Find the appropriate phase (or create new phase if needed)
 2. Generate next feature ID (F13, F14, etc.)
@@ -332,7 +407,7 @@ features:
 
 **If new patterns or technologies introduced:**
 
-Update `.specs/guidelines.md` with:
+Update `{GUIDELINES_PATH}` (e.g., `.specs/versions/v1/guidelines.md`) with:
 - New code organization patterns
 - New naming conventions (if applicable)
 - New testing patterns
@@ -378,11 +453,11 @@ Show the user what was added:
 - Uses established [pattern name] pattern
 
 📝 Files Updated:
-- .specs/roadmap.yml (added F13)
+- {ROADMAP_PATH} (added F13)
 [If ADRs added]
-- .specs/architecture.md (added ADR-0XX)
+- {ARCHITECTURE_PATH} (added ADR-0XX)
 [If guidelines updated]
-- .specs/guidelines.md (added [pattern] guidelines)
+- {GUIDELINES_PATH} (added [pattern] guidelines)
 
 ---
 
@@ -549,7 +624,34 @@ Provide a comprehensive analysis that will inform the architecture design.
 
 ### 5. Create Project Architecture
 
-**Create: `.specs/architecture.md`**
+**Before creating files, set up versioned structure if new project:**
+
+1. If `.specs/project.yml` does NOT exist (new project):
+   - Create `.specs/project.yml` using template at `.specs/template/project.yml.template`
+   - Fill in: project_name, version info (v1), requirements_source (if @file provided)
+   - Create `.specs/versions/v1/` directory
+   - Create `.specs/versions/v1/tasks/` directory
+   - Create `.specs/versions/v1/tasks/progress.yml` using template
+
+2. If `.specs/versions/{current_version}/` does NOT exist:
+   - Create the version directory
+   - Create the tasks subdirectory: `.specs/versions/{current_version}/tasks/`
+   - Create tasks/progress.yml using template
+
+3. Create symlink (if not exists):
+   - `.specs/current -> versions/{current_version}`
+
+**If this is v2+ and inheriting from previous version:**
+
+1. Read previous version's architecture: `.specs/versions/{previous_version}/architecture.md`
+2. Extract all ADRs and their status
+3. Note inherited ADRs in the new architecture
+4. Architecture creation below should:
+   - Include section "## Inherited from {previous_version}"
+   - List ADRs that still apply
+   - Mark any superseded ADRs with "Supersedes ADR-XXX from {previous_version}"
+
+**Create: `{ARCHITECTURE_PATH}`** (e.g., `.specs/versions/v1/architecture.md`)
 
 Use insights from Steps 3-4 to create a comprehensive project architecture.
 
@@ -1088,11 +1190,18 @@ See `.specs/roadmap.yml` for detailed feature breakdown and timeline.
 
 ### 6. Create Feature Roadmap
 
-**Create: `.specs/roadmap.yml`**
+**Create: `{ROADMAP_PATH}`** (e.g., `.specs/versions/v1/roadmap.yml`)
 
 Based on project scope and architecture, create a comprehensive feature roadmap.
 
 Use the template at `.specs/template/roadmap.yml.template` as the base structure.
+
+**Fill in version metadata:**
+```yaml
+metadata:
+  project_version: "{current_version}"  # e.g., "v1"
+  version_name: "{version_name}"        # e.g., "MVP Release"
+```
 
 **Key sections:**
 - `metadata`: Project info, timeline
@@ -1114,7 +1223,7 @@ Use the template at `.specs/template/roadmap.yml.template` as the base structure
 
 ### 7. Create Development Guidelines
 
-**Create: `.specs/guidelines.md`**
+**Create: `{GUIDELINES_PATH}`** (e.g., `.specs/versions/v1/guidelines.md`)
 
 Extract and formalize development standards from the architecture.
 
@@ -1180,9 +1289,12 @@ Total: [N features] across [M phases]
 Estimated: [X weeks/months]
 
 📂 Files Created:
-- .specs/architecture.md (master architecture & ADRs)
-- .specs/roadmap.yml (feature roadmap)
-- .specs/guidelines.md (development standards)
+- .specs/project.yml (project version manifest)
+- {VERSION_PATH}/architecture.md (master architecture & ADRs)
+- {VERSION_PATH}/roadmap.yml (feature roadmap)
+- {VERSION_PATH}/guidelines.md (development standards)
+- {VERSION_PATH}/tasks/progress.yml (task index)
+- .specs/current -> versions/{current_version} (symlink)
 
 📝 CLAUDE.md Updates:
 - [Any updates made, or "No updates needed"]

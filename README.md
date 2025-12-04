@@ -77,7 +77,7 @@ That's it! You're ready to go.
 - **Universal**: Works with any language, framework, or project size
 - **Non-Invasive**: Adds structure without changing your existing code
 
-### File Structure
+### File Structure (Versioned)
 
 ```
 your-project/
@@ -87,43 +87,46 @@ your-project/
 │   ├── commands/
 │   │   ├── cspec:create.md         # Create new project
 │   │   ├── cspec:configure.md      # Configure existing project
-│   │   ├── cspec:architect.md     # Design PROJECT architecture (once)
-│   │   ├── cspec:task.md          # Create feature task from roadmap
-│   │   └── cspec:implement.md     # Implement current feature
+│   │   ├── cspec:architect.md      # Design architecture (per version)
+│   │   ├── cspec:task.md           # Create feature task
+│   │   ├── cspec:implement.md      # Implement current feature
+│   │   ├── cspec:status.md         # View task status
+│   │   └── cspec:release.md        # Version transitions
 │   └── agents/                   # 20 domain expert subagents
 │       ├── backend-architect.md
 │       ├── frontend-developer.md
-│       ├── devops-troubleshooter.md
-│       └── ... (17 more)
+│       └── ... (18 more)
 └── .specs/
-    ├── architecture.md            # PROJECT architecture & ADRs
-    ├── roadmap.yml               # Feature roadmap with priorities
-    ├── guidelines.md             # Development standards
-    ├── tasks/                    # All tasks (in-progress and completed)
-    │   ├── progress.yml          # Task index
-    │   └── 001-feature/          # Sequential numbered task folders
-    │       ├── spec.yml          # Requirements & technical design
-    │       ├── progress.yml      # Task tracking
-    │       └── context.md        # Resumption context
+    ├── project.yml               # Version manifest (v1, v2, v3...)
+    ├── versions/
+    │   ├── v1/                   # Version 1 (archived)
+    │   │   ├── architecture.md   # v1 architecture & ADRs
+    │   │   ├── roadmap.yml       # v1 feature roadmap
+    │   │   ├── guidelines.md     # v1 development standards
+    │   │   ├── changelog.md      # What was delivered in v1
+    │   │   └── tasks/            # v1 tasks
+    │   │       ├── progress.yml
+    │   │       └── 001-feature/
+    │   └── v2/                   # Version 2 (active)
+    │       ├── architecture.md   # v2 architecture (inherits from v1)
+    │       ├── roadmap.yml       # v2 feature roadmap
+    │       ├── guidelines.md     # v2 development standards
+    │       └── tasks/            # v2 tasks
+    │           ├── progress.yml
+    │           └── 001-feature/
+    ├── current -> versions/v2    # Symlink to active version
     └── template/                 # Templates
-        ├── CLAUDE.md.template
-        ├── .claudeignore.template
-        ├── architecture.md.template
-        ├── spec.yml.template
-        ├── progress.yml.template
-        ├── context.md.template
-        ├── tasks-progress.yml.template
-        ├── roadmap.yml.template
-        └── guidelines.md.template
 ```
 
-### Five Essential Commands
+### Seven Essential Commands
 
 1. **`/cspec:create`** - Create new project with interactive configuration
 2. **`/cspec:configure`** - Configure existing project with auto-detection
-3. **`/cspec:architect`** - Design project architecture OR add new features to existing architecture
+3. **`/cspec:architect`** - Design architecture (per version) OR add features
 4. **`/cspec:task [feature-name]`** - Create task for a feature from the roadmap
-5. **`/cspec:implement`** - Implement the current task (supports multiple in-progress tasks)
+5. **`/cspec:implement`** - Implement the current task
+6. **`/cspec:status`** - View task status for current version
+7. **`/cspec:release`** - Manage version transitions (v1 → v2 → v3)
 
 ## Supported Tech Stacks
 
@@ -189,84 +192,103 @@ Claude Code doesn't persist context between sessions. This template provides **f
 
 See `.specs/README.md` and `.claude/commands/README.md` for detailed documentation on the workflow and file structure.
 
+## Versioned Development Workflow
+
+Claude-spec supports **iterative development** with versioned specs. Each version (v1, v2, v3...) has its own architecture, roadmap, and tasks.
+
+### Version Lifecycle
+
+```
+v1 (MVP)          →    v2 (Enhanced)     →    v3 (Enterprise)
+├── architecture       ├── architecture       ├── architecture
+├── roadmap            ├── roadmap            ├── roadmap
+├── tasks/             ├── tasks/             ├── tasks/
+└── changelog          └── ...                └── ...
+```
+
+### Workflow: v1 Development
+
+```bash
+# Initialize project (creates v1)
+> /cspec:architect @docs/prd-v1.md
+[Creates .specs/project.yml with v1 as active]
+[Creates .specs/versions/v1/architecture.md, roadmap.yml, guidelines.md]
+
+# Create and implement features
+> /cspec:task user-authentication
+> /cspec:implement
+
+# Check progress
+> /cspec:status
+```
+
+### Version Transition: v1 → v2
+
+When v1 requirements are complete and you have new requirements (PRD v2):
+
+```bash
+# Archive v1 and start v2
+> /cspec:release
+[Archives v1, generates changelog, creates v2 structure]
+
+# Design v2 architecture (references v1 ADRs)
+> /cspec:architect @docs/prd-v2.md
+[Reads v1 architecture as baseline]
+[Creates v2 architecture with inherited + new ADRs]
+[Creates v2 roadmap with new features]
+
+# Work on v2 features
+> /cspec:task payment-integration
+> /cspec:implement
+```
+
+### Key Points
+
+- **Each version is self-contained**: architecture, roadmap, tasks are per-version
+- **Architecture inheritance**: v2 references v1 ADRs, adds new ones
+- **Clean transitions**: `/cspec:release` archives current, starts new version
+- **Task IDs reset**: Each version starts fresh with 001, 002...
+- **History preserved**: Archived versions remain in `.specs/versions/`
+
 ## Real-World Usage
 
 ### Scenario: Building a SaaS Application
 
-**Initial Setup (Once):**
+**v1: MVP Development**
 ```bash
-> /cspec:architect
-[Claude asks about the entire project: goals, scale, users, tech stack]
-[Creates project architecture with 12 features in roadmap]
-[You review architecture.md and roadmap.yml]
+> /cspec:architect @docs/prd-v1.md
+[Creates project.yml, versions/v1/ with architecture, roadmap, guidelines]
 
-Created:
-- .specs/architecture.md (project architecture with ADRs)
-- .specs/roadmap.yml (12 features across 4 phases)
-- .specs/guidelines.md (development standards)
-```
-
-**Feature 1: User Authentication**
-```bash
 > /cspec:task user-authentication
-[Claude reads project architecture, creates feature architecture aligned with it]
-[Creates .specs/tasks/001-user-authentication/ with all files]
-[Updates .specs/tasks/progress.yml with status: in_progress]
-
 > /cspec:implement
-[Implementation begins following project architecture]
-[2 hours of work]
+# ... complete v1 features ...
 
-> git commit -m "WIP: user auth - signup complete"
+> /cspec:status
+📦 Version: v1 - MVP Release
+Tasks: 4/4 completed ✅
 ```
 
-**Day 2:**
+**Transition to v2**
 ```bash
-> /cspec:implement
-Claude: "Building user authentication. Signup done, login 50% complete.
-         Following ADR-003 for JWT implementation.
-         Next: finish login form validation. Continuing..."
-[Continues exactly where you left off]
-```
+# New PRD arrives with payment features
+> /cspec:release
+[Archives v1, creates v2 structure]
 
-**Feature Complete:**
-```bash
-# Task automatically marked as completed in .specs/tasks/progress.yml
-# Task folder stays in .specs/tasks/001-user-authentication/ for reference
+> /cspec:architect @docs/prd-v2.md
+[Creates v2 architecture referencing v1 ADRs]
+[Generates v2 roadmap from new PRD]
 
 > /cspec:task payment-integration
-[Next feature from roadmap, already knows it depends on user-auth]
-[Creates .specs/tasks/002-payment-integration/]
+> /cspec:implement
 ```
 
-**Week Later:**
+**Perfect Resumption**
 ```bash
+# After weeks away
 > /cspec:implement
-[Perfect resumption despite week-long gap]
-```
-
-**Adding New Features (Months Later):**
-```bash
-# New requirement comes up that wasn't in original roadmap
-> /cspec:architect real-time-notifications
-
-[Claude detects existing architecture]
-"✓ Project architecture exists. What would you like to do?"
-"1. Add a new feature to the roadmap" ← Select this
-
-[Claude asks targeted questions about the new feature]
-[Analyzes how it fits with existing architecture]
-[Creates ADR-015 for WebSocket approach]
-[Adds F13 to roadmap.yml]
-[Updates guidelines.md with WebSocket patterns]
-
-✅ Feature added to architecture!
-
-> /cspec:task real-time-notifications
-[Creates .specs/tasks/20250315-real-time-notifications/ following all existing ADRs]
-
-> /cspec:implement
-[Builds feature using established patterns + new WebSocket pattern]
+Claude: "Resuming v2 - payment-integration.
+         Following ADR-003 (from v1) + ADR-012 (v2 payment).
+         Next: Stripe webhook handler. Continuing..."
 ```
 
 ## For New vs Existing Projects

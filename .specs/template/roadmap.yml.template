@@ -6,7 +6,14 @@ metadata:
   project_name: "{{PROJECT_NAME}}"
   created: "{{CREATED_DATE}}"
   updated: "{{CREATED_DATE}}"
-  version: "1.0"
+
+  # Version tracking (links to project.yml)
+  # When project uses versioned mode (.specs/project.yml exists)
+  project_version: "{{PROJECT_VERSION}}"  # e.g., "v1", "v2"
+  version_name: "{{VERSION_NAME}}"        # e.g., "MVP Release", "Enhanced Features"
+
+  # Roadmap format version (internal)
+  format_version: "1.1"
 
   # Timeline (optional)
   start_date: null

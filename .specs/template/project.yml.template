@@ -1,0 +1,90 @@
+---
+# Project Version Manifest
+# Tracks project versions, their lifecycle, and lineage
+# Created by /cspec:architect or /cspec:release
+# Location: .specs/project.yml (at project root)
+
+metadata:
+  project_name: "{{PROJECT_NAME}}"
+  description: "{{PROJECT_DESCRIPTION}}"
+  created: "{{CREATED_DATE}}"
+  updated: "{{CREATED_DATE}}"
+
+versioning:
+  current_version: "v1"
+  version_pattern: "v{N}"  # v1, v2, v3...
+
+versions:
+  - id: "v1"
+    name: "{{VERSION_NAME}}"
+    status: "active"  # active | archived | planned
+    started: "{{CREATED_DATE}}"
+    completed: null
+    requirements_source: "{{REQUIREMENTS_SOURCE}}"  # Path to PRD or requirements doc
+    summary: "{{VERSION_SUMMARY}}"
+
+  # Future versions added here by /cspec:release
+  # - id: "v2"
+  #   name: "Enhanced Features"
+  #   status: "planned"
+  #   started: null
+  #   completed: null
+  #   requirements_source: "docs/prd-v2.md"
+  #   summary: "Payment integration, analytics, API v2"
+
+# How versions relate to each other
+inheritance:
+  # Global guidelines persist across all versions
+  global_guidelines: true
+
+  # v2+ references previous version architecture (not copies)
+  architecture_evolution: true
+
+  # Task IDs reset per version (each version has 001, 002... in its own folder)
+  task_numbering: "per_version"
+
+  # Version lineage tracking (populated by /cspec:release)
+  lineage: {}
+    # v2:
+    #   based_on: "v1"
+    #   inherited_adrs: ["ADR-001", "ADR-002", "ADR-003"]
+    #   superseded_adrs: []
+    #   breaking_changes: []
+    # v3:
+    #   based_on: "v2"
+    #   inherited_adrs: ["ADR-001", "ADR-002", "ADR-004", "ADR-005"]
+    #   superseded_adrs: ["ADR-003"]
+    #   breaking_changes: ["API v2 deprecated, use v3"]
+
+# Version transition notes
+notes: |
+  Version transitions are managed by /cspec:release command.
+
+  Workflow:
+  1. Complete v1 development
+  2. Run /cspec:release to archive v1 and start v2
+  3. Run /cspec:architect @prd-v2.md to create v2 architecture
+  4. Architecture references v1 ADRs as baseline
+  5. Create tasks and implement v2 features
+
+  File Structure:
+  .specs/
+  ├── project.yml                 # This file (version manifest)
+  ├── versions/
+  │   ├── v1/
+  │   │   ├── architecture.md     # v1 architecture (archived)
+  │   │   ├── roadmap.yml         # v1 roadmap (completed)
+  │   │   ├── guidelines.md       # v1 guidelines
+  │   │   ├── changelog.md        # What was delivered
+  │   │   └── tasks/              # v1 tasks (archived)
+  │   │       ├── progress.yml
+  │   │       └── 001-feature/
+  │   └── v2/
+  │       ├── architecture.md     # v2 architecture (active)
+  │       ├── roadmap.yml         # v2 roadmap (active)
+  │       ├── guidelines.md       # v2 guidelines
+  │       └── tasks/              # v2 tasks (active)
+  │           ├── progress.yml
+  │           └── 001-feature/
+  ├── current -> versions/v2      # Symlink to active version
+  └── template/                   # Templates (unchanged)
